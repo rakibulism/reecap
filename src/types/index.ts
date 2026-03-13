@@ -9,7 +9,7 @@ export interface Photo {
 
 export interface ReecapSettings {
   duration: number;        // seconds per slide (0.2–5.0)
-  transition: 'fade' | 'slide' | 'zoom' | 'none';
+  transition: 'fade' | 'slide' | 'zoom' | 'none' | 'slide-up' | 'wipe' | 'flip' | 'dissolve';
   aspectRatio: '16:9' | '4:3' | '5:4' | '1:1' | '9:16';
   padding: number;         // px (0–80)
   borderRadius: number;    // px (0–48)

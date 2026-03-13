@@ -46,16 +46,29 @@ const ControlPanel: React.FC = () => {
           <label className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)] block mb-2">
             Transition
           </label>
-          <SegmentedControl
-            options={[
+          <div className="grid grid-cols-4 gap-2">
+            {[
               { label: 'Fade', value: 'fade' },
               { label: 'Slide', value: 'slide' },
               { label: 'Zoom', value: 'zoom' },
               { label: 'None', value: 'none' },
-            ]}
-            value={settings.transition}
-            onChange={(v) => updateSettings({ transition: v as any })}
-          />
+              { label: 'Slide Up', value: 'slide-up' },
+              { label: 'Wipe', value: 'wipe' },
+              { label: 'Flip', value: 'flip' },
+              { label: 'Dissolve', value: 'dissolve' },
+            ].map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => updateSettings({ transition: opt.value as any })}
+                className={`h-8 rounded-[var(--radius-sm)] text-[10px] font-medium transition-all border
+                  ${settings.transition === opt.value 
+                    ? 'bg-[var(--color-interactive)] border-[var(--color-interactive)] text-white' 
+                    : 'bg-[var(--color-bg-surface)] border-[var(--color-border-default)] text-[var(--color-text-muted)] hover:border-[var(--color-text-muted)]'}`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
       </Section>
 
@@ -103,20 +116,63 @@ const ControlPanel: React.FC = () => {
           <div className="space-y-4">
             <div>
               <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-2 block">Custom Color/Gradient</label>
-              <div className="flex gap-2">
-                <input 
-                  type="color" 
-                  value={settings.backgroundColor.startsWith('linear') ? '#3B82F6' : settings.backgroundColor}
-                  onChange={(e) => updateSettings({ backgroundColor: e.target.value })}
-                  className="w-10 h-10 p-1 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] cursor-pointer"
-                />
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-2">
+                  <div className="flex-1 flex flex-col gap-1">
+                    <span className="text-[9px] text-[var(--color-text-muted)] uppercase">Start</span>
+                    <input 
+                      type="color" 
+                      value={settings.backgroundColor.includes('gradient') 
+                        ? (settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g)?.[0] || '#3B82F6')
+                        : settings.backgroundColor}
+                      onChange={(e) => {
+                        const nextColor = e.target.value;
+                        if (settings.backgroundColor.includes('gradient')) {
+                          const colors = settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g) || ['#3B82F6', '#1D4ED8'];
+                          updateSettings({ backgroundColor: `linear-gradient(135deg, ${nextColor}, ${colors[1] || colors[0]})` });
+                        } else {
+                          updateSettings({ backgroundColor: nextColor });
+                        }
+                      }}
+                      className="w-full h-8 p-1 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex-1 flex flex-col gap-1">
+                    <span className="text-[9px] text-[var(--color-text-muted)] uppercase">End</span>
+                    <input 
+                      type="color" 
+                      value={settings.backgroundColor.includes('gradient') 
+                        ? (settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g)?.[1] || '#1D4ED8')
+                        : settings.backgroundColor}
+                      onChange={(e) => {
+                        const nextColor = e.target.value;
+                        const colors = settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g) || [settings.backgroundColor, settings.backgroundColor];
+                        updateSettings({ backgroundColor: `linear-gradient(135deg, ${colors[0]}, ${nextColor})` });
+                      }}
+                      className="w-full h-8 p-1 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] cursor-pointer"
+                    />
+                  </div>
+                </div>
                 <input 
                   type="text"
                   value={settings.backgroundColor}
                   onChange={(e) => updateSettings({ backgroundColor: e.target.value })}
-                  className="flex-1 h-10 px-3 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[12px] tabular-nums"
+                  className="w-full h-9 px-3 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[11px] tabular-nums"
                   placeholder="#000000 or gradient..."
                 />
+                <button 
+                  onClick={() => {
+                    if (settings.backgroundColor.includes('gradient')) {
+                      const color = settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g)?.[0] || '#3B82F6';
+                      updateSettings({ backgroundColor: color });
+                    } else {
+                      updateSettings({ backgroundColor: `linear-gradient(135deg, ${settings.backgroundColor}, #000000)` });
+                    }
+                  }}
+                  className="text-[10px] text-[var(--color-interactive)] hover:underline text-left"
+                >
+                  {settings.backgroundColor.includes('gradient') ? 'Switch to Solid' : 'Switch to Gradient'}
+                </button>
               </div>
             </div>
 

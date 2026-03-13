@@ -6,7 +6,9 @@ import {
   Sparkle,
   PlayCircle,
   X,
-  Plus
+  Plus,
+  Pause,
+  Play
 } from 'phosphor-react';
 import { COMMUNITY_TEMPLATES, type CommunityTemplate } from '../../data/communityTemplates';
 import { COMMUNITY_TRACKS } from '../../data/communityAudio';
@@ -17,6 +19,7 @@ const CommunityHub: React.FC = () => {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'templates' | 'audio'>('all');
   const [previewTemplate, setPreviewTemplate] = useState<CommunityTemplate | null>(null);
+  const [isPlayingPreview, setIsPlayingPreview] = useState(false);
 
   const allItems = useMemo(() => {
     const audioItems = COMMUNITY_TRACKS.map(track => ({
@@ -141,7 +144,7 @@ const CommunityHub: React.FC = () => {
           <div className="bg-[var(--color-bg-page)] rounded-[var(--radius-lg)] shadow-2xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between p-4 border-b border-[var(--color-border-default)]">
               <h2 className="text-lg font-bold">Template Preview: {previewTemplate.title}</h2>
-              <button onClick={() => setPreviewTemplate(null)} className="p-2 hover:bg-[var(--color-bg-hover)] rounded-full transition-colors">
+              <button onClick={() => { setPreviewTemplate(null); setIsPlayingPreview(false); }} className="p-2 hover:bg-[var(--color-bg-hover)] rounded-full transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -149,10 +152,10 @@ const CommunityHub: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-4">
-                  <div className="aspect-video rounded-[var(--radius-md)] overflow-hidden bg-[var(--color-bg-panel)] shadow-inner">
-                    <img src={previewTemplate.preview} className="w-full h-full object-cover" alt="" />
+                  <div className="aspect-video rounded-[var(--radius-md)] overflow-hidden bg-[var(--color-bg-panel)] shadow-inner p-4 flex items-center justify-center border border-[var(--color-border-default)]">
+                    <img src={previewTemplate.preview} className="w-full h-full object-contain rounded-[var(--radius-sm)] shadow-lg" alt="" />
                   </div>
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-4 gap-2 bg-[var(--color-bg-panel)] p-2 rounded-[var(--radius-md)] border border-[var(--color-border-default)]">
                     {previewTemplate.images.map((img, i) => (
                       <div key={i} className="aspect-square rounded-[var(--radius-sm)] overflow-hidden border border-[var(--color-border-default)]">
                         <img src={img} className="w-full h-full object-cover" alt="" />
@@ -173,19 +176,27 @@ const CommunityHub: React.FC = () => {
                       Includes {previewTemplate.images.length} high-quality assets.
                     </p>
                     
-                    <div className="space-y-4 mb-8">
-                      <div className="flex items-center gap-3 p-3 bg-[var(--color-bg-panel)] rounded-[var(--radius-md)] border border-[var(--color-border-default)]">
-                        <MusicNotes size={20} className="text-blue-500" weight="fill" />
-                        <div>
+                    <div className="space-y-4 mb-4">
+                      <div className="flex items-center gap-3 p-4 bg-[var(--color-bg-panel)] rounded-[var(--radius-md)] border border-[var(--color-border-default)] group">
+                        <div 
+                          className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white cursor-pointer shadow-sm hover:scale-105 transition-all"
+                          onClick={() => setIsPlayingPreview(!isPlayingPreview)}
+                        >
+                          {isPlayingPreview ? <Pause size={20} weight="fill" /> : <Play size={20} weight="fill" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
                           <div className="text-[12px] font-bold">Background Music</div>
                           <div className="text-[11px] text-[var(--color-text-muted)] truncate">{previewTemplate.audioUrl.split('/').pop()}</div>
                         </div>
+                        {isPlayingPreview && (
+                          <audio autoPlay src={previewTemplate.audioUrl} onEnded={() => setIsPlayingPreview(false)} className="hidden" />
+                        )}
                       </div>
                     </div>
                   </div>
                   
                   <div className="flex gap-3 mt-auto pt-6 border-t border-[var(--color-border-default)]">
-                    <Button variant="ghost" size="lg" className="flex-1" onClick={() => setPreviewTemplate(null)}>
+                    <Button variant="ghost" size="lg" className="flex-1" onClick={() => { setPreviewTemplate(null); setIsPlayingPreview(false); }}>
                       Cancel
                     </Button>
                     <Button 
@@ -193,7 +204,7 @@ const CommunityHub: React.FC = () => {
                       size="lg" 
                       className="flex-1" 
                       icon={<Plus size={18} weight="bold" />}
-                      onClick={() => handleSelectTemplate(previewTemplate)}
+                      onClick={() => { handleSelectTemplate(previewTemplate); setIsPlayingPreview(false); }}
                     >
                       Add to Video
                     </Button>
