@@ -15,6 +15,7 @@ interface ReecapStore {
   audio: { url: string; name: string } | null;
   activeView: 'editor' | 'community';
   activePanel: 'none' | 'assets' | 'music';
+  isSidebarOpen: boolean;
   isPremium: boolean;
   inviteCount: number;
 
@@ -66,6 +67,7 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   audio: null,
   activeView: 'editor',
   activePanel: 'none',
+  isSidebarOpen: false,
   isPremium: false,
   inviteCount: 0,
 
@@ -120,7 +122,7 @@ export const useReecapStore = create<ReecapStore>((set) => ({
       playbackProgress: typeof p === 'function' ? p(state.playbackProgress) : p 
     })),
   setAudio: (audio) => set({ audio }),
-  toggleSidebar: () => set((state) => ({ activePanel: state.activePanel === 'none' ? 'assets' : 'none' })),
+  toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
   setActiveView: (view) => set({ activeView: view }),
   setActivePanel: (panel) => set({ activePanel: panel }),
   setPremium: (v) => set({ isPremium: v }),
