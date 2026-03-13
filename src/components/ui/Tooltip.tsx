@@ -42,7 +42,7 @@ const Tooltip: React.FC<TooltipProps> = ({
 
   return (
     <div 
-      className="relative inline-flex items-center" 
+      className="relative flex items-center justify-center w-fit" 
       onMouseEnter={show} 
       onMouseLeave={hide}
     >

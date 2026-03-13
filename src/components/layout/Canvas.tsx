@@ -19,9 +19,28 @@ const Canvas: React.FC = () => {
     addPhotos(processed);
   };
 
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files).filter(f => 
+      ['image/jpeg', 'image/png', 'image/webp'].includes(f.type)
+    );
+    if (files.length > 0) {
+      const processed = await processFiles(files);
+      addPhotos(processed);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
   if (photos.length === 0) {
     return (
-      <main className="flex-1 flex items-center justify-center bg-[var(--color-bg-page)] p-12">
+      <main 
+        className="flex-1 flex items-center justify-center bg-[var(--color-bg-page)] p-12"
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+      >
         <div className="w-full max-w-lg border-2 border-dashed border-[var(--color-border-default)] rounded-[var(--radius-md)] p-12 flex flex-col items-center text-center">
           <div className="mb-4 text-[var(--color-text-muted)]">
             <Upload size={32} />
@@ -53,7 +72,11 @@ const Canvas: React.FC = () => {
   }
 
   return (
-    <main className="flex-1 overflow-hidden relative flex items-center justify-center p-8 bg-[var(--color-bg-page)]">
+    <main 
+      className="flex-1 overflow-hidden relative flex items-center justify-center p-8 bg-[var(--color-bg-page)]"
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+    >
       {/* Aspect Ratio Container */}
       <div 
         className="w-full h-full relative shadow-[var(--shadow-md)] bg-white overflow-hidden transition-all duration-300 flex items-center justify-center"
@@ -81,7 +104,17 @@ const Canvas: React.FC = () => {
         )}
 
         {settings.backgroundMode === 'color' && (
-          <div className="absolute inset-0 z-0" style={{ backgroundColor: settings.backgroundColor }} />
+          <div className="absolute inset-0 z-0" style={{ background: settings.backgroundColor }} />
+        )}
+
+        {settings.backgroundMode === 'image' && (
+          <div className="absolute inset-0 z-0">
+            <img 
+              src={settings.backgroundColor} 
+              className="w-full h-full object-cover" 
+              alt="background" 
+            />
+          </div>
         )}
 
         {/* Photo Frame */}

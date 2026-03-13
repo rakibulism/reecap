@@ -4,111 +4,63 @@ import {
   MagnifyingGlass, 
   MusicNotes, 
   Sparkle,
-  PlayCircle
+  PlayCircle,
+  X,
+  Plus
 } from 'phosphor-react';
-
-// Mock templates and audio based on the new ctems structure
-const TEMPLATES = [
-  { 
-    id: 't1', 
-    title: 'Nature Wild', 
-    type: 'template', 
-    category: 'templates',
-    preview: '/pro/ctems/Nature/davidclode-chameleon-10097021_1920.jpg',
-    images: [
-      '/pro/ctems/Nature/wal_172619-branch-10083881_1920.jpg',
-      '/pro/ctems/Nature/davidclode-chameleon-10097021_1920.jpg',
-      '/pro/ctems/Nature/neelam279-hydrangeas-9990890_1920.jpg',
-      '/pro/ctems/Nature/maranthi-iguana-10089944_1920.jpg',
-      '/pro/ctems/Nature/arminep-tiger-7258795_1920.jpg'
-    ],
-    audioUrl: '/pro/ctems/Nature/aberrantrealities-organic-flow-1015-remastered-485950.mp3'
-  },
-  { 
-    id: 't2', 
-    title: 'Cozy Pets', 
-    type: 'template', 
-    category: 'templates',
-    preview: '/pro/ctems/Pets/bernhardjaeck-cat-10082073_1920.jpg',
-    images: [
-      '/pro/ctems/Pets/ddzphoto-fisherman-10086224_1920.jpg',
-      '/pro/ctems/Pets/bernhardjaeck-cat-10082073_1920.jpg',
-      '/pro/ctems/Pets/melanimarfeld-cat-7498362_1920.jpg',
-      '/pro/ctems/Pets/drosera74-sheep-10074422_1920.jpg'
-    ],
-    audioUrl: '/pro/ctems/Pets/penguinmusic-lazy-day-stylish-futuristic-chill-239287.mp3'
-  },
-  {
-    id: 't3',
-    title: 'Urban Morning',
-    type: 'template',
-    category: 'templates',
-    preview: '/pro/ctems/Urban/purgin_alexandr-morning-9911961_1920.jpg',
-    images: [
-      '/pro/ctems/Urban/ruslansikunov-flowers-10063876_1920.jpg',
-      '/pro/ctems/Urban/purgin_alexandr-morning-9911961_1920.jpg',
-      '/pro/ctems/Urban/edyttka1388-feathery-cosmos-9516583_1920.jpg',
-      '/pro/ctems/Urban/ruslansikunov-chamomile-10084408_1920.jpg'
-    ],
-    audioUrl: '/pro/ctems/Urban/kornevmusic-upbeat-happy-corporate-487426.mp3'
-  },
-  {
-    id: 't4',
-    title: 'Abstract Flow',
-    type: 'template',
-    category: 'templates',
-    preview: '/pro/ctems/Abstract/ri1yad-abstract-8944153_1920.jpg',
-    images: [
-      '/pro/ctems/Abstract/ri1yad-abstract-8944153_1920.jpg',
-      '/pro/ctems/Abstract/swidaalba-autumn-9948175_1920.jpg',
-      '/pro/ctems/Abstract/bin-rui-natural-10003071_1920.jpg'
-    ],
-    audioUrl: '/pro/ctems/Abstract/nveravetyanmusic-stylish-deep-electronic-262632.mp3'
-  },
-  {
-    id: 'a1',
-    title: 'Epic Motivation',
-    type: 'audio',
-    category: 'audio',
-    audioUrl: '/pro/ctems/Nature/aberrantrealities-organic-flow-1015-remastered-485950.mp3' // Re-using for audio tab
-  }
-];
+import { COMMUNITY_TEMPLATES, type CommunityTemplate } from '../../data/communityTemplates';
+import { COMMUNITY_TRACKS } from '../../data/communityAudio';
+import Button from '../ui/Button';
 
 const CommunityHub: React.FC = () => {
   const { setActiveView, setAudio, addPhotos } = useReecapStore();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'templates' | 'audio'>('all');
+  const [previewTemplate, setPreviewTemplate] = useState<CommunityTemplate | null>(null);
+
+  const allItems = useMemo(() => {
+    const audioItems = COMMUNITY_TRACKS.map(track => ({
+      id: track.id,
+      title: track.name,
+      type: 'audio' as const,
+      category: 'audio' as const,
+      audioUrl: track.url,
+      preview: null
+    }));
+    return [...COMMUNITY_TEMPLATES, ...audioItems];
+  }, []);
 
   const filteredItems = useMemo(() => {
-    return TEMPLATES.filter(item => {
+    return allItems.filter(item => {
       const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase());
       const matchesTab = activeTab === 'all' || item.category === activeTab;
       return matchesSearch && matchesTab;
     });
-  }, [search, activeTab]);
+  }, [search, activeTab, allItems]);
 
-  const handleSelect = (item: any) => {
-    if (item.type === 'audio') {
-      setAudio({ url: item.audioUrl, name: item.title });
-    } else {
-      // Load template images
-      const nextPhotos = item.images.map((url: string, index: number) => ({
-        id: `temp-${item.id}-${index}-${Date.now()}`,
-        objectUrl: url,
-        name: `${item.title} ${index + 1}`,
-        file: new File([], `${item.title} ${index + 1}`),
-        width: 1920,
-        height: 1080
-      }));
-      
-      addPhotos(nextPhotos);
-      setAudio({ url: item.audioUrl, name: item.title });
-    }
+  const handleSelectTemplate = (item: CommunityTemplate) => {
+    const nextPhotos = item.images.map((url: string, index: number) => ({
+      id: `temp-${item.id}-${index}-${Date.now()}`,
+      objectUrl: url,
+      name: `${item.title} ${index + 1}`,
+      file: new File([], `${item.title} ${index + 1}`),
+      width: 1920,
+      height: 1080
+    }));
+    
+    addPhotos(nextPhotos);
+    setAudio({ url: item.audioUrl, name: item.title });
+    setActiveView('editor');
+    setPreviewTemplate(null);
+  };
+
+  const handleSelectAudio = (item: any) => {
+    setAudio({ url: item.audioUrl, name: item.title });
     setActiveView('editor');
   };
 
   return (
-    <div className="flex flex-col h-full bg-[var(--color-bg-page)] animate-in fade-in duration-500">
+    <div className="flex flex-col h-full bg-[var(--color-bg-page)] animate-in fade-in duration-500 relative">
       <div className="px-8 pt-8 pb-4">
         <h1 className="text-2xl font-bold mb-2">Community Hub</h1>
         <p className="text-[var(--color-text-secondary)] text-[14px]">Discover templates and sounds created by the community.</p>
@@ -148,7 +100,7 @@ const CommunityHub: React.FC = () => {
             <div 
               key={item.id}
               className="group bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-lg)] overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer"
-              onClick={() => handleSelect(item)}
+              onClick={() => item.type === 'template' ? setPreviewTemplate(item as CommunityTemplate) : handleSelectAudio(item)}
             >
               <div className="aspect-video bg-[var(--color-bg-panel)] relative overflow-hidden">
                 {item.preview ? (
@@ -182,6 +134,76 @@ const CommunityHub: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* Preview Modal */}
+      {previewTemplate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-[var(--color-bg-page)] rounded-[var(--radius-lg)] shadow-2xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between p-4 border-b border-[var(--color-border-default)]">
+              <h2 className="text-lg font-bold">Template Preview: {previewTemplate.title}</h2>
+              <button onClick={() => setPreviewTemplate(null)} className="p-2 hover:bg-[var(--color-bg-hover)] rounded-full transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div className="aspect-video rounded-[var(--radius-md)] overflow-hidden bg-[var(--color-bg-panel)] shadow-inner">
+                    <img src={previewTemplate.preview} className="w-full h-full object-cover" alt="" />
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {previewTemplate.images.map((img, i) => (
+                      <div key={i} className="aspect-square rounded-[var(--radius-sm)] overflow-hidden border border-[var(--color-border-default)]">
+                        <img src={img} className="w-full h-full object-cover" alt="" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex flex-col justify-between">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-500 rounded-full text-[12px] font-bold mb-4">
+                      <Sparkle size={14} weight="fill" />
+                      Community Template
+                    </div>
+                    <h3 className="text-3xl font-bold mb-2">{previewTemplate.title}</h3>
+                    <p className="text-[var(--color-text-secondary)] mb-6 text-[15px] leading-relaxed">
+                      A professional video recap template with curated motion settings and background music. 
+                      Includes {previewTemplate.images.length} high-quality assets.
+                    </p>
+                    
+                    <div className="space-y-4 mb-8">
+                      <div className="flex items-center gap-3 p-3 bg-[var(--color-bg-panel)] rounded-[var(--radius-md)] border border-[var(--color-border-default)]">
+                        <MusicNotes size={20} className="text-blue-500" weight="fill" />
+                        <div>
+                          <div className="text-[12px] font-bold">Background Music</div>
+                          <div className="text-[11px] text-[var(--color-text-muted)] truncate">{previewTemplate.audioUrl.split('/').pop()}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3 mt-auto pt-6 border-t border-[var(--color-border-default)]">
+                    <Button variant="ghost" size="lg" className="flex-1" onClick={() => setPreviewTemplate(null)}>
+                      Cancel
+                    </Button>
+                    <Button 
+                      variant="primary" 
+                      size="lg" 
+                      className="flex-1" 
+                      icon={<Plus size={18} weight="bold" />}
+                      onClick={() => handleSelectTemplate(previewTemplate)}
+                    >
+                      Add to Video
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

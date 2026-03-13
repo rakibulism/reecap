@@ -3,13 +3,15 @@ import { useReecapStore } from '../../store/reecapStore';
 import { 
   Image as ImageIcon, 
   MusicNotes, 
-  Plus
+  Plus,
+  ImageSquare,
+  SelectionBackground
 } from 'phosphor-react';
 import { processFiles } from '../../lib/utils';
 import Tooltip from '../ui/Tooltip';
 
 const Sidebar: React.FC = () => {
-  const { photos, addPhotos, audio, setAudio } = useReecapStore();
+  const { photos, addPhotos, audio, setAudio, setActiveView } = useReecapStore();
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -33,9 +35,14 @@ const Sidebar: React.FC = () => {
     setAudio({ url, name: file.name });
   };
 
+  const handleDragStart = (e: React.DragEvent, type: 'image' | 'audio') => {
+    e.dataTransfer.setData('type', type);
+  };
+
   return (
     <aside className="w-[64px] border-r border-[var(--color-border-default)] flex flex-col bg-[var(--color-bg-panel)] relative z-30">
       <div className="flex-1 flex flex-col items-center py-4 gap-6">
+        {/* Upload Action */}
         <div className="flex flex-col items-center gap-2">
           <label className="cursor-pointer">
             <input
@@ -62,6 +69,7 @@ const Sidebar: React.FC = () => {
 
         <div className="w-8 h-px bg-[var(--color-border-default)]" />
 
+        {/* Audio Action */}
         <div className="flex flex-col items-center gap-2">
           <label className="cursor-pointer">
             <input
@@ -80,11 +88,43 @@ const Sidebar: React.FC = () => {
             </Tooltip>
           </label>
         </div>
+
+        <div className="w-8 h-px bg-[var(--color-border-default)]" />
+
+        {/* Asset Icons with Drag support */}
+        <Tooltip content="Assets (Drag & Drop)" position="right">
+          <div 
+            draggable 
+            onDragStart={(e) => handleDragStart(e, 'image')}
+            className="w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all cursor-grab active:cursor-grabbing"
+          >
+            <ImageSquare size={22} />
+          </div>
+        </Tooltip>
+
+        <Tooltip content="Music Library (Drag & Drop)" position="right">
+          <div 
+            draggable 
+            onDragStart={(e) => handleDragStart(e, 'audio')}
+            className="w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all cursor-grab active:cursor-grabbing"
+          >
+            <MusicNotes size={22} weight="duotone" />
+          </div>
+        </Tooltip>
+
+        <Tooltip content="Community Hub" position="right">
+          <div 
+            onClick={() => setActiveView('community')}
+            className="w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all cursor-pointer"
+          >
+            <SelectionBackground size={22} />
+          </div>
+        </Tooltip>
       </div>
 
       <div className="p-4 flex justify-center border-t border-[var(--color-border-default)]">
         <Tooltip content="Media Library" position="right">
-          <ImageIcon size={20} className="text-[var(--color-text-muted)]" />
+          <ImageIcon size={20} className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer" />
         </Tooltip>
       </div>
     </aside>

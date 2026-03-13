@@ -8,7 +8,8 @@ import {
   TwitterLogo, 
   Keyboard, 
   Monitor,
-  List
+  List,
+  FilmStrip
 } from 'phosphor-react';
 import Button from '../ui/Button';
 import SegmentedControl from '../ui/SegmentedControl';
@@ -41,6 +42,7 @@ const Topbar: React.FC = () => {
           icon={<List size={22} weight="bold" />} 
           className="mr-1"
         />
+        <FilmStrip size={24} weight="bold" className="text-[var(--color-primary)] ml-2" />
         <span className="text-[16px] font-bold text-[var(--color-text-primary)] tracking-tight">
           Reecap
         </span>

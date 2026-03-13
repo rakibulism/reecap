@@ -4,6 +4,7 @@ import Slider from '../ui/Slider';
 import SegmentedControl from '../ui/SegmentedControl';
 import { SpeakerHigh, Trash, MagnifyingGlass, MusicNotes, Plus } from 'phosphor-react';
 import { COMMUNITY_TRACKS } from '../../data/communityAudio';
+import { COMMUNITY_BACKGROUNDS, SUGGESTED_GRADIENTS } from '../../data/communityBackgrounds';
 
 const ControlPanel: React.FC = () => {
   const { settings, updateSettings, audio, setAudio } = useReecapStore();
@@ -97,6 +98,62 @@ const ControlPanel: React.FC = () => {
           value={settings.backgroundMode}
           onChange={(v) => updateSettings({ backgroundMode: v as any })}
         />
+        
+        {settings.backgroundMode === 'color' && (
+          <div className="space-y-4">
+            <div>
+              <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-2 block">Custom Color/Gradient</label>
+              <div className="flex gap-2">
+                <input 
+                  type="color" 
+                  value={settings.backgroundColor.startsWith('linear') ? '#3B82F6' : settings.backgroundColor}
+                  onChange={(e) => updateSettings({ backgroundColor: e.target.value })}
+                  className="w-10 h-10 p-1 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] cursor-pointer"
+                />
+                <input 
+                  type="text"
+                  value={settings.backgroundColor}
+                  onChange={(e) => updateSettings({ backgroundColor: e.target.value })}
+                  className="flex-1 h-10 px-3 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[12px] tabular-nums"
+                  placeholder="#000000 or gradient..."
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-2 block">Suggested Gradients</label>
+              <div className="grid grid-cols-3 gap-2">
+                {SUGGESTED_GRADIENTS.map(g => (
+                  <button
+                    key={g.id}
+                    className="aspect-square rounded-[var(--radius-sm)] border border-[var(--color-border-default)] overflow-hidden hover:scale-105 transition-transform"
+                    style={{ background: g.gradient }}
+                    onClick={() => updateSettings({ backgroundColor: g.gradient })}
+                    title={g.name}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {settings.backgroundMode === 'image' && (
+          <div className="space-y-4">
+            <label className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-2 block">Community Suggestions</label>
+            <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
+              {COMMUNITY_BACKGROUNDS.map(bg => (
+                <button
+                  key={bg.id}
+                  className={`aspect-video rounded-[var(--radius-sm)] border overflow-hidden transition-all
+                    ${settings.backgroundColor === bg.url ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-[var(--color-border-default)] opacity-60 hover:opacity-100'}`}
+                  onClick={() => updateSettings({ backgroundColor: bg.url })}
+                >
+                  <img src={bg.thumbnail} className="w-full h-full object-cover" alt={bg.name} />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         
         {settings.backgroundMode === 'slide' && (
           <>
