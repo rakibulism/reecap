@@ -8,7 +8,8 @@ import {
   X,
   Plus,
   Pause,
-  Play
+  Play,
+  CaretLeft
 } from 'phosphor-react';
 import { COMMUNITY_TEMPLATES, type CommunityTemplate } from '../../data/communityTemplates';
 import { COMMUNITY_TRACKS } from '../../data/communityAudio';
@@ -64,9 +65,19 @@ const CommunityHub: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full bg-[var(--color-bg-page)] animate-in fade-in duration-500 relative">
-      <div className="px-8 pt-8 pb-4">
-        <h1 className="text-2xl font-bold mb-2">Community Hub</h1>
-        <p className="text-[var(--color-text-secondary)] text-[14px]">Discover templates and sounds created by the community.</p>
+      <div className="px-8 pt-8 pb-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold mb-2">Community Hub</h1>
+          <p className="text-[var(--color-text-secondary)] text-[14px]">Discover templates and sounds created by the community.</p>
+        </div>
+        <Button 
+          variant="secondary" 
+          size="md" 
+          icon={<CaretLeft size={18} />}
+          onClick={() => setActiveView('editor')}
+        >
+          Back to Editor
+        </Button>
       </div>
 
       <div className="flex items-center gap-4 px-8 py-4 border-b border-[var(--color-border-default)]">

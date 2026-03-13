@@ -11,7 +11,7 @@ import { processFiles } from '../../lib/utils';
 import Tooltip from '../ui/Tooltip';
 
 const Sidebar: React.FC = () => {
-  const { photos, addPhotos, audio, setAudio, setActiveView } = useReecapStore();
+  const { photos, addPhotos, audio, setAudio, setActiveView, activePanel, setActivePanel } = useReecapStore();
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -35,9 +35,7 @@ const Sidebar: React.FC = () => {
     setAudio({ url, name: file.name });
   };
 
-  const handleDragStart = (e: React.DragEvent, type: 'image' | 'audio') => {
-    e.dataTransfer.setData('type', type);
-  };
+
 
   return (
     <aside className="w-[64px] border-r border-[var(--color-border-default)] flex flex-col bg-[var(--color-bg-panel)] relative z-30">
@@ -91,22 +89,26 @@ const Sidebar: React.FC = () => {
 
         <div className="w-8 h-px bg-[var(--color-border-default)]" />
 
-        {/* Asset Icons with Drag support */}
-        <Tooltip content="Assets (Drag & Drop)" position="right">
+        {/* Asset Icons with Shelf Toggle */}
+        <Tooltip content="Media Assets" position="right">
           <div 
-            draggable 
-            onDragStart={(e) => handleDragStart(e, 'image')}
-            className="w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all cursor-grab active:cursor-grabbing"
+            onClick={() => setActivePanel(activePanel === 'assets' ? 'none' : 'assets')}
+            className={`w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center transition-all cursor-pointer
+              ${activePanel === 'assets' 
+                ? 'bg-[var(--color-interactive)] text-white shadow-sm' 
+                : 'text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'}`}
           >
             <ImageSquare size={22} />
           </div>
         </Tooltip>
 
-        <Tooltip content="Music Library (Drag & Drop)" position="right">
+        <Tooltip content="Music Library" position="right">
           <div 
-            draggable 
-            onDragStart={(e) => handleDragStart(e, 'audio')}
-            className="w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all cursor-grab active:cursor-grabbing"
+            onClick={() => setActivePanel(activePanel === 'music' ? 'none' : 'music')}
+            className={`w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center transition-all cursor-pointer
+              ${activePanel === 'music' 
+                ? 'bg-[var(--color-interactive)] text-white shadow-sm' 
+                : 'text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'}`}
           >
             <MusicNotes size={22} weight="duotone" />
           </div>
@@ -114,7 +116,10 @@ const Sidebar: React.FC = () => {
 
         <Tooltip content="Community Hub" position="right">
           <div 
-            onClick={() => setActiveView('community')}
+            onClick={() => {
+              setActiveView('community');
+              setActivePanel('none');
+            }}
             className="w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all cursor-pointer"
           >
             <SelectionBackground size={22} />

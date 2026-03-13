@@ -9,6 +9,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useAudioSync } from './hooks/useAudioSync';
 import MainSidebar from './components/layout/MainSidebar';
 import CommunityHub from './components/community/CommunityHub';
+import MediaShelf from './components/layout/MediaShelf';
 import ShortcutsModal from './components/ui/ShortcutsModal';
 
 function App() {
@@ -82,6 +83,7 @@ function App() {
         <>
           <div className="flex flex-1 overflow-hidden">
             <Sidebar />
+            <MediaShelf />
             
             <div className="flex-1 flex flex-col overflow-hidden relative">
               <Canvas />

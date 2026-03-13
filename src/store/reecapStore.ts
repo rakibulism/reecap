@@ -14,7 +14,7 @@ interface ReecapStore {
   playbackProgress: number;
   audio: { url: string; name: string } | null;
   activeView: 'editor' | 'community';
-  isSidebarOpen: boolean;
+  activePanel: 'none' | 'assets' | 'music';
   isPremium: boolean;
   inviteCount: number;
 
@@ -34,6 +34,7 @@ interface ReecapStore {
   setAudio: (audio: { url: string; name: string } | null) => void;
   toggleSidebar: () => void;
   setActiveView: (view: 'editor' | 'community') => void;
+  setActivePanel: (panel: 'none' | 'assets' | 'music') => void;
   setPremium: (v: boolean) => void;
   addInvite: () => void;
 }
@@ -64,7 +65,7 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   playbackProgress: 0,
   audio: null,
   activeView: 'editor',
-  isSidebarOpen: false,
+  activePanel: 'none',
   isPremium: false,
   inviteCount: 0,
 
@@ -119,8 +120,9 @@ export const useReecapStore = create<ReecapStore>((set) => ({
       playbackProgress: typeof p === 'function' ? p(state.playbackProgress) : p 
     })),
   setAudio: (audio) => set({ audio }),
-  toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+  toggleSidebar: () => set((state) => ({ activePanel: state.activePanel === 'none' ? 'assets' : 'none' })),
   setActiveView: (view) => set({ activeView: view }),
+  setActivePanel: (panel) => set({ activePanel: panel }),
   setPremium: (v) => set({ isPremium: v }),
   addInvite: () => set((state) => ({ inviteCount: state.inviteCount + 1 })),
 }));

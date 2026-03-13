@@ -5,7 +5,7 @@ import Button from '../ui/Button';
 import { processFiles } from '../../lib/utils';
 
 const Canvas: React.FC = () => {
-  const { photos, activeIndex, settings, addPhotos, playbackProgress } = useReecapStore();
+  const { photos, activeIndex, settings, addPhotos, playbackProgress, setAudio } = useReecapStore();
   
   const currentPhoto = photos[activeIndex];
   const nextIndex = (activeIndex + 1) % photos.length;
@@ -22,12 +22,25 @@ const Canvas: React.FC = () => {
 
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
-    const files = Array.from(e.dataTransfer.files).filter(f => 
-      ['image/jpeg', 'image/png', 'image/webp'].includes(f.type)
-    );
-    if (files.length > 0) {
-      const processed = await processFiles(files);
-      addPhotos(processed);
+    const type = e.dataTransfer.getData('type');
+    
+    if (type === 'audio') {
+      const url = e.dataTransfer.getData('itemUrl');
+      const name = e.dataTransfer.getData('itemName');
+      if (url && name) {
+        setAudio({ url, name });
+      }
+      return;
+    }
+
+    if (e.dataTransfer.files.length > 0) {
+      const files = Array.from(e.dataTransfer.files).filter(f => 
+        ['image/jpeg', 'image/png', 'image/webp'].includes(f.type)
+      );
+      if (files.length > 0) {
+        const processed = await processFiles(files);
+        addPhotos(processed);
+      }
     }
   };
 
@@ -104,18 +117,22 @@ const Canvas: React.FC = () => {
     return (
       <div 
         key={`${photo.id}-${isNext ? 'next' : 'curr'}`}
-        className="relative w-full h-full overflow-hidden"
-        style={{ 
-          ...style,
-          borderRadius: `${settings.borderRadius}px`,
-          boxShadow: ((settings.shadow as any) > 0 && style.opacity! > 0) ? `0 ${Number(settings.shadow)/2}px ${Number(settings.shadow)}px rgba(0,0,0,0.2)` : 'none'
-        }}
+        className={`relative w-full h-full overflow-hidden flex items-center justify-center`}
+        style={style}
       >
-        <img 
-          src={photo.objectUrl} 
-          className={`w-full h-full ${settings.imageFit === 'cover' ? 'object-cover' : 'object-contain'}`}
-          draggable={false}
-        />
+        <div className={`relative ${settings.imageFit === 'cover' ? 'w-full h-full' : 'max-w-full max-h-full'}`}
+          style={{
+            borderRadius: `${settings.borderRadius}px`,
+            boxShadow: ((Number(settings.shadow) as any) > 0 && style.opacity! > 0) ? `0 ${Number(settings.shadow)/2}px ${Number(settings.shadow)}px rgba(0,0,0,0.2)` : 'none',
+            overflow: 'hidden'
+          }}
+        >
+          <img 
+            src={photo.objectUrl} 
+            className={`${settings.imageFit === 'cover' ? 'w-full h-full object-cover' : 'block max-w-full max-h-full'}`}
+            draggable={false}
+          />
+        </div>
       </div>
     );
   };
