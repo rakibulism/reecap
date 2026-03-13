@@ -1,4 +1,4 @@
-import { type Photo, type RekapSettings } from '../types';
+import { type Photo, type ReecapSettings } from '../types';
 
 /**
  * Renders a single frame of a photo onto a canvas with the given settings.
@@ -6,7 +6,7 @@ import { type Photo, type RekapSettings } from '../types';
 export async function renderFrame(
   canvas: HTMLCanvasElement,
   photo: Photo,
-  settings: RekapSettings,
+  settings: ReecapSettings,
   dimensions: { width: number; height: number }
 ): Promise<void> {
   const ctx = canvas.getContext('2d');

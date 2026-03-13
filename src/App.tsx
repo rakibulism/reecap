@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useRekapStore } from './store/rekapStore';
+import { useReecapStore } from './store/reecapStore';
 import Topbar from './components/layout/Topbar';
 import Sidebar from './components/layout/Sidebar';
 import ControlPanel from './components/layout/ControlPanel';
@@ -17,7 +17,7 @@ function App() {
     settings, playbackSpeed, setPlaybackProgress,
     showShortcuts, setShowShortcuts,
     activeView
-  } = useRekapStore();
+  } = useReecapStore();
 
   useKeyboardShortcuts();
   useAudioSync();

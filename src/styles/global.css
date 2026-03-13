@@ -31,27 +31,27 @@
 }
 
 @layer components {
-  .rekap-slider {
+  .reecap-slider {
     @apply w-full h-1.5 appearance-none cursor-pointer outline-none rounded-full transition-all relative z-10 pointer-events-auto;
   }
 
-  .rekap-slider::-webkit-slider-runnable-track {
+  .reecap-slider::-webkit-slider-runnable-track {
     @apply h-1.5 rounded-full bg-[var(--color-bg-hover)] border border-[var(--color-border-default)];
   }
 
-  .rekap-slider::-webkit-slider-thumb {
+  .reecap-slider::-webkit-slider-thumb {
     @apply appearance-none w-4 h-4 rounded-full bg-[var(--color-primary)] border-2 border-white shadow-md transition-transform -mt-[5px] relative z-20;
   }
 
-  .rekap-slider:active::-webkit-slider-thumb {
+  .reecap-slider:active::-webkit-slider-thumb {
     @apply scale-125 bg-[var(--color-primary)] ring-4 ring-blue-500/20;
   }
 
-  .rekap-slider::-moz-range-thumb {
+  .reecap-slider::-moz-range-thumb {
     @apply w-4 h-4 rounded-full bg-white border-2 border-[var(--color-primary)] shadow-[var(--shadow-sm)] transition-transform border-none cursor-pointer;
   }
 
-  .rekap-slider:active::-moz-range-thumb {
+  .reecap-slider:active::-moz-range-thumb {
     @apply scale-125;
   }
 }

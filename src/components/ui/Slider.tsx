@@ -40,7 +40,7 @@ const Slider: React.FC<SliderProps> = ({
             style={{
               background: `linear-gradient(to right, var(--color-primary) 0%, var(--color-primary) ${((value - min) / (max - min)) * 100}%, var(--color-bg-hover) ${((value - min) / (max - min)) * 100}%, var(--color-bg-hover) 100%)`
             }}
-            className="rekap-slider"
+            className="reecap-slider"
           />
         </div>
         <span className="text-[12px] tabular-nums font-bold text-[var(--color-text-primary)] w-10 text-right shrink-0">

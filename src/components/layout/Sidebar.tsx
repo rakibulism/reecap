@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRekapStore } from '../../store/rekapStore';
+import { useReecapStore } from '../../store/reecapStore';
 import { 
   Image as ImageIcon, 
   MusicNotes, 
@@ -9,7 +9,7 @@ import { processFiles } from '../../lib/utils';
 import Tooltip from '../ui/Tooltip';
 
 const Sidebar: React.FC = () => {
-  const { photos, addPhotos, audio, setAudio } = useRekapStore();
+  const { photos, addPhotos, audio, setAudio } = useReecapStore();
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;

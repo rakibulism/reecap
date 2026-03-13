@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { useRekapStore } from '../store/rekapStore';
+import { useReecapStore } from '../store/reecapStore';
 
 export function useAudioSync() {
-  const { isPlaying, audio, activeIndex, settings, photos, playbackSpeed, playbackProgress } = useRekapStore();
+  const { isPlaying, audio, activeIndex, settings, photos, playbackSpeed, playbackProgress } = useReecapStore();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Initialize audio element

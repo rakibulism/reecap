@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRekapStore } from '../../store/rekapStore';
+import { useReecapStore } from '../../store/reecapStore';
 import { Play, Pause, CaretLeft, CaretRight, Gauge } from 'phosphor-react';
 import Button from '../ui/Button';
 import Tooltip from '../ui/Tooltip';
@@ -9,7 +9,7 @@ const PlaybackBar: React.FC = () => {
   const { 
     photos, activeIndex, setActiveIndex, isPlaying, setPlaying,
     playbackSpeed, setPlaybackSpeed
-  } = useRekapStore();
+  } = useReecapStore();
 
   if (photos.length === 0) return null;
 

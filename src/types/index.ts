@@ -7,7 +7,7 @@ export interface Photo {
   height: number;
 }
 
-export interface RekapSettings {
+export interface ReecapSettings {
   duration: number;        // seconds per slide (0.2–5.0)
   transition: 'fade' | 'slide' | 'zoom' | 'none';
   aspectRatio: '16:9' | '4:3' | '5:4' | '1:1' | '9:16';

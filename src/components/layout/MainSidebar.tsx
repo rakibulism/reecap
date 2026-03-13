@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRekapStore } from '../../store/rekapStore';
+import { useReecapStore } from '../../store/reecapStore';
 import { 
   X, 
   User, 
@@ -21,7 +21,7 @@ const MainSidebar: React.FC = () => {
     setActiveView,
     isPremium,
     inviteCount
-  } = useRekapStore();
+  } = useReecapStore();
 
   if (!isSidebarOpen) return null;
 
@@ -78,7 +78,7 @@ const MainSidebar: React.FC = () => {
             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-sm">
               <Crown size={18} weight="fill" />
             </div>
-            <span className="text-[15px] font-bold tracking-tight">Rekap Pro</span>
+            <span className="text-[15px] font-bold tracking-tight">Reecap Pro</span>
           </div>
           <Button variant="ghost" size="sm" onClick={toggleSidebar} icon={<X size={18} />} />
         </div>

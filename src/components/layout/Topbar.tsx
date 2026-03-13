@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRekapStore } from '../../store/rekapStore';
+import { useReecapStore } from '../../store/reecapStore';
 import { 
   Sun, 
   Moon, 
@@ -20,7 +20,7 @@ const Topbar: React.FC = () => {
     theme, setTheme, settings, updateSettings, 
     isExporting, exportProgress, setShowShortcuts,
     toggleSidebar
-  } = useRekapStore();
+  } = useReecapStore();
   const { startExport } = useExport();
 
   const aspectRatioOptions = [
@@ -42,7 +42,7 @@ const Topbar: React.FC = () => {
           className="mr-1"
         />
         <span className="text-[16px] font-bold text-[var(--color-text-primary)] tracking-tight">
-          Rekap
+          Reecap
         </span>
         <div className="flex items-center gap-1 border-l border-[var(--color-border-default)] pl-4">
           <Tooltip content="Follow on X" position="bottom">
@@ -51,7 +51,7 @@ const Topbar: React.FC = () => {
             </a>
           </Tooltip>
           <Tooltip content="View GitHub Repo" position="bottom">
-            <a href="https://github.com/rakibulism/rekap" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/rakibulism/reecap" target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="sm" icon={<GithubLogo size={18} />} />
             </a>
           </Tooltip>

@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { useRekapStore } from '../../store/rekapStore';
+import { useReecapStore } from '../../store/reecapStore';
 import Slider from '../ui/Slider';
 import SegmentedControl from '../ui/SegmentedControl';
 import { SpeakerHigh, Trash, MagnifyingGlass, MusicNotes, Plus } from 'phosphor-react';
 import { COMMUNITY_TRACKS } from '../../data/communityAudio';
 
 const ControlPanel: React.FC = () => {
-  const { settings, updateSettings, audio, setAudio } = useRekapStore();
+  const { settings, updateSettings, audio, setAudio } = useReecapStore();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredTracks = useMemo(() => {

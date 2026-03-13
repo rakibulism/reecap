@@ -1,10 +1,10 @@
 import { create } from 'zustand';
-import { type Photo, type RekapSettings, type Theme } from '../types';
+import { type Photo, type ReecapSettings, type Theme } from '../types';
 
-interface RekapStore {
+interface ReecapStore {
   photos: Photo[];
   activeIndex: number;
-  settings: RekapSettings;
+  settings: ReecapSettings;
   theme: Theme | 'system';
   playbackSpeed: number;
   showShortcuts: boolean;
@@ -23,7 +23,7 @@ interface RekapStore {
   removePhoto: (id: string) => void;
   reorderPhotos: (startIndex: number, endIndex: number) => void;
   setActiveIndex: (index: number) => void;
-  updateSettings: (patch: Partial<RekapSettings>) => void;
+  updateSettings: (patch: Partial<ReecapSettings>) => void;
   setTheme: (theme: Theme | 'system') => void;
   setPlaying: (v: boolean) => void;
   setExporting: (v: boolean) => void;
@@ -38,7 +38,7 @@ interface RekapStore {
   addInvite: () => void;
 }
 
-export const useRekapStore = create<RekapStore>((set) => ({
+export const useReecapStore = create<ReecapStore>((set) => ({
   photos: [],
   activeIndex: 0,
   settings: {
@@ -55,7 +55,7 @@ export const useRekapStore = create<RekapStore>((set) => ({
     imageFit: 'contain',
     exportQuality: '2x',
   },
-  theme: (localStorage.getItem('rekap-theme') as Theme | 'system') || 'system',
+  theme: (localStorage.getItem('reecap-theme') as Theme | 'system') || 'system',
   playbackSpeed: 1,
   showShortcuts: false,
   isPlaying: false,
@@ -105,7 +105,7 @@ export const useRekapStore = create<RekapStore>((set) => ({
     })),
 
   setTheme: (theme) => {
-    localStorage.setItem('rekap-theme', theme);
+    localStorage.setItem('reecap-theme', theme);
     set({ theme });
   },
 

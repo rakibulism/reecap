@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useRekapStore } from '../store/rekapStore';
+import { useReecapStore } from '../store/reecapStore';
 import { renderFrame } from '../lib/renderer';
 import { exportWithWebCodecs } from '../lib/webCodecsEncoder';
 
 export function useExport() {
-  const { photos, settings, audio, setExporting, setExportProgress } = useRekapStore();
+  const { photos, settings, audio, setExporting, setExportProgress } = useReecapStore();
   const [error, setError] = useState<string | null>(null);
 
   const startExport = async () => {
@@ -74,7 +74,7 @@ export function useExport() {
       const url = URL.createObjectURL(videoBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `rekap-export-${new Date().toISOString().slice(0, 10)}.mp4`;
+      a.download = `reecap-export-${new Date().toISOString().slice(0, 10)}.mp4`;
       a.click();
       URL.revokeObjectURL(url);
 

@@ -1,11 +1,11 @@
 import React from 'react';
-import { useRekapStore } from '../../store/rekapStore';
+import { useReecapStore } from '../../store/reecapStore';
 import { Upload } from 'phosphor-react';
 import Button from '../ui/Button';
 import { processFiles } from '../../lib/utils';
 
 const Canvas: React.FC = () => {
-  const { photos, activeIndex, settings, addPhotos } = useRekapStore();
+  const { photos, activeIndex, settings, addPhotos } = useReecapStore();
   
   const currentPhoto = photos[activeIndex];
 

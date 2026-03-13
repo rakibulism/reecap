@@ -1,4 +1,4 @@
-# Rekap
+# Reecap
 
 **Your week. In motion.**
 
@@ -10,7 +10,7 @@ Turn your work photos into a shareable video recap. No timeline, no editor. Uplo
 
 ## What it does
 
-Rekap takes a batch of your screenshots, design previews, or progress photos and renders them into a smooth animated MP4 — entirely in your browser. No account, no server, no waiting.
+Reecap takes a batch of your screenshots, design previews, or progress photos and renders them into a smooth animated MP4 — entirely in your browser. No account, no server, no waiting.
 
 Built for designers and developers who have great work to show but no time to animate it.
 
@@ -61,8 +61,8 @@ Upload photos (2–30) → Customize layout & motion → Export MP4
 ### Install & run
 
 ```bash
-git clone https://github.com/yourusername/rekap.git
-cd rekap
+git clone https://github.com/yourusername/reecap.git
+cd reecap
 npm install
 npm run dev
 ```
@@ -80,7 +80,7 @@ npm run preview
 
 ## Deployment
 
-Rekap is a static SPA. Deploy to Vercel, Netlify, or any static host.
+Reecap is a static SPA. Deploy to Vercel, Netlify, or any static host.
 
 > **Important:** FFmpeg WASM requires `SharedArrayBuffer`, which needs specific COOP/COEP HTTP headers.
 
@@ -124,7 +124,7 @@ src/
 │   ├── panels/       # BackgroundPanel, ExportPanel, SettingsPanel
 │   └── playback/     # PlaybackBar
 ├── store/
-│   └── rekapStore.ts # Zustand store
+│   └── reecapStore.ts # Zustand store
 ├── lib/
 │   ├── renderer.ts   # Canvas frame rendering
 │   └── encoder.ts    # FFmpeg export wrapper
@@ -162,7 +162,7 @@ src/
 
 ## Design
 
-Rekap's UI is intentionally invisible — no color, no gradients, no decoration. The only thing with color in the interface is your photos.
+Reecap's UI is intentionally invisible — no color, no gradients, no decoration. The only thing with color in the interface is your photos.
 
 Design references: Linear, Notion, Raycast.  
 Font: Inter. Icons: Phosphor.  

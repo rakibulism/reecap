@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { useRekapStore } from '../../store/rekapStore';
+import { useReecapStore } from '../../store/reecapStore';
 import { DndContext, closestCenter, MouseSensor, TouchSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -62,7 +62,7 @@ const SortableTimelineItem = ({ photo, index, isActive, onSelect, onDelete }: an
 };
 
 const Timeline: React.FC = () => {
-  const { photos, activeIndex, setActiveIndex, reorderPhotos, removePhoto, playbackProgress } = useRekapStore();
+  const { photos, activeIndex, setActiveIndex, reorderPhotos, removePhoto, playbackProgress } = useReecapStore();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const sensors = useSensors(

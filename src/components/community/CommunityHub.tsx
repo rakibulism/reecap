@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useRekapStore } from '../../store/rekapStore';
+import { useReecapStore } from '../../store/reecapStore';
 import { 
   MagnifyingGlass, 
   MusicNotes, 
@@ -75,7 +75,7 @@ const TEMPLATES = [
 ];
 
 const CommunityHub: React.FC = () => {
-  const { setActiveView, setAudio, addPhotos } = useRekapStore();
+  const { setActiveView, setAudio, addPhotos } = useReecapStore();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'templates' | 'audio'>('all');
 

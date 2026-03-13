@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useRekapStore } from '../store/rekapStore';
+import { useReecapStore } from '../store/reecapStore';
 import { useExport } from './useExport';
 
 export function useKeyboardShortcuts() {
@@ -8,7 +8,7 @@ export function useKeyboardShortcuts() {
     photos, activeIndex, setActiveIndex,
     theme, setTheme,
     setShowShortcuts
-  } = useRekapStore();
+  } = useReecapStore();
   
   const { startExport } = useExport();
 
