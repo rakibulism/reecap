@@ -7,7 +7,8 @@ export function useKeyboardShortcuts() {
     isPlaying, setPlaying, 
     photos, activeIndex, setActiveIndex,
     theme, setTheme,
-    setShowShortcuts
+    setShowShortcuts,
+    setActivePanel, setSidebarOpen, setActiveView
   } = useReecapStore();
   
   const { startExport } = useExport();
@@ -70,9 +71,17 @@ export function useKeyboardShortcuts() {
         e.preventDefault();
         setShowShortcuts(true);
       }
+      
+      // Escape: Close all panels/modals
+      if (e.code === 'Escape') {
+        setActivePanel('none');
+        setSidebarOpen(false);
+        setShowShortcuts(false);
+        setActiveView('editor');
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPlaying, setPlaying, photos.length, activeIndex, setActiveIndex, theme, setTheme, startExport, setShowShortcuts]);
+  }, [isPlaying, setPlaying, photos.length, activeIndex, setActiveIndex, theme, setTheme, startExport, setShowShortcuts, setActivePanel, setSidebarOpen, setActiveView]);
 }

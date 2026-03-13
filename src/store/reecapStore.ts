@@ -36,6 +36,7 @@ interface ReecapStore {
   toggleSidebar: () => void;
   setActiveView: (view: 'editor' | 'community') => void;
   setActivePanel: (panel: 'none' | 'assets' | 'music') => void;
+  setSidebarOpen: (v: boolean) => void;
   setPremium: (v: boolean) => void;
   addInvite: () => void;
 }
@@ -125,6 +126,7 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
   setActiveView: (view) => set({ activeView: view }),
   setActivePanel: (panel) => set({ activePanel: panel }),
+  setSidebarOpen: (v) => set({ isSidebarOpen: v }),
   setPremium: (v) => set({ isPremium: v }),
   addInvite: () => set((state) => ({ inviteCount: state.inviteCount + 1 })),
 }));
