@@ -7,8 +7,26 @@ import { COMMUNITY_TRACKS } from '../../data/communityAudio';
 import { COMMUNITY_BACKGROUNDS, SUGGESTED_GRADIENTS } from '../../data/communityBackgrounds';
 
 const ControlPanel: React.FC = () => {
-  const { settings, updateSettings, audio, setAudio } = useReecapStore();
+  const { photos, activeIndex, settings, updateSettings, audio, setAudio, updatePhoto } = useReecapStore();
   const [searchQuery, setSearchQuery] = useState('');
+
+  const activePhoto = photos[activeIndex];
+  const activeTransition = activePhoto?.transition || settings.transition;
+
+  const handleTransitionChange = (t: any) => {
+    if (activePhoto) {
+      updatePhoto(activePhoto.id, { transition: t });
+    } else {
+      updateSettings({ transition: t });
+    }
+  };
+
+  const applyToAllTransitions = () => {
+    photos.forEach(photo => {
+      updatePhoto(photo.id, { transition: activeTransition });
+    });
+    updateSettings({ transition: activeTransition });
+  };
 
   const filteredTracks = useMemo(() => {
     if (!searchQuery) return COMMUNITY_TRACKS;
@@ -43,9 +61,19 @@ const ControlPanel: React.FC = () => {
           onChange={(v) => updateSettings({ duration: v })}
         />
         <div>
-          <label className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)] block mb-2">
-            Transition
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)] block">
+              Transition {activePhoto ? `(Slide ${activeIndex + 1})` : ''}
+            </label>
+            {activePhoto && (
+              <button 
+                onClick={applyToAllTransitions}
+                className="text-[9px] font-bold uppercase text-[var(--color-interactive)] hover:underline"
+              >
+                Apply to All
+              </button>
+            )}
+          </div>
           <div className="grid grid-cols-4 gap-2">
             {[
               { label: 'Fade', value: 'fade' },
@@ -59,9 +87,9 @@ const ControlPanel: React.FC = () => {
             ].map((opt) => (
               <button
                 key={opt.value}
-                onClick={() => updateSettings({ transition: opt.value as any })}
+                onClick={() => handleTransitionChange(opt.value as any)}
                 className={`h-8 rounded-[var(--radius-sm)] text-[10px] font-medium transition-all border
-                  ${settings.transition === opt.value 
+                  ${activeTransition === opt.value 
                     ? 'bg-[var(--color-interactive)] border-[var(--color-interactive)] text-white' 
                     : 'bg-[var(--color-bg-surface)] border-[var(--color-border-default)] text-[var(--color-text-muted)] hover:border-[var(--color-text-muted)]'}`}
               >

@@ -86,7 +86,7 @@ const Canvas: React.FC = () => {
       backfaceVisibility: 'hidden',
     };
 
-    const t = settings.transition;
+    const t = photo.transition || settings.transition;
 
     if (t === 'fade') {
       style.opacity = isNext ? progress : 1 - progress;

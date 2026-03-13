@@ -24,6 +24,7 @@ interface ReecapStore {
   removePhoto: (id: string) => void;
   reorderPhotos: (startIndex: number, endIndex: number) => void;
   setActiveIndex: (index: number) => void;
+  updatePhoto: (id: string, patch: Partial<Photo>) => void;
   updateSettings: (patch: Partial<ReecapSettings>) => void;
   setTheme: (theme: Theme | 'system') => void;
   setPlaying: (v: boolean) => void;
@@ -102,6 +103,10 @@ export const useReecapStore = create<ReecapStore>((set) => ({
     }),
 
   setActiveIndex: (index) => set({ activeIndex: index }),
+  updatePhoto: (id, patch) =>
+    set((state) => ({
+      photos: state.photos.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+    })),
 
   updateSettings: (patch) =>
     set((state) => ({

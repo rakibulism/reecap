@@ -5,6 +5,7 @@ export interface Photo {
   thumbnailUrl?: string;
   width: number;
   height: number;
+  transition?: 'fade' | 'slide' | 'zoom' | 'none' | 'slide-up' | 'wipe' | 'flip' | 'dissolve';
 }
 
 export interface ReecapSettings {
