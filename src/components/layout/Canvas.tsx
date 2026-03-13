@@ -144,12 +144,13 @@ const Canvas: React.FC = () => {
       onDragOver={handleDragOver}
     >
       <div 
-        className="w-full h-full relative shadow-[var(--shadow-md)] bg-white overflow-hidden transition-all duration-300 flex items-center justify-center"
+        className="relative shadow-[var(--shadow-md)] bg-white overflow-hidden transition-all duration-500 flex items-center justify-center"
         style={{ 
+          width: 'auto',
+          height: 'auto',
           maxWidth: '100%',
           maxHeight: '100%',
           aspectRatio: settings.aspectRatio.split(':').join(' / '),
-          height: 'auto',
         }}
       >
         {/* Background Layer */}
