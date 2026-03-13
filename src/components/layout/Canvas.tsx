@@ -120,7 +120,7 @@ const Canvas: React.FC = () => {
         className={`relative w-full h-full overflow-hidden flex items-center justify-center`}
         style={style}
       >
-        <div className={`relative ${settings.imageFit === 'cover' ? 'w-full h-full' : 'w-fit h-fit max-w-full max-h-full'}`}
+        <div className={`relative ${settings.imageFit === 'cover' ? 'w-full h-full' : 'w-auto h-full max-w-full flex items-center justify-center'}`}
           style={{
             borderRadius: `${settings.borderRadius}px`,
             boxShadow: (Number(settings.shadow) > 0 && Number(style.opacity) > 0) ? `0 ${Number(settings.shadow)/2}px ${Number(settings.shadow)}px rgba(0,0,0,0.2)` : 'none',
@@ -129,7 +129,7 @@ const Canvas: React.FC = () => {
         >
           <img 
             src={photo.objectUrl} 
-            className={`${settings.imageFit === 'cover' ? 'w-full h-full object-cover' : 'block max-w-full max-h-full h-auto'}`}
+            className={`${settings.imageFit === 'cover' ? 'w-full h-full object-cover' : 'w-auto h-full max-w-full object-contain block'}`}
             draggable={false}
           />
         </div>
