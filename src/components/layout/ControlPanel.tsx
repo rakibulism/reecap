@@ -120,37 +120,63 @@ const ControlPanel: React.FC = () => {
                 <div className="flex gap-2">
                   <div className="flex-1 flex flex-col gap-1">
                     <span className="text-[9px] text-[var(--color-text-muted)] uppercase">Start</span>
-                    <input 
-                      type="color" 
-                      value={settings.backgroundColor.includes('gradient') 
-                        ? (settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g)?.[0] || '#3B82F6')
-                        : settings.backgroundColor}
-                      onChange={(e) => {
-                        const nextColor = e.target.value;
-                        if (settings.backgroundColor.includes('gradient')) {
-                          const colors = settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g) || ['#3B82F6', '#1D4ED8'];
-                          updateSettings({ backgroundColor: `linear-gradient(135deg, ${nextColor}, ${colors[1] || colors[0]})` });
-                        } else {
-                          updateSettings({ backgroundColor: nextColor });
-                        }
-                      }}
-                      className="w-full h-8 p-1 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] cursor-pointer"
-                    />
+                    <div 
+                      className="w-full h-8 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] cursor-pointer p-1 group"
+                      onClick={() => (document.getElementById('color-start') as HTMLInputElement)?.click()}
+                    >
+                      <div 
+                        className="w-full h-full rounded-[2px]" 
+                        style={{ background: settings.backgroundColor.includes('gradient') 
+                          ? (settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g)?.[0] || '#3B82F6')
+                          : settings.backgroundColor 
+                        }} 
+                      />
+                      <input 
+                        id="color-start"
+                        type="color" 
+                        className="sr-only"
+                        value={settings.backgroundColor.includes('gradient') 
+                          ? (settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g)?.[0] || '#3B82F6')
+                          : settings.backgroundColor}
+                        onChange={(e) => {
+                          const nextColor = e.target.value;
+                          if (settings.backgroundColor.includes('gradient')) {
+                            const colors = settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g) || ['#3B82F6', '#1D4ED8'];
+                            updateSettings({ backgroundColor: `linear-gradient(135deg, ${nextColor}, ${colors[1] || colors[0]})` });
+                          } else {
+                            updateSettings({ backgroundColor: nextColor });
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                   <div className="flex-1 flex flex-col gap-1">
                     <span className="text-[9px] text-[var(--color-text-muted)] uppercase">End</span>
-                    <input 
-                      type="color" 
-                      value={settings.backgroundColor.includes('gradient') 
-                        ? (settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g)?.[1] || '#1D4ED8')
-                        : settings.backgroundColor}
-                      onChange={(e) => {
-                        const nextColor = e.target.value;
-                        const colors = settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g) || [settings.backgroundColor, settings.backgroundColor];
-                        updateSettings({ backgroundColor: `linear-gradient(135deg, ${colors[0]}, ${nextColor})` });
-                      }}
-                      className="w-full h-8 p-1 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] cursor-pointer"
-                    />
+                    <div 
+                      className="w-full h-8 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] cursor-pointer p-1 group"
+                      onClick={() => (document.getElementById('color-end') as HTMLInputElement)?.click()}
+                    >
+                      <div 
+                        className="w-full h-full rounded-[2px]" 
+                        style={{ background: settings.backgroundColor.includes('gradient') 
+                          ? (settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g)?.[1] || '#1D4ED8')
+                          : settings.backgroundColor 
+                        }} 
+                      />
+                      <input 
+                        id="color-end"
+                        type="color" 
+                        className="sr-only"
+                        value={settings.backgroundColor.includes('gradient') 
+                          ? (settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g)?.[1] || '#1D4ED8')
+                          : settings.backgroundColor}
+                        onChange={(e) => {
+                          const nextColor = e.target.value;
+                          const colors = settings.backgroundColor.match(/#[0-9a-fA-F]{6}/g) || [settings.backgroundColor, settings.backgroundColor];
+                          updateSettings({ backgroundColor: `linear-gradient(135deg, ${colors[0]}, ${nextColor})` });
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
                 <input 

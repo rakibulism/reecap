@@ -185,9 +185,12 @@ const MediaShelf: React.FC = () => {
                   </div>
                   <button 
                     onClick={() => setAudio(isActive ? null : { url: track.url, name: track.name })}
-                    className={`p-1.5 rounded-full transition-colors ${isActive ? 'text-blue-500' : 'text-[var(--color-text-muted)] hover:text-[var(--color-interactive)]'}`}
+                    className={`flex-shrink-0 p-2 rounded-full transition-all duration-200 
+                      ${isActive 
+                        ? 'bg-blue-500 text-white shadow-lg scale-110' 
+                        : 'bg-[var(--color-bg-panel)] text-[var(--color-text-muted)] hover:bg-[var(--color-interactive)] hover:text-white hover:scale-110 shadow-sm'}`}
                   >
-                    <Plus size={14} weight="bold" />
+                    <Plus size={16} weight="bold" />
                   </button>
                 </div>
               );
