@@ -95,18 +95,24 @@ const Canvas: React.FC = () => {
         <div 
           style={{
             position: 'relative',
-            width: settings.imageFit === 'cover' ? '100%' : 'auto',
-            height: settings.imageFit === 'cover' ? '100%' : 'auto',
-            maxWidth: '100%',
-            maxHeight: '100%',
+            width: '100%',
+            height: '100%',
             borderRadius: `${settings.borderRadius}px`,
             boxShadow: `0 ${settings.shadow/2}px ${settings.shadow}px rgba(0,0,0,0.2)`,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
         >
           <img 
             src={imageUrl} 
-            style={{ width: '100%', height: '100%', objectFit: settings.imageFit, display: 'block' }} 
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: settings.imageFit, 
+              display: 'block' 
+            }} 
             alt="" 
           />
         </div>
