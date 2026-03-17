@@ -27,20 +27,25 @@ const Canvas: React.FC = () => {
     if (type === 'audio') {
       const url = e.dataTransfer.getData('itemUrl');
       const name = e.dataTransfer.getData('itemName');
-      if (url && name) setAudio({ url, name });
+      if (url && name) {
+        setAudio({ url, name });
+      }
       return;
     }
 
     if (type === 'image') {
       const url = e.dataTransfer.getData('itemUrl');
+      const name = e.dataTransfer.getData('itemName');
       if (url) {
-        addPhotos([{
+        // Create a dummy file object for community assets or just pass the shared properties
+        const newPhoto = {
           id: Math.random().toString(36).substr(2, 9),
-          file: new File([], 'community-image'),
+          file: new File([], name || 'community-image'),
           objectUrl: url,
-          width: 1920,
+          width: 1920, // Default for community images if not known
           height: 1080,
-        }]);
+        };
+        addPhotos([newPhoto]);
       }
       return;
     }
@@ -56,15 +61,23 @@ const Canvas: React.FC = () => {
     }
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
   if (photos.length === 0) {
     return (
-      <main className="flex-1 flex items-center justify-center bg-[var(--color-bg-page)] p-12" onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
+      <main 
+        className="flex-1 flex items-center justify-center bg-[var(--color-bg-page)] p-12"
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+      >
         <div className="w-full max-w-lg border-2 border-dashed border-[var(--color-border-default)] rounded-[var(--radius-md)] p-12 flex flex-col items-center text-center text-[var(--color-text-primary)]">
           <Upload size={32} className="mb-4 opacity-50" />
           <h2 className="text-lg font-medium mb-1">Drop photos here</h2>
-          <p className="text-sm text-[var(--color-text-muted)] mb-6">Supports JPG, PNG, WebP, GIF</p>
+          <p className="text-sm text-[var(--color-text-muted)] mb-6">Supports JPG, PNG, WebP · 2–30 photos</p>
           <label className="cursor-pointer">
-            <input type="file" multiple accept="image/*" className="hidden" onChange={(e) => { handleFileUpload(e); e.target.value = ''; }} />
+            <input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={(e) => { handleFileUpload(e); e.target.value = ''; }} />
             <Button variant="secondary" size="lg" as="span">Browse files</Button>
           </label>
         </div>
@@ -72,16 +85,18 @@ const Canvas: React.FC = () => {
     );
   }
 
-  const p = playbackProgress >= 0.8 ? (playbackProgress - 0.8) / 0.2 : 0;
+  // we logic transitions between t=0.7 and t=1.0 for a smooth overlap
+  const transitionStart = 0.8; // Transition starts at 80% of the duration
+  const isInTransition = playbackProgress >= transitionStart;
+  const p = isInTransition ? (playbackProgress - transitionStart) / (1 - transitionStart) : 0;
 
   const renderSlide = (photo: any, progress: number, isNext: boolean) => {
     if (!photo) return null;
+
     const imageUrl = photo.objectUrl || photo.url;
     if (!imageUrl) return null;
-    
-    const t = photo.transition || settings.transition;
 
-    const style: React.CSSProperties = {
+    let style: React.CSSProperties = {
       position: 'absolute',
       inset: 0,
       zIndex: isNext ? 20 : 10,
@@ -89,10 +104,9 @@ const Canvas: React.FC = () => {
       transform: 'none',
       clipPath: 'none',
       backfaceVisibility: 'hidden',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
     };
+
+    const t = photo.transition || settings.transition;
 
     if (t === 'fade') {
       style.opacity = isNext ? progress : 1 - progress;
@@ -113,67 +127,51 @@ const Canvas: React.FC = () => {
     } else if (t === 'dissolve') {
       style.opacity = isNext ? progress : 1 - progress;
       if (progress > 0 && progress < 1) {
-        style.filter = `blur(${progress * 5}px)`;
+        style.filter = `blur(${progress * 5}px)`; // Add a slight blur during dissolve if desired, but user said 50% opacity
       }
     } else if (t === 'none') {
+      // Direct switch at the end
       style.opacity = isNext ? (progress > 0.5 ? 1 : 0) : (progress > 0.5 ? 0 : 1);
     }
 
     return (
-      <div key={`${photo.id}-${isNext ? 'next' : 'curr'}`} style={style}>
-        <div 
+      <div 
+        key={`${photo.id}-${isNext ? 'next' : 'curr'}`}
+        className={`relative w-full h-full overflow-hidden flex items-center justify-center`}
+        style={style}
+      >
+        <div className={`relative ${settings.imageFit === 'cover' ? 'w-full h-full' : 'w-auto h-full max-w-full flex items-center justify-center'}`}
           style={{
-            position: 'relative',
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
+            borderRadius: `${settings.borderRadius}px`,
+            boxShadow: (Number(settings.shadow) > 0 && Number(style.opacity) > 0) ? `0 ${Number(settings.shadow)/2}px ${Number(settings.shadow)}px rgba(0,0,0,0.2)` : 'none',
+            overflow: 'hidden'
           }}
         >
-          <div
-            style={{
-              position: 'relative',
-              width: settings.imageFit === 'cover' ? '100%' : 'auto',
-              height: settings.imageFit === 'cover' ? '100%' : 'auto',
-              maxWidth: '100%',
-              maxHeight: '100%',
-              borderRadius: `${settings.borderRadius}px`,
-              boxShadow: settings.shadow > 0 ? `0 ${settings.shadow/2}px ${settings.shadow}px rgba(0,0,0,0.2)` : 'none',
-              overflow: 'hidden',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <img 
-              src={imageUrl} 
-              style={{ 
-                width: settings.imageFit === 'cover' ? '100%' : 'auto', 
-                height: settings.imageFit === 'cover' ? '100%' : 'auto', 
-                maxWidth: '100%',
-                maxHeight: '100%',
-                objectFit: settings.imageFit, 
-                display: 'block' 
-              }} 
-              alt="" 
-            />
-          </div>
+          <img 
+            src={imageUrl} 
+            className={`${settings.imageFit === 'cover' ? 'w-full h-full object-cover' : 'w-auto h-full max-w-full object-contain block'}`}
+            draggable={false}
+            alt=""
+          />
         </div>
       </div>
     );
   };
 
   return (
-    <main className="flex-1 relative flex items-center justify-center p-8 bg-[var(--color-bg-page)] overflow-hidden" onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
+    <main 
+      className="flex-1 overflow-hidden relative flex items-center justify-center p-8 bg-[var(--color-bg-page)]"
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+    >
       <div 
-        className="relative bg-white shadow-2xl overflow-hidden transition-all duration-100"
+        className="relative shadow-[var(--shadow-md)] bg-white overflow-hidden transition-all duration-500 flex items-center justify-center"
         style={{ 
           width: 'auto',
           height: 'auto',
           maxWidth: '100%',
           maxHeight: '100%',
-          aspectRatio: settings.aspectRatio.replace(':', '/'),
+          aspectRatio: settings.aspectRatio.split(':').join(' / '),
         }}
       >
         {/* Background Layer */}
@@ -181,14 +179,15 @@ const Canvas: React.FC = () => {
           <div className="absolute inset-0 z-0">
             <img 
               src={currentPhoto.objectUrl || currentPhoto.url} 
-              className="w-full h-full object-cover blur-2xl opacity-40 scale-110" 
+              className="w-full h-full object-cover scale-110" 
+              style={{ filter: `blur(${settings.backgroundBlur}px)`, opacity: 1 - p }}
               alt=""
             />
             {nextPhoto && p > 0 && (
               <img 
                 src={nextPhoto.objectUrl || nextPhoto.url} 
-                className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110" 
-                style={{ opacity: p * 0.4 }}
+                className="absolute inset-0 w-full h-full object-cover scale-110" 
+                style={{ filter: `blur(${settings.backgroundBlur}px)`, opacity: p }}
                 alt=""
               />
             )}
@@ -206,8 +205,11 @@ const Canvas: React.FC = () => {
           </div>
         )}
 
-        {/* Slides Content */}
-        <div className="absolute inset-0 z-10" style={{ padding: `${settings.padding}px` }}>
+        {/* Photo Container */}
+        <div 
+          className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
+          style={{ padding: `${settings.padding}px` }}
+        >
           <div className="relative w-full h-full">
             {renderSlide(currentPhoto, p, false)}
             {p > 0 && renderSlide(nextPhoto, p, true)}
