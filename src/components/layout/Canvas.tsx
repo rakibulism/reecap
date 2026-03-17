@@ -79,16 +79,45 @@ const Canvas: React.FC = () => {
     const imageUrl = photo.objectUrl || photo.url;
     if (!imageUrl) return null;
     
+    const t = photo.transition || settings.transition;
+
     const style: React.CSSProperties = {
       position: 'absolute',
       inset: 0,
       zIndex: isNext ? 20 : 10,
-      opacity: isNext ? progress : 1 - progress,
+      opacity: 1,
+      transform: 'none',
+      clipPath: 'none',
+      backfaceVisibility: 'hidden',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      transition: 'opacity 0.1s linear' // Slight smoothing for the fade
     };
+
+    if (t === 'fade') {
+      style.opacity = isNext ? progress : 1 - progress;
+    } else if (t === 'slide') {
+      style.transform = `translateX(${isNext ? (100 - progress * 100) : (-progress * 100)}%)`;
+    } else if (t === 'slide-up') {
+      style.transform = `translateY(${isNext ? (100 - progress * 100) : 0}%)`;
+      style.zIndex = isNext ? 25 : 10;
+    } else if (t === 'zoom') {
+      style.transform = `scale(${isNext ? (0.8 + progress * 0.2) : (1 + progress * 0.2)})`;
+      style.opacity = isNext ? progress : 1 - progress;
+    } else if (t === 'wipe') {
+      style.clipPath = isNext ? `inset(0 ${100 - progress * 100}% 0 0)` : 'none';
+      style.zIndex = isNext ? 25 : 10;
+    } else if (t === 'flip') {
+      style.transform = `perspective(1000px) rotateY(${isNext ? (90 - progress * 90) : (-progress * 90)}deg)`;
+      style.opacity = isNext ? (progress > 0.5 ? 1 : 0) : (progress > 0.5 ? 0 : 1);
+    } else if (t === 'dissolve') {
+      style.opacity = isNext ? progress : 1 - progress;
+      if (progress > 0 && progress < 1) {
+        style.filter = `blur(${progress * 5}px)`;
+      }
+    } else if (t === 'none') {
+      style.opacity = isNext ? (progress > 0.5 ? 1 : 0) : (progress > 0.5 ? 0 : 1);
+    }
 
     return (
       <div key={`${photo.id}-${isNext ? 'next' : 'curr'}`} style={style}>
