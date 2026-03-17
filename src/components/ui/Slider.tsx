@@ -35,31 +35,29 @@ const Slider: React.FC<SliderProps> = ({
 
   return (
     <div className="flex flex-col gap-1 w-full relative">
-      {label && (
-        <div className="flex justify-between items-center px-0.5">
+      <div className="flex justify-between items-center px-1">
+        {label && (
           <label className="text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-text-muted)]">
             {label}
           </label>
-        </div>
-      )}
-      <div className="flex items-center gap-3 h-9 group relative">
-        <div className="relative flex-1 flex items-center h-full">
-          <input
-            type="range"
-            min={min}
-            max={max}
-            step={step}
-            value={localValue}
-            onInput={handleInput}
-            style={{
-              background: `linear-gradient(to right, var(--color-primary) 0%, var(--color-primary) ${((localValue - min) / (max - min)) * 100}%, var(--color-bg-hover) ${((localValue - min) / (max - min)) * 100}%, var(--color-bg-hover) 100%)`
-            }}
-            className="reecap-slider"
-          />
-        </div>
-        <span className="text-[11px] tabular-nums font-bold text-[var(--color-text-primary)] w-9 text-right shrink-0">
+        )}
+        <span className="text-[10px] tabular-nums font-bold text-[var(--color-text-primary)]">
           {localValue}{unit}
         </span>
+      </div>
+      <div className="flex items-center h-10 group relative">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={localValue}
+          onInput={handleInput}
+          style={{
+            background: `linear-gradient(to right, var(--color-primary) 0%, var(--color-primary) ${((localValue - min) / (max - min)) * 100}%, var(--color-bg-hover) ${((localValue - min) / (max - min)) * 100}%, var(--color-bg-hover) 100%)`
+          }}
+          className="reecap-slider"
+        />
       </div>
     </div>
   );

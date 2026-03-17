@@ -169,8 +169,8 @@ const Canvas: React.FC = () => {
       <div 
         className="relative bg-white shadow-2xl overflow-hidden transition-all duration-100"
         style={{ 
-          width: '100%',
-          height: '100%',
+          width: 'auto',
+          height: 'auto',
           maxWidth: '100%',
           maxHeight: '100%',
           aspectRatio: settings.aspectRatio.replace(':', '/'),
@@ -208,7 +208,7 @@ const Canvas: React.FC = () => {
 
         {/* Slides Content */}
         <div className="absolute inset-0 z-10" style={{ padding: `${settings.padding}px` }}>
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div className="relative w-full h-full">
             {renderSlide(currentPhoto, p, false)}
             {p > 0 && renderSlide(nextPhoto, p, true)}
           </div>
