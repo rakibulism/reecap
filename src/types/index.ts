@@ -2,6 +2,7 @@ export interface Photo {
   id: string;
   file: File;
   objectUrl: string;
+  url?: string; // For community assets or fallback
   thumbnailUrl?: string;
   width: number;
   height: number;
