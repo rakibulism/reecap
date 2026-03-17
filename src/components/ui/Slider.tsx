@@ -19,32 +19,46 @@ const Slider: React.FC<SliderProps> = ({
   unit = '',
   onChange,
 }) => {
+  // Use local state for the "visual" value so the slider thumb is buttery smooth
+  const [localValue, setLocalValue] = React.useState(value);
+
+  // Sync with prop when it changes externally (e.g. from store)
+  React.useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.currentTarget.value);
+    setLocalValue(val);
+    onChange(val);
+  };
+
   return (
-    <div className="flex flex-col gap-2 w-full">
+    <div className="flex flex-col gap-1 w-full relative">
       {label && (
-        <div className="flex justify-between items-center">
-          <label className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)]">
+        <div className="flex justify-between items-center px-0.5">
+          <label className="text-[10px] font-bold uppercase tracking-[0.05em] text-[var(--color-text-muted)]">
             {label}
           </label>
         </div>
       )}
-      <div className="flex items-center gap-3 h-6 group">
+      <div className="flex items-center gap-3 h-9 group relative">
         <div className="relative flex-1 flex items-center h-full">
           <input
             type="range"
             min={min}
             max={max}
             step={step}
-            value={value}
-            onInput={(e) => onChange(parseFloat((e.target as HTMLInputElement).value))}
+            value={localValue}
+            onInput={handleInput}
             style={{
-              background: `linear-gradient(to right, var(--color-primary) 0%, var(--color-primary) ${((value - min) / (max - min)) * 100}%, var(--color-bg-hover) ${((value - min) / (max - min)) * 100}%, var(--color-bg-hover) 100%)`
+              background: `linear-gradient(to right, var(--color-primary) 0%, var(--color-primary) ${((localValue - min) / (max - min)) * 100}%, var(--color-bg-hover) ${((localValue - min) / (max - min)) * 100}%, var(--color-bg-hover) 100%)`
             }}
             className="reecap-slider"
           />
         </div>
-        <span className="text-[12px] tabular-nums font-bold text-[var(--color-text-primary)] w-10 text-right shrink-0">
-          {value}{unit}
+        <span className="text-[11px] tabular-nums font-bold text-[var(--color-text-primary)] w-9 text-right shrink-0">
+          {localValue}{unit}
         </span>
       </div>
     </div>

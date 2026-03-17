@@ -167,7 +167,7 @@ const Canvas: React.FC = () => {
   return (
     <main className="flex-1 relative flex items-center justify-center p-8 bg-[var(--color-bg-page)] overflow-hidden" onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}>
       <div 
-        className="relative bg-white shadow-2xl overflow-hidden transition-all duration-300"
+        className="relative bg-white shadow-2xl overflow-hidden transition-all duration-100"
         style={{ 
           width: '100%',
           height: '100%',
