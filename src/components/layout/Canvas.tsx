@@ -167,10 +167,8 @@ const Canvas: React.FC = () => {
       <div 
         className="relative shadow-[var(--shadow-md)] bg-white overflow-hidden transition-all duration-500 flex items-center justify-center"
         style={{ 
+          height: '100%',
           width: 'auto',
-          height: 'auto',
-          maxWidth: '100%',
-          maxHeight: '100%',
           aspectRatio: settings.aspectRatio.split(':').join(' / '),
         }}
       >
