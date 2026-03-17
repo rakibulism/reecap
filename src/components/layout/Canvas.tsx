@@ -137,13 +137,11 @@ const Canvas: React.FC = () => {
     return (
       <div 
         key={`${photo.id}-${isNext ? 'next' : 'curr'}`}
-        className="absolute inset-0 overflow-hidden flex items-center justify-center"
+        className={`relative w-full h-full overflow-hidden flex items-center justify-center`}
         style={style}
       >
-        <div className={`relative ${settings.imageFit === 'cover' ? 'w-full h-full' : 'max-w-full max-h-full aspect-square md:aspect-auto'}`}
+        <div className={`relative ${settings.imageFit === 'cover' ? 'w-full h-full' : 'w-auto h-full max-w-full flex items-center justify-center'}`}
           style={{
-            width: settings.imageFit === 'cover' ? '100%' : 'auto',
-            height: settings.imageFit === 'cover' ? '100%' : 'auto',
             borderRadius: `${settings.borderRadius}px`,
             boxShadow: (Number(settings.shadow) > 0 && Number(style.opacity) > 0) ? `0 ${Number(settings.shadow)/2}px ${Number(settings.shadow)}px rgba(0,0,0,0.2)` : 'none',
             overflow: 'hidden'
@@ -151,7 +149,7 @@ const Canvas: React.FC = () => {
         >
           <img 
             src={imageUrl} 
-            className={`w-full h-full ${settings.imageFit === 'cover' ? 'object-cover' : 'object-contain block'}`}
+            className={`${settings.imageFit === 'cover' ? 'w-full h-full object-cover' : 'w-auto h-full max-w-full object-contain block'}`}
             draggable={false}
             alt=""
           />
@@ -162,13 +160,17 @@ const Canvas: React.FC = () => {
 
   return (
     <main 
-      className="flex-1 overflow-hidden relative flex items-center justify-center p-4 md:p-8 bg-[var(--color-bg-page)]"
+      className="flex-1 overflow-hidden relative flex items-center justify-center p-8 bg-[var(--color-bg-page)]"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
       <div 
-        className="relative shadow-[var(--shadow-lg)] bg-white overflow-hidden transition-all duration-500 flex items-center justify-center w-full max-w-full max-h-full"
+        className="relative shadow-[var(--shadow-md)] bg-white overflow-hidden transition-all duration-500 flex items-center justify-center"
         style={{ 
+          width: 'auto',
+          height: 'auto',
+          maxWidth: '100%',
+          maxHeight: '100%',
           aspectRatio: settings.aspectRatio.split(':').join(' / '),
         }}
       >
@@ -208,7 +210,7 @@ const Canvas: React.FC = () => {
           className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
           style={{ padding: `${settings.padding}px` }}
         >
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div className="relative w-full h-full">
             {renderSlide(currentPhoto, p, false)}
             {p > 0 && renderSlide(nextPhoto, p, true)}
           </div>
