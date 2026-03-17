@@ -2,7 +2,7 @@ import React from 'react';
 
 interface ButtonProps extends React.HTMLAttributes<HTMLElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   icon?: React.ReactNode;
   as?: any;
   disabled?: boolean;
@@ -33,6 +33,7 @@ const Button: React.FC<ButtonProps> = ({
     sm: 'h-7 px-2 text-[12px]',
     md: 'h-8 px-3 text-[13px]',
     lg: 'h-9 px-4 text-[14px]',
+    xl: 'h-12 px-8 text-[16px] rounded-[var(--radius-md)]',
   };
 
   return (

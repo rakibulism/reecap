@@ -11,13 +11,14 @@ import MainSidebar from './components/layout/MainSidebar';
 import CommunityHub from './components/community/CommunityHub';
 import MediaShelf from './components/layout/MediaShelf';
 import ShortcutsModal from './components/ui/ShortcutsModal';
+import LandingPage from './components/layout/LandingPage';
 
 function App() {
   const {
     theme, isPlaying, photos, activeIndex, setActiveIndex,
     settings, playbackSpeed, setPlaybackProgress,
     showShortcuts, setShowShortcuts,
-    activeView
+    activeView, hasStarted
   } = useReecapStore();
 
   useKeyboardShortcuts();
@@ -73,6 +74,10 @@ function App() {
     
     return () => cancelAnimationFrame(requestId);
   }, [isPlaying, photos.length, settings.duration, playbackSpeed, activeIndex, setActiveIndex, setPlaybackProgress]);
+
+  if (!hasStarted) {
+    return <LandingPage />;
+  }
 
   return (
     <div className="flex flex-col h-screen bg-[var(--color-bg-page)] text-[var(--color-text-primary)] overflow-hidden font-sans">
