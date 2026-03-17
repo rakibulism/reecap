@@ -36,7 +36,7 @@ const Slider: React.FC<SliderProps> = ({
             max={max}
             step={step}
             value={value}
-            onChange={(e) => onChange(parseFloat(e.target.value))}
+            onInput={(e) => onChange(parseFloat((e.target as HTMLInputElement).value))}
             style={{
               background: `linear-gradient(to right, var(--color-primary) 0%, var(--color-primary) ${((value - min) / (max - min)) * 100}%, var(--color-bg-hover) ${((value - min) / (max - min)) * 100}%, var(--color-bg-hover) 100%)`
             }}

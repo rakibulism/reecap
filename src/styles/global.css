@@ -32,7 +32,9 @@
 
 @layer components {
   .reecap-slider {
-    @apply w-full h-1.5 appearance-none cursor-pointer outline-none rounded-full transition-all relative z-10 pointer-events-auto;
+    @apply w-full h-8 appearance-none cursor-pointer outline-none rounded-full transition-all relative z-10 pointer-events-auto bg-transparent;
+    -webkit-appearance: none;
+    margin: 0;
   }
 
   .reecap-slider::-webkit-slider-runnable-track {
