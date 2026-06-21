@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
 interface SliderProps {
   label?: string;
@@ -8,11 +8,9 @@ interface SliderProps {
   step?: number;
   unit?: string;
   onChange: (value: number) => void;
-  /** Optional custom formatter for the value box (overrides value+unit). */
+  /** Optional custom formatter for the in-track value (overrides value+unit). */
   format?: (value: number) => string;
 }
-
-const HANDLE = 20; // px — keeps the handle fully inside the track at the extremes
 
 const Slider: React.FC<SliderProps> = ({
   label,
@@ -24,10 +22,55 @@ const Slider: React.FC<SliderProps> = ({
   onChange,
   format,
 }) => {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+
+  const decimals = (String(step).split('.')[1] || '').length;
+  const clampSnap = (v: number) => {
+    const snapped = Math.round((v - min) / step) * step + min;
+    const clamped = Math.min(max, Math.max(min, snapped));
+    return parseFloat(clamped.toFixed(decimals));
+  };
+
   const ratio = max > min ? Math.min(1, Math.max(0, (value - min) / (max - min))) : 0;
-  // Position the handle center within the padded track so it never overflows.
-  const pos = `calc(${ratio} * (100% - ${HANDLE}px) + ${HANDLE / 2}px)`;
+  const pos = `${ratio * 100}%`;
   const display = format ? format(value) : `${value}${unit}`;
+
+  const setFromClientX = (clientX: number) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const r = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    const next = clampSnap(min + r * (max - min));
+    if (next !== value) onChange(next);
+  };
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    e.preventDefault();
+    dragging.current = true;
+    try { trackRef.current?.setPointerCapture(e.pointerId); } catch { /* synthetic events */ }
+    setFromClientX(e.clientX);
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!dragging.current) return;
+    setFromClientX(e.clientX);
+  };
+  const endDrag = (e: React.PointerEvent) => {
+    dragging.current = false;
+    try { trackRef.current?.releasePointerCapture(e.pointerId); } catch { /* noop */ }
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    let next = value;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = clampSnap(value + step);
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = clampSnap(value - step);
+    else if (e.key === 'Home') next = clampSnap(min);
+    else if (e.key === 'End') next = clampSnap(max);
+    else return;
+    e.preventDefault();
+    if (next !== value) onChange(next);
+  };
 
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -37,40 +80,39 @@ const Slider: React.FC<SliderProps> = ({
         </label>
       )}
 
-      <div className="flex items-center gap-2">
-        {/* Track */}
-        <div className="reecap-track relative flex-1 h-9 rounded-[10px] bg-[var(--color-bg-hover)] border border-[var(--color-border-default)] overflow-hidden group">
-          {/* Filled progress */}
-          <div
-            className="absolute inset-y-0 left-0 bg-[var(--color-primary)]/20 transition-[width] duration-75"
-            style={{ width: pos }}
-          />
+      <div
+        ref={trackRef}
+        role="slider"
+        tabIndex={0}
+        aria-valuenow={value}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-label={label || undefined}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onKeyDown={onKeyDown}
+        className="relative h-9 w-full rounded-[10px] bg-[var(--color-bg-hover)] border border-[var(--color-border-default)] overflow-hidden cursor-ew-resize select-none touch-none outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
+      >
+        {/* Filled (value) region */}
+        <div
+          className="absolute inset-y-0 left-0 bg-black/[0.05] dark:bg-white/[0.06] pointer-events-none"
+          style={{ width: pos }}
+        />
 
-          {/* Grip handle */}
-          <div
-            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-7 rounded-[6px] bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-xs)] flex items-center justify-center gap-[3px] pointer-events-none transition-transform group-active:scale-105"
-            style={{ left: pos }}
-          >
-            <span className="w-px h-2.5 bg-[var(--color-border-strong)] rounded-full" />
-            <span className="w-px h-2.5 bg-[var(--color-border-strong)] rounded-full" />
-          </div>
-
-          {/* Invisible native range for drag + keyboard accessibility */}
-          <input
-            type="range"
-            min={min}
-            max={max}
-            step={step}
-            value={value}
-            onChange={(e) => onChange(parseFloat(e.target.value))}
-            aria-label={label || undefined}
-            className="absolute inset-0 w-full h-full m-0 opacity-0 cursor-pointer appearance-none"
-          />
-        </div>
-
-        {/* Value box */}
-        <div className="w-[60px] h-9 shrink-0 rounded-[8px] bg-[var(--color-bg-hover)] border border-[var(--color-border-default)] flex items-center justify-center text-[12px] font-semibold tabular-nums text-[var(--color-text-primary)]">
+        {/* In-track value */}
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] font-semibold tabular-nums text-[var(--color-text-secondary)] pointer-events-none">
           {display}
+        </span>
+
+        {/* Grip handle */}
+        <div
+          className="absolute top-1/2 flex gap-[3px] pointer-events-none"
+          style={{ left: pos, transform: 'translate(-50%, -50%)' }}
+        >
+          <span className="w-px h-3.5 bg-[var(--color-border-strong)] rounded-full" />
+          <span className="w-px h-3.5 bg-[var(--color-border-strong)] rounded-full" />
         </div>
       </div>
     </div>
