@@ -11,6 +11,7 @@ import MainSidebar from '../components/layout/MainSidebar';
 import CommunityHub from '../components/community/CommunityHub';
 import MediaShelf from '../components/layout/MediaShelf';
 import ShortcutsModal from '../components/ui/ShortcutsModal';
+import EditorMobileGate from '../components/layout/EditorMobileGate';
 import { slideDuration } from '../lib/utils';
 
 function Editor() {
@@ -84,6 +85,8 @@ function Editor() {
         isOpen={showShortcuts}
         onClose={() => setShowShortcuts(false)}
       />
+
+      <EditorMobileGate />
     </div>
   );
 }
