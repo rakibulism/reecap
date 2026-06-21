@@ -5,7 +5,7 @@ import { COMMUNITY_TRACKS } from '../../data/communityAudio';
 import { COMMUNITY_ASSETS } from '../../data/communityAssets';
 import { processFiles } from '../../lib/utils';
 
-const MediaShelf: React.FC = () => {
+const MediaShelf: React.FC<{ mobile?: boolean }> = ({ mobile = false }) => {
   const { 
     activePanel, 
     setActivePanel, 
@@ -30,6 +30,17 @@ const MediaShelf: React.FC = () => {
     addPhotos(processed);
   };
 
+  // Touch has no drag-to-canvas; tapping a community image adds it directly.
+  const addCommunityImage = (asset: { url: string; name: string }) => {
+    addPhotos([{
+      id: Math.random().toString(36).substr(2, 9),
+      file: new File([], asset.name || 'community-image'),
+      objectUrl: asset.url,
+      width: 1920,
+      height: 1080,
+    }]);
+  };
+
   const onDragStart = (e: React.DragEvent, item: any, type: 'image' | 'audio') => {
     e.dataTransfer.setData('type', type);
     e.dataTransfer.setData('itemId', item.id || item.url);
@@ -48,18 +59,20 @@ const MediaShelf: React.FC = () => {
   );
 
   return (
-    <div className="w-72 bg-[var(--color-bg-panel)] border-r border-[var(--color-border-default)] flex flex-col animate-in slide-in-from-left duration-300 relative z-20 shadow-xl">
-      <div className="flex items-center justify-between p-4 border-b border-[var(--color-border-default)]">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--color-text-primary)]">
-          {activePanel === 'assets' ? 'Media Assets' : 'Music Library'}
-        </h3>
-        <button 
-          onClick={() => setActivePanel('none')}
-          className="p-1 hover:bg-[var(--color-bg-hover)] rounded-full transition-colors text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
-        >
-          <X size={18} />
-        </button>
-      </div>
+    <div className={`bg-[var(--color-bg-panel)] flex flex-col relative ${mobile ? 'w-full' : 'w-72 border-r border-[var(--color-border-default)] animate-in slide-in-from-left duration-300 z-20 shadow-xl'}`}>
+      {!mobile && (
+        <div className="flex items-center justify-between p-4 border-b border-[var(--color-border-default)]">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--color-text-primary)]">
+            {activePanel === 'assets' ? 'Media Assets' : 'Music Library'}
+          </h3>
+          <button
+            onClick={() => setActivePanel('none')}
+            className="p-1 hover:bg-[var(--color-bg-hover)] rounded-full transition-colors text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+          >
+            <X size={18} />
+          </button>
+        </div>
+      )}
 
       {activePanel === 'assets' && (
         <div className="px-4 py-2 border-b border-[var(--color-border-default)] flex gap-2">
@@ -114,7 +127,7 @@ const MediaShelf: React.FC = () => {
                     className="group relative aspect-square rounded-[var(--radius-sm)] border border-[var(--color-border-default)] overflow-hidden bg-[var(--color-bg-surface)] cursor-grab active:cursor-grabbing"
                   >
                     <img src={photo.thumbnailUrl || photo.objectUrl} className="w-full h-full object-cover" alt="" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                    <div className={`absolute inset-0 bg-black/40 transition-opacity flex flex-col items-center justify-center gap-2 ${mobile ? 'opacity-100 bg-black/20' : 'opacity-0 group-hover:opacity-100'}`}>
                       <button 
                         onClick={() => removePhoto(photo.id)}
                         className="p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
@@ -132,17 +145,18 @@ const MediaShelf: React.FC = () => {
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {filteredCommunityAssets.map((asset) => (
-                <div 
+                <div
                   key={asset.id}
-                  draggable
+                  draggable={!mobile}
                   onDragStart={(e) => onDragStart(e, asset, 'image')}
-                  className="group relative aspect-square rounded-[var(--radius-sm)] border border-[var(--color-border-default)] overflow-hidden bg-[var(--color-bg-surface)] cursor-grab active:cursor-grabbing hover:border-[var(--color-interactive)] transition-all shadow-sm hover:shadow-md"
+                  onClick={mobile ? () => addCommunityImage(asset) : undefined}
+                  className={`group relative aspect-square rounded-[var(--radius-sm)] border border-[var(--color-border-default)] overflow-hidden bg-[var(--color-bg-surface)] transition-all shadow-sm hover:shadow-md hover:border-[var(--color-interactive)] ${mobile ? 'cursor-pointer active:scale-95' : 'cursor-grab active:cursor-grabbing'}`}
                 >
                   <img src={asset.thumbnail} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={asset.name} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                  <div className={`absolute inset-0 bg-gradient-to-t from-black/60 to-transparent transition-opacity flex items-end p-2 ${mobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                     <span className="text-[9px] text-white font-bold truncate w-full">{asset.name}</span>
                   </div>
-                  <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className={`absolute top-1 right-1 transition-opacity ${mobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                     <div className="bg-[var(--color-interactive)] p-1 rounded-full shadow-lg">
                       <Plus size={10} className="text-white" weight="bold" />
                     </div>
@@ -201,7 +215,7 @@ const MediaShelf: React.FC = () => {
 
       <div className="p-3 bg-[var(--color-bg-panel)] border-t border-[var(--color-border-default)]">
         <p className="text-[9px] text-center text-[var(--color-text-muted)] uppercase font-bold tracking-tighter">
-          Tip: Drag items onto the canvas
+          {mobile ? 'Tip: Tap an item to add it' : 'Tip: Drag items onto the canvas'}
         </p>
       </div>
     </div>

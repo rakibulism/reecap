@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useLayoutEffect, useState } from 'react';
 import { useReecapStore } from '../../store/reecapStore';
 import { Upload } from 'phosphor-react';
 import Button from '../ui/Button';
@@ -70,6 +70,32 @@ const CaptionOverlay: React.FC<{
 const Canvas: React.FC = () => {
   const { photos, activeIndex, settings, addPhotos, playbackProgress, isPlaying, setAudio, updatePhoto } = useReecapStore();
   const boxRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLElement>(null);
+
+  // Size the preview frame to "contain" the chosen aspect ratio within the
+  // available stage. A height-driven frame gets squashed by flexbox on narrow
+  // (portrait) viewports, so we measure and fit explicitly instead.
+  const [fit, setFit] = useState<{ w: number; h: number } | null>(null);
+  useLayoutEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const compute = () => {
+      const cs = getComputedStyle(el);
+      const cw = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const ch = el.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      if (cw <= 0 || ch <= 0) return;
+      const [aw, ah] = settings.aspectRatio.split(':').map(Number);
+      const ar = aw / ah;
+      let w = cw;
+      let h = cw / ar;
+      if (h > ch) { h = ch; w = ch * ar; }
+      setFit({ w: Math.round(w), h: Math.round(h) });
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [settings.aspectRatio, photos.length]);
 
   const currentPhoto = photos[activeIndex];
   const nextIndex = (activeIndex + 1) % photos.length;
@@ -227,19 +253,20 @@ const Canvas: React.FC = () => {
   const captionAppear = isPlaying ? Math.min(1, playbackProgress / 0.35) : 1;
 
   return (
-    <main 
-      className="flex-1 overflow-hidden relative flex items-center justify-center p-8 bg-[var(--color-bg-page)]"
+    <main
+      ref={stageRef}
+      className="flex-1 overflow-hidden relative flex items-center justify-center p-4 sm:p-8 bg-[var(--color-bg-page)]"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
       <div
         ref={boxRef}
         className="relative shadow-[var(--shadow-md)] bg-white overflow-hidden transition-all duration-500 flex items-center justify-center"
-        style={{
-          height: '100%',
-          width: 'auto',
-          aspectRatio: settings.aspectRatio.split(':').join(' / '),
-        }}
+        style={
+          fit
+            ? { width: `${fit.w}px`, height: `${fit.h}px` }
+            : { height: '100%', width: 'auto', aspectRatio: settings.aspectRatio.split(':').join(' / ') }
+        }
       >
         {/* Background Layer */}
         {settings.backgroundMode === 'slide' && currentPhoto && (
