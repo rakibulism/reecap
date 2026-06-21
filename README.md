@@ -152,8 +152,9 @@ src/
 
 - [x] Background audio support
 - [x] Per-slide duration (variable timing on the timeline)
-- [x] Text / caption overlay per slide
-- [ ] Transition rendering in exported video
+- [x] Text / caption overlay per slide (drag-anywhere, color, background, intro animation)
+- [x] Transition rendering in exported video (multi-frame MP4 export)
+- [x] Whole-video speed control (0.5×–10×)
 - [ ] Ken Burns (pan / zoom) motion
 - [ ] Brand watermark
 - [ ] GIF export
