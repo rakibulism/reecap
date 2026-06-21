@@ -1,18 +1,25 @@
-// Minimal service worker — its only job is to make Reecap installable as a PWA.
+// Kill-switch service worker.
 //
-// IMPORTANT: this worker intentionally has NO `fetch` handler.
+// Reecap previously registered a service worker (only to enable the PWA install
+// prompt). On the production origin that leftover worker is the prime suspect
+// for returning visitors seeing the site render without CSS, while a freshly
+// deployed preview origin — which has no worker — always looks correct.
 //
-// The app sets COOP/COEP (`require-corp`) so it can use SharedArrayBuffer for
-// WebCodecs/ffmpeg export. A service worker with a no-op `fetch` listener (one
-// that never calls `respondWith`) sits in the request path and drops the
-// cross-origin embedder context on `crossorigin` subresources, causing the
-// browser to block the page's CSS/JS under COEP — the whole site renders
-// unstyled. With no fetch handler the SW never touches subresource requests, so
-// the browser loads them directly with the correct COEP context.
-//
-// Modern Chromium no longer requires a fetch handler for installability, so the
-// PWA install prompt still works.
-//
-// sw-version: 2 — bump this when the worker changes so clients pick up updates.
+// This worker exists only to UNREGISTER any previously-installed worker and wipe
+// its caches, then get out of the way. The browser update-checks /sw.js on every
+// navigation in scope, so existing clients pick this up and self-heal. We no
+// longer register a worker from the app (see src/main.tsx). COEP/COOP — needed
+// for SharedArrayBuffer / ffmpeg export — come from HTTP headers (vercel.json),
+// not from the worker, so removing it does not affect export.
 self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    } catch { /* ignore */ }
+    await self.registration.unregister();
+    const clients = await self.clients.matchAll({ type: 'window' });
+    clients.forEach((c) => c.navigate(c.url));
+  })());
+});
