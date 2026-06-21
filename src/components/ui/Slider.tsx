@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface SliderProps {
   label?: string;
@@ -12,6 +12,13 @@ interface SliderProps {
   format?: (value: number) => string;
 }
 
+const snap = (v: number, min: number, max: number, step: number) => {
+  const decimals = (String(step).split('.')[1] || '').length;
+  const snapped = Math.round((v - min) / step) * step + min;
+  const clamped = Math.min(max, Math.max(min, snapped));
+  return parseFloat(clamped.toFixed(decimals));
+};
+
 const Slider: React.FC<SliderProps> = ({
   label,
   value,
@@ -23,54 +30,86 @@ const Slider: React.FC<SliderProps> = ({
   format,
 }) => {
   const trackRef = useRef<HTMLDivElement>(null);
-  const dragging = useRef(false);
 
-  const decimals = (String(step).split('.')[1] || '').length;
-  const clampSnap = (v: number) => {
-    const snapped = Math.round((v - min) / step) * step + min;
-    const clamped = Math.min(max, Math.max(min, snapped));
-    return parseFloat(clamped.toFixed(decimals));
-  };
+  // Keep the latest props in a ref so the native listeners (attached once)
+  // always read current values without being re-bound on every render.
+  const stateRef = useRef({ value, min, max, step, onChange });
+  stateRef.current = { value, min, max, step, onChange };
+
+  // Native pointer/wheel/key handling — avoids React synthetic-event quirks
+  // with setPointerCapture and keeps dragging perfectly smooth.
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    let dragging = false;
+
+    const setFromClientX = (clientX: number) => {
+      const rect = el.getBoundingClientRect();
+      if (rect.width <= 0) return;
+      const { min, max, step, value, onChange } = stateRef.current;
+      const r = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+      const next = snap(min + r * (max - min), min, max, step);
+      if (next !== value) onChange(next);
+    };
+
+    const stepBy = (dir: number) => {
+      const { value, min, max, step, onChange } = stateRef.current;
+      const next = snap(value + dir * step, min, max, step);
+      if (next !== value) onChange(next);
+    };
+
+    const onDown = (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      dragging = true;
+      try { el.setPointerCapture(e.pointerId); } catch { /* noop */ }
+      e.preventDefault();
+      setFromClientX(e.clientX);
+    };
+    const onMove = (e: PointerEvent) => {
+      if (dragging) setFromClientX(e.clientX);
+    };
+    const onUp = (e: PointerEvent) => {
+      dragging = false;
+      try { el.releasePointerCapture(e.pointerId); } catch { /* noop */ }
+    };
+
+    // Mac-friendly: hold Shift and scroll the trackpad up/down to nudge.
+    const onWheel = (e: WheelEvent) => {
+      if (!e.shiftKey) return;
+      const delta = e.deltaY !== 0 ? e.deltaY : e.deltaX;
+      if (!delta) return;
+      e.preventDefault();
+      stepBy(delta < 0 ? 1 : -1);
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') stepBy(1);
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') stepBy(-1);
+      else if (e.key === 'Home') stepBy(-Infinity);
+      else if (e.key === 'End') stepBy(Infinity);
+      else return;
+      e.preventDefault();
+    };
+
+    el.addEventListener('pointerdown', onDown);
+    el.addEventListener('pointermove', onMove);
+    el.addEventListener('pointerup', onUp);
+    el.addEventListener('pointercancel', onUp);
+    el.addEventListener('wheel', onWheel, { passive: false });
+    el.addEventListener('keydown', onKeyDown);
+    return () => {
+      el.removeEventListener('pointerdown', onDown);
+      el.removeEventListener('pointermove', onMove);
+      el.removeEventListener('pointerup', onUp);
+      el.removeEventListener('pointercancel', onUp);
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('keydown', onKeyDown);
+    };
+  }, []);
 
   const ratio = max > min ? Math.min(1, Math.max(0, (value - min) / (max - min))) : 0;
   const pos = `${ratio * 100}%`;
   const display = format ? format(value) : `${value}${unit}`;
-
-  const setFromClientX = (clientX: number) => {
-    const el = trackRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.width <= 0) return;
-    const r = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
-    const next = clampSnap(min + r * (max - min));
-    if (next !== value) onChange(next);
-  };
-
-  const onPointerDown = (e: React.PointerEvent) => {
-    e.preventDefault();
-    dragging.current = true;
-    try { trackRef.current?.setPointerCapture(e.pointerId); } catch { /* synthetic events */ }
-    setFromClientX(e.clientX);
-  };
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!dragging.current) return;
-    setFromClientX(e.clientX);
-  };
-  const endDrag = (e: React.PointerEvent) => {
-    dragging.current = false;
-    try { trackRef.current?.releasePointerCapture(e.pointerId); } catch { /* noop */ }
-  };
-
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    let next = value;
-    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = clampSnap(value + step);
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = clampSnap(value - step);
-    else if (e.key === 'Home') next = clampSnap(min);
-    else if (e.key === 'End') next = clampSnap(max);
-    else return;
-    e.preventDefault();
-    if (next !== value) onChange(next);
-  };
 
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -88,11 +127,6 @@ const Slider: React.FC<SliderProps> = ({
         aria-valuemin={min}
         aria-valuemax={max}
         aria-label={label || undefined}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        onKeyDown={onKeyDown}
         className="relative h-9 w-full rounded-[10px] bg-[var(--color-bg-hover)] border border-[var(--color-border-default)] overflow-hidden cursor-ew-resize select-none touch-none outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
       >
         {/* Filled (value) region */}
