@@ -1,9 +1,21 @@
 import { useEffect, useRef } from 'react';
 import { useReecapStore } from '../store/reecapStore';
+import { slideDuration } from '../lib/utils';
 
 export function useAudioSync() {
   const { isPlaying, audio, activeIndex, settings, photos, playbackSpeed, playbackProgress } = useReecapStore();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Audio offset = elapsed timeline time up to the playhead, using cumulative
+  // per-slide durations (slides can have custom durations), scaled by speed.
+  const audioTargetTime = () => {
+    let elapsed = 0;
+    for (let i = 0; i < activeIndex && i < photos.length; i++) {
+      elapsed += slideDuration(photos[i], settings);
+    }
+    elapsed += playbackProgress * slideDuration(photos[activeIndex], settings);
+    return elapsed / playbackSpeed;
+  };
 
   // Initialize audio element
   useEffect(() => {
@@ -24,11 +36,9 @@ export function useAudioSync() {
     if (!audioRef.current || !audio) return;
 
     if (isPlaying && photos.length > 0) {
-      // Calculate current time based on timeline position
-      // Slide duration is settings.duration / playbackSpeed
-      const slideDuration = settings.duration / playbackSpeed;
-      const currentTime = (activeIndex * slideDuration) + (playbackProgress * slideDuration);
-      
+      // Calculate current time from cumulative per-slide durations
+      const currentTime = audioTargetTime();
+
       // Only set time if diff is significant (> 0.2s) to avoid stuttering
       if (Math.abs(audioRef.current.currentTime - currentTime) > 0.2) {
         audioRef.current.currentTime = currentTime;
@@ -46,9 +56,8 @@ export function useAudioSync() {
     if (!isPlaying || !audioRef.current || !audio) return;
 
     const interval = setInterval(() => {
-      const slideDuration = settings.duration / playbackSpeed;
-      const targetTime = (activeIndex * slideDuration) + (playbackProgress * slideDuration);
-      
+      const targetTime = audioTargetTime();
+
       // Gentle sync
       if (Math.abs(audioRef.current!.currentTime - targetTime) > 0.3) {
         audioRef.current!.currentTime = targetTime;

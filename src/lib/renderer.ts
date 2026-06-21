@@ -90,14 +90,15 @@ export async function renderFrame(
   ctx.drawImage(img, drawX, drawY, drawW, drawH);
   ctx.restore();
 
-  // 4. Draw caption overlay (if any)
+  // 4. Draw caption overlay (if any).
+  // Position relative to the VISIBLE frame, mirroring the preview: for 'cover'
+  // the image overflows the padded frame (drawW/H oversized, drawX/Y negative),
+  // so captions must use the padded frame rect, not the off-screen image rect.
   if (photo.caption && photo.caption.trim()) {
-    drawCaption(ctx, photo.caption.trim(), photo.captionPosition || 'bottom', {
-      x: drawX,
-      y: drawY,
-      w: drawW,
-      h: drawH,
-    });
+    const captionRect = settings.imageFit === 'cover'
+      ? { x: padding, y: padding, w: frameW, h: frameH }
+      : { x: drawX, y: drawY, w: drawW, h: drawH };
+    drawCaption(ctx, photo.caption.trim(), photo.captionPosition || 'bottom', captionRect);
   }
 }
 
