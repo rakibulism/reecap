@@ -172,7 +172,7 @@ const Slider: React.FC<SliderProps> = ({
       >
         {/* Filled (value) region */}
         <div
-          className="absolute inset-y-0 left-0 bg-black/[0.05] dark:bg-white/[0.06] pointer-events-none"
+          className="absolute inset-y-0 left-0 bg-black/[0.08] dark:bg-white/[0.06] pointer-events-none"
           style={{ width: pos }}
         />
 
