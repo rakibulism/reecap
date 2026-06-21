@@ -12,6 +12,10 @@ interface SliderProps {
   format?: (value: number) => string;
 }
 
+// Accumulated scroll distance (px) required to advance one step via Shift+wheel.
+// Decouples step rate from the (very high) trackpad wheel-event frequency.
+const WHEEL_STEP_PX = 48;
+
 const snap = (v: number, min: number, max: number, step: number) => {
   const decimals = (String(step).split('.')[1] || '').length;
   const snapped = Math.round((v - min) / step) * step + min;
@@ -31,17 +35,14 @@ const Slider: React.FC<SliderProps> = ({
 }) => {
   const trackRef = useRef<HTMLDivElement>(null);
 
-  // Keep the latest props in a ref so the native listeners (attached once)
-  // always read current values without being re-bound on every render.
+  // Keep latest props in a ref so listeners (attached once) read current values.
   const stateRef = useRef({ value, min, max, step, onChange });
   stateRef.current = { value, min, max, step, onChange };
 
-  // Native pointer/wheel/key handling — avoids React synthetic-event quirks
-  // with setPointerCapture and keeps dragging perfectly smooth.
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
-    let dragging = false;
+    let wheelAccum = 0;
 
     const setFromClientX = (clientX: number) => {
       const rect = el.getBoundingClientRect();
@@ -58,28 +59,36 @@ const Slider: React.FC<SliderProps> = ({
       if (next !== value) onChange(next);
     };
 
+    // Drag: move/up live on window so the whole gesture is tracked even when
+    // the cursor leaves the (short) track — the canonical robust slider drag.
+    const onMove = (e: PointerEvent) => setFromClientX(e.clientX);
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      document.body.style.userSelect = '';
+    };
     const onDown = (e: PointerEvent) => {
       if (e.button !== 0) return;
-      dragging = true;
-      try { el.setPointerCapture(e.pointerId); } catch { /* noop */ }
       e.preventDefault();
+      el.focus();
+      document.body.style.userSelect = 'none';
       setFromClientX(e.clientX);
-    };
-    const onMove = (e: PointerEvent) => {
-      if (dragging) setFromClientX(e.clientX);
-    };
-    const onUp = (e: PointerEvent) => {
-      dragging = false;
-      try { el.releasePointerCapture(e.pointerId); } catch { /* noop */ }
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
     };
 
-    // Mac-friendly: hold Shift and scroll the trackpad up/down to nudge.
+    // Mac-friendly: hold Shift and scroll the trackpad up/down to nudge,
+    // accumulating delta so it advances smoothly rather than racing.
     const onWheel = (e: WheelEvent) => {
       if (!e.shiftKey) return;
       const delta = e.deltaY !== 0 ? e.deltaY : e.deltaX;
       if (!delta) return;
       e.preventDefault();
-      stepBy(delta < 0 ? 1 : -1);
+      wheelAccum += delta;
+      while (Math.abs(wheelAccum) >= WHEEL_STEP_PX) {
+        stepBy(wheelAccum < 0 ? 1 : -1);
+        wheelAccum -= Math.sign(wheelAccum) * WHEEL_STEP_PX;
+      }
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -92,18 +101,15 @@ const Slider: React.FC<SliderProps> = ({
     };
 
     el.addEventListener('pointerdown', onDown);
-    el.addEventListener('pointermove', onMove);
-    el.addEventListener('pointerup', onUp);
-    el.addEventListener('pointercancel', onUp);
     el.addEventListener('wheel', onWheel, { passive: false });
     el.addEventListener('keydown', onKeyDown);
     return () => {
       el.removeEventListener('pointerdown', onDown);
-      el.removeEventListener('pointermove', onMove);
-      el.removeEventListener('pointerup', onUp);
-      el.removeEventListener('pointercancel', onUp);
       el.removeEventListener('wheel', onWheel);
       el.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      document.body.style.userSelect = '';
     };
   }, []);
 
