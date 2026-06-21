@@ -2,20 +2,10 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
+// Note: no COOP/COEP headers. The export pipeline is WebCodecs (VideoEncoder +
+// mp4-muxer), which does NOT need SharedArrayBuffer / crossOriginIsolated. COEP
+// `require-corp` actively broke the `crossorigin` stylesheet under strict-COEP
+// browsers (e.g. Edge), rendering the whole site unstyled. Keep it off.
 export default defineConfig({
   plugins: [react()],
-  // COOP/COEP headers enable SharedArrayBuffer, required by the
-  // WebCodecs/FFmpeg video export pipeline during local development.
-  server: {
-    headers: {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-    },
-  },
-  preview: {
-    headers: {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-    },
-  },
 })
