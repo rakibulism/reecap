@@ -6,6 +6,7 @@ import {
   GithubLogo, TwitterLogo, Check, Lightning, Stack,
 } from 'phosphor-react';
 import Button from '../components/ui/Button';
+import InstallButton from '../components/ui/InstallButton';
 
 const REPO_URL = 'https://github.com/rakibulism/reecap';
 
@@ -46,10 +47,15 @@ const Nav: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
         <a href="#privacy" className="hover:text-[var(--color-text-primary)] transition-colors">Privacy</a>
         <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--color-text-primary)] transition-colors">GitHub</a>
       </nav>
-      <Button variant="primary" size="md" onClick={onOpen} className="group">
-        Open editor
-        <ArrowRight size={16} className="ml-1.5 transition-transform group-hover:translate-x-0.5" />
-      </Button>
+      <div className="flex items-center gap-2.5">
+        <div className="hidden sm:block">
+          <InstallButton variant="solid" />
+        </div>
+        <Button variant="primary" size="md" onClick={onOpen} className="group">
+          Open editor
+          <ArrowRight size={16} className="ml-1.5 transition-transform group-hover:translate-x-0.5" />
+        </Button>
+      </div>
     </div>
   </header>
 );

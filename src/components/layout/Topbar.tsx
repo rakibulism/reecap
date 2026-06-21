@@ -14,6 +14,7 @@ import {
 import Button from '../ui/Button';
 import SegmentedControl from '../ui/SegmentedControl';
 import Tooltip from '../ui/Tooltip';
+import InstallButton from '../ui/InstallButton';
 import { useExport } from '../../hooks/useExport';
 
 const Topbar: React.FC = () => {
@@ -112,6 +113,10 @@ const Topbar: React.FC = () => {
               <Monitor size={16} />
             </button>
           </Tooltip>
+        </div>
+
+        <div className="hidden md:block">
+          <InstallButton variant="ghost" />
         </div>
 
         <Tooltip content="Keyboard Shortcuts (?)" position="left">
