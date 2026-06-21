@@ -1,7 +1,6 @@
 import React from 'react';
 import { Gauge } from 'phosphor-react';
 import Slider from '../ui/Slider';
-import Tooltip from '../ui/Tooltip';
 
 interface Props {
   speed: number;
@@ -12,9 +11,7 @@ interface Props {
  *  preview and the exported MP4. */
 const SpeedControl: React.FC<Props> = ({ speed, onChange }) => (
   <div className="flex items-center gap-2 w-60 select-none">
-    <Tooltip content="Speed — applies to the whole video & export">
-      <Gauge size={16} className="text-[var(--color-text-muted)] shrink-0" />
-    </Tooltip>
+    <Gauge size={16} className="text-[var(--color-text-muted)] shrink-0" aria-label="Speed" />
     <div className="flex-1 min-w-0">
       <Slider
         label=""
