@@ -12,6 +12,8 @@ import CommunityHub from '../components/community/CommunityHub';
 import MediaShelf from '../components/layout/MediaShelf';
 import ShortcutsModal from '../components/ui/ShortcutsModal';
 import EditorMobileGate from '../components/layout/EditorMobileGate';
+import MobileEditor from '../components/layout/MobileEditor';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { slideDuration } from '../lib/utils';
 
 function Editor() {
@@ -21,6 +23,8 @@ function Editor() {
     showShortcuts, setShowShortcuts,
     activeView,
   } = useReecapStore();
+
+  const isMobile = useIsMobile();
 
   useKeyboardShortcuts();
   useAudioSync();
@@ -60,25 +64,32 @@ function Editor() {
   return (
     <div className="flex flex-col h-screen bg-[var(--color-bg-page)] text-[var(--color-text-primary)] overflow-hidden font-sans">
       <MainSidebar />
-      <Topbar />
 
-      {activeView === 'editor' ? (
-        <>
-          <div className="flex flex-1 overflow-hidden">
-            <Sidebar />
-            <MediaShelf />
-
-            <div className="flex-1 flex flex-col overflow-hidden relative">
-              <Canvas />
-            </div>
-
-            <ControlPanel />
-          </div>
-
-          <Timeline />
-        </>
+      {isMobile ? (
+        <MobileEditor />
       ) : (
-        <CommunityHub />
+        <>
+          <Topbar />
+
+          {activeView === 'editor' ? (
+            <>
+              <div className="flex flex-1 overflow-hidden">
+                <Sidebar />
+                <MediaShelf />
+
+                <div className="flex-1 flex flex-col overflow-hidden relative">
+                  <Canvas />
+                </div>
+
+                <ControlPanel />
+              </div>
+
+              <Timeline />
+            </>
+          ) : (
+            <CommunityHub />
+          )}
+        </>
       )}
 
       <ShortcutsModal

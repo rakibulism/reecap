@@ -63,7 +63,7 @@ const ColorField = ({
   </div>
 );
 
-const ControlPanel: React.FC = () => {
+const ControlPanel: React.FC<{ mobile?: boolean }> = ({ mobile = false }) => {
   const { photos, activeIndex, settings, updateSettings, audio, setAudio, updatePhoto } = useReecapStore();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -109,7 +109,7 @@ const ControlPanel: React.FC = () => {
   }, [searchQuery]);
 
   return (
-    <aside className="w-[280px] border-l border-[var(--color-border-default)] flex flex-col bg-[var(--color-bg-panel)] overflow-y-auto">
+    <aside className={`flex flex-col bg-[var(--color-bg-panel)] ${mobile ? 'w-full' : 'w-[280px] border-l border-[var(--color-border-default)] overflow-y-auto'}`}>
       <Section title="Animation">
         <div>
           <div className="flex items-center justify-between mb-2">

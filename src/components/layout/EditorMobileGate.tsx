@@ -14,7 +14,7 @@ const EditorMobileGate: React.FC = () => {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  if (width >= 768 || dismissed) return null;
+  if (width >= 380 || dismissed) return null;
 
   return (
     <div className="fixed inset-0 z-[5000] bg-[var(--color-bg-page)] flex flex-col items-center justify-center text-center px-7" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
@@ -27,10 +27,10 @@ const EditorMobileGate: React.FC = () => {
         <span className="text-[12px] font-bold uppercase tracking-wider">Best on a bigger screen</span>
       </div>
 
-      <h1 className="text-2xl font-bold tracking-tight mb-3">The editor needs some room</h1>
+      <h1 className="text-2xl font-bold tracking-tight mb-3">Your screen is a little tight</h1>
       <p className="text-[var(--color-text-secondary)] leading-relaxed max-w-sm mb-9">
-        Reecap's timeline and side panels are built for tablets and desktops. Open this page on a
-        larger screen for the full experience — or continue anyway.
+        Reecap's editor works great on most phones, but this screen is unusually narrow. Rotate to
+        portrait or open on a slightly larger device for the best experience — or continue anyway.
       </p>
 
       <div className="flex flex-col gap-3 w-full max-w-xs">
