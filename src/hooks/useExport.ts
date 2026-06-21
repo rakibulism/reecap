@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useReecapStore } from '../store/reecapStore';
-import { renderFrame } from '../lib/renderer';
-import { exportWithWebCodecs } from '../lib/webCodecsEncoder';
-import { slideDuration } from '../lib/utils';
+import { encodeVideo } from '../lib/webCodecsEncoder';
+import { buildTimeline, renderTimelineFrame } from '../lib/videoRenderer';
+
+const FPS = 30;
 
 export function useExport() {
   const { photos, settings, audio, playbackSpeed, setExporting, setExportProgress } = useReecapStore();
@@ -19,9 +20,6 @@ export function useExport() {
     setError(null);
 
     try {
-      const frameBlobs: Blob[] = [];
-      const canvas = document.createElement('canvas');
-      
       // Resolution mapping
       const resolutions: Record<string, { width: number; height: number }> = {
         '16:9': settings.exportQuality === '1x' ? { width: 1280, height: 720 } : { width: 1920, height: 1080 },
@@ -30,59 +28,48 @@ export function useExport() {
         '1:1': settings.exportQuality === '1x' ? { width: 720, height: 720 } : { width: 1080, height: 1080 },
         '9:16': settings.exportQuality === '1x' ? { width: 720, height: 1280 } : { width: 1080, height: 1920 },
       };
-
       const dim = resolutions[settings.aspectRatio];
-      
-      // 0. Pre-load all images for better performance
+
+      // Pre-load all images.
       const imageMap = new Map<string, HTMLImageElement>();
-      await Promise.all(photos.map(async (photo) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        await new Promise((resolve) => {
-          img.onload = resolve;
-          img.src = photo.objectUrl;
-        });
-        imageMap.set(photo.id, img);
-      }));
-
-      // 1. Render frames (One frame per photo)
-      for (let i = 0; i < photos.length; i++) {
-        // Pass the pre-loaded image to renderFrame if we modify it, 
-        // OR renderFrame will load it from objectUrl (which is cached by browser anyway)
-        // Let's just rely on the loop being faster since browser cache is warm now.
-        await renderFrame(canvas, photos[i], settings, { width: dim.width, height: dim.height });
-        
-        const blob = await new Promise<Blob>((resolve) => 
-          canvas.toBlob((b) => resolve(b!), 'image/png')
-        );
-
-        frameBlobs.push(blob);
-        setExportProgress(Math.round(((i + 1) / photos.length) * 15)); // First 15% is rendering
-      }
-
-      // 2. Encode to MP4 using Hardware Accelerated WebCodecs.
-      // Global speed scales every slide's on-screen duration (faster = shorter).
-      const speed = playbackSpeed || 1;
-      const durations = photos.map((p) => slideDuration(p, settings) / speed);
-      const videoBlob = await exportWithWebCodecs(
-        frameBlobs,
-        durations,
-        dim,
-        (progress) => {
-          setExportProgress(15 + Math.round(progress * 0.85));
-        },
-        audio ? await fetch(audio.url).then(r => r.blob()) : null,
-        speed
+      await Promise.all(
+        photos.map(
+          (photo) =>
+            new Promise<void>((resolve, reject) => {
+              const img = new Image();
+              img.crossOrigin = 'anonymous';
+              img.onload = () => {
+                imageMap.set(photo.id, img);
+                resolve();
+              };
+              img.onerror = () => reject(new Error('Failed to load an image for export'));
+              img.src = photo.objectUrl || photo.url || '';
+            })
+        )
       );
 
-      // 3. Download
+      // Build the speed-scaled timeline and render every frame (transitions +
+      // caption animations baked in) straight into the encoder.
+      const speed = playbackSpeed || 1;
+      const { clips, total } = buildTimeline(photos, settings, speed);
+
+      const videoBlob = await encodeVideo({
+        totalDuration: total,
+        fps: FPS,
+        dimensions: dim,
+        onProgress: (p) => setExportProgress(p),
+        renderFrame: (ctx, t) => renderTimelineFrame(ctx, t, clips, settings, dim, imageMap),
+        audioBlob: audio ? await fetch(audio.url).then((r) => r.blob()) : null,
+        speed,
+      });
+
+      // Download
       const url = URL.createObjectURL(videoBlob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `reecap-export-${new Date().toISOString().slice(0, 10)}.mp4`;
       a.click();
       URL.revokeObjectURL(url);
-
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Export failed');
