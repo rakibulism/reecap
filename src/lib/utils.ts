@@ -1,4 +1,27 @@
-import { type Photo } from '../types';
+import { type Photo, type ReecapSettings } from '../types';
+
+/**
+ * Resolve the effective on-screen duration (seconds) for a slide,
+ * falling back to the project-wide default when no per-slide value is set.
+ */
+export function slideDuration(photo: Photo | undefined, settings: ReecapSettings): number {
+  const d = photo?.duration;
+  return typeof d === 'number' && d > 0 ? d : settings.duration;
+}
+
+/**
+ * Caption anchor (center) as fractions of the frame (0–1). Prefers the custom
+ * captionX/Y; otherwise derives from the top/center/bottom preset.
+ */
+export function captionAnchor(photo: Photo): { x: number; y: number } {
+  const presetY = photo.captionPosition === 'top' ? 0.1
+    : photo.captionPosition === 'center' ? 0.5
+    : 0.9;
+  return {
+    x: photo.captionX ?? 0.5,
+    y: photo.captionY ?? presetY,
+  };
+}
 
 /**
  * Utility to process uploaded files, extract dimensions and generate thumbnails.

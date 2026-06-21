@@ -5,8 +5,16 @@ import { SortableContext, horizontalListSortingStrategy, useSortable } from '@dn
 import { CSS } from '@dnd-kit/utilities';
 import { Trash } from 'phosphor-react';
 import PlaybackBar from '../playback/PlaybackBar';
+import { slideDuration } from '../../lib/utils';
 
-const SortableTimelineItem = ({ photo, index, isActive, onSelect, onDelete }: any) => {
+// Visual scale of the timeline track.
+const PX_PER_SECOND = 56;
+const MIN_CLIP_WIDTH = 64;
+const GAP = 8;
+
+const clipWidth = (duration: number) => Math.max(MIN_CLIP_WIDTH, Math.round(duration * PX_PER_SECOND));
+
+const SortableTimelineItem = ({ photo, index, isActive, width, duration, onSelect, onDelete }: any) => {
   const {
     attributes,
     listeners,
@@ -20,31 +28,35 @@ const SortableTimelineItem = ({ photo, index, isActive, onSelect, onDelete }: an
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 10 : 1,
+    width: `${width}px`,
   };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative flex-shrink-0 w-24 h-16 rounded-[var(--radius-sm)] border-2 cursor-pointer transition-all overflow-hidden group
+      className={`relative flex-shrink-0 h-16 rounded-[var(--radius-sm)] border-2 cursor-pointer transition-[border,box-shadow] overflow-hidden group
         ${isActive ? 'border-[var(--color-interactive)] ring-2 ring-[var(--color-interactive)] ring-opacity-20' : 'border-transparent hover:border-[var(--color-border-strong)]'}`}
       onClick={() => onSelect(index)}
     >
-      <div 
-        {...attributes} 
+      <div
+        {...attributes}
         {...listeners}
         className="w-full h-full bg-[var(--color-bg-panel)]"
       >
-        <img 
-          src={photo.thumbnailUrl || photo.objectUrl} 
+        <img
+          src={photo.thumbnailUrl || photo.objectUrl}
           alt={`Slide ${index + 1}`}
           className="w-full h-full object-cover pointer-events-none"
         />
       </div>
-      
-      <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-1 py-0.5 backdrop-blur-sm">
+
+      <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-1.5 py-0.5 backdrop-blur-sm flex items-center justify-between">
         <span className="text-[9px] font-bold text-white tabular-nums">
           {index + 1}
+        </span>
+        <span className="text-[9px] font-medium text-white/80 tabular-nums">
+          {duration.toFixed(1)}s
         </span>
       </div>
 
@@ -62,7 +74,7 @@ const SortableTimelineItem = ({ photo, index, isActive, onSelect, onDelete }: an
 };
 
 const Timeline: React.FC = () => {
-  const { photos, activeIndex, setActiveIndex, reorderPhotos, removePhoto, playbackProgress } = useReecapStore();
+  const { photos, settings, activeIndex, setActiveIndex, reorderPhotos, removePhoto, playbackProgress } = useReecapStore();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const sensors = useSensors(
@@ -82,16 +94,24 @@ const Timeline: React.FC = () => {
   // Sync scroll with active index
   useEffect(() => {
     if (scrollRef.current) {
-      const activeEl = scrollRef.current.children[activeIndex] as HTMLElement;
+      const track = scrollRef.current.querySelector('[data-track]');
+      const activeEl = track?.children[activeIndex] as HTMLElement | undefined;
       if (activeEl) {
         activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       }
     }
   }, [activeIndex]);
 
-  // Calculate playhead visual offset
-  // Each slide is 96px (w-24) + 8px (gap-2) = 104px
-  const playheadX = (activeIndex * 104) + (playbackProgress * 104);
+  // Per-slide durations and proportional widths.
+  const durations = photos.map((p) => slideDuration(p, settings));
+  const widths = durations.map(clipWidth);
+
+  // Cumulative playhead offset across variable-width clips.
+  let playheadX = 0;
+  for (let i = 0; i < activeIndex && i < widths.length; i++) {
+    playheadX += widths[i] + GAP;
+  }
+  playheadX += playbackProgress * (widths[activeIndex] ?? 0);
 
   return (
     <div className="flex flex-col border-t border-[var(--color-border-default)] bg-[var(--color-bg-page)] overflow-visible relative z-20">
@@ -100,14 +120,14 @@ const Timeline: React.FC = () => {
 
       {/* Media Layer */}
       <div className="relative h-24 flex bg-[var(--color-bg-panel)]/30 overflow-hidden">
-        <div 
+        <div
           ref={scrollRef}
           className="flex-1 overflow-x-auto overflow-y-hidden px-[50%] flex items-center gap-2 custom-scrollbar no-scrollbar scroll-smooth"
         >
           {/* Timeline Track Content */}
           <div className="relative flex items-center gap-2 py-4 h-full">
             {/* Playhead Indicator */}
-            <div 
+            <div
               className="absolute top-0 bottom-0 w-px bg-[var(--color-interactive)] z-20 pointer-events-none shadow-[0_0_12px_var(--color-interactive)] transition-transform duration-75 ease-linear"
               style={{ transform: `translateX(${playheadX}px)` }}
             >
@@ -115,35 +135,39 @@ const Timeline: React.FC = () => {
             </div>
 
             {photos.length === 0 ? (
-            <div className="flex flex-col items-center justify-center w-full min-w-[300px] h-full opacity-40">
-              <span className="text-[11px] font-medium uppercase tracking-wider">Empty Timeline</span>
-              <span className="text-[10px]">Add photos to start editing</span>
-            </div>
-          ) : (
-            <DndContext 
-              sensors={sensors}
-              collisionDetection={closestCenter} 
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext items={photos.map(p => p.id)} strategy={horizontalListSortingStrategy}>
-                {photos.map((photo, index) => (
-                  <SortableTimelineItem
-                    key={photo.id}
-                    photo={photo}
-                    index={index}
-                    isActive={activeIndex === index}
-                    onSelect={setActiveIndex}
-                    onDelete={removePhoto}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
-          )}
+              <div className="flex flex-col items-center justify-center w-full min-w-[300px] h-full opacity-40">
+                <span className="text-[11px] font-medium uppercase tracking-wider">Empty Timeline</span>
+                <span className="text-[10px]">Add photos to start editing</span>
+              </div>
+            ) : (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext items={photos.map(p => p.id)} strategy={horizontalListSortingStrategy}>
+                  <div data-track className="flex items-center gap-2">
+                    {photos.map((photo, index) => (
+                      <SortableTimelineItem
+                        key={photo.id}
+                        photo={photo}
+                        index={index}
+                        width={widths[index]}
+                        duration={durations[index]}
+                        isActive={activeIndex === index}
+                        onSelect={setActiveIndex}
+                        onDelete={removePhoto}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            )}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default Timeline;

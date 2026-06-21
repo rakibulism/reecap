@@ -7,7 +7,23 @@ export interface Photo {
   width: number;
   height: number;
   transition?: 'fade' | 'slide' | 'zoom' | 'none' | 'slide-up' | 'wipe' | 'flip' | 'dissolve';
+  duration?: number;       // per-slide seconds; falls back to settings.duration
+  caption?: string;        // optional text overlay
+  captionPosition?: 'top' | 'center' | 'bottom'; // preset; used as fallback when x/y unset
+  captionX?: number;       // custom center X as fraction of frame (0–1)
+  captionY?: number;       // custom center Y as fraction of frame (0–1)
+  captionColor?: string;   // text color (hex); defaults to white
+  captionBg?: string;      // pill background behind text (hex); undefined = none
+  captionAnimation?: CaptionAnimation; // intro animation (preview)
 }
+
+export type CaptionAnimation =
+  | 'none'
+  | 'fade'
+  | 'slide-up'
+  | 'slide-down'
+  | 'pop'
+  | 'typewriter';
 
 export interface ReecapSettings {
   duration: number;        // seconds per slide (0.2–5.0)

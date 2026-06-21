@@ -1,12 +1,76 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useReecapStore } from '../../store/reecapStore';
 import { Upload } from 'phosphor-react';
 import Button from '../ui/Button';
-import { processFiles } from '../../lib/utils';
+import { processFiles, captionAnchor } from '../../lib/utils';
+import type { Photo } from '../../types';
+
+// Draggable, animated caption overlay positioned by a fractional anchor (0–1)
+// within the frame. Animation plays over the first part of the slide.
+const CaptionOverlay: React.FC<{
+  photo: Photo;
+  boxRef: React.RefObject<HTMLDivElement | null>;
+  appear: number;
+  onMove: (x: number, y: number) => void;
+}> = ({ photo, boxRef, appear, onMove }) => {
+  const { x, y } = captionAnchor(photo);
+  const anim = photo.captionAnimation || 'none';
+
+  let opacity = 1;
+  let extraTransform = '';
+  let text = photo.caption || '';
+  if (anim === 'fade') opacity = appear;
+  else if (anim === 'slide-up') { opacity = appear; extraTransform = `translateY(${(1 - appear) * 22}px)`; }
+  else if (anim === 'slide-down') { opacity = appear; extraTransform = `translateY(${-(1 - appear) * 22}px)`; }
+  else if (anim === 'pop') { opacity = appear; extraTransform = `scale(${0.8 + appear * 0.2})`; }
+  else if (anim === 'typewriter') text = text.slice(0, Math.ceil(appear * text.length));
+
+  const startDrag = (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const move = (ev: PointerEvent) => {
+      const rect = boxRef.current?.getBoundingClientRect();
+      if (!rect || rect.width <= 0) return;
+      const nx = Math.min(0.98, Math.max(0.02, (ev.clientX - rect.left) / rect.width));
+      const ny = Math.min(0.98, Math.max(0.02, (ev.clientY - rect.top) / rect.height));
+      onMove(nx, ny);
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <div
+      className="absolute z-30 flex justify-center"
+      style={{ left: `${x * 100}%`, top: `${y * 100}%`, transform: `translate(-50%, -50%) ${extraTransform}`, opacity }}
+    >
+      <span
+        onPointerDown={startDrag}
+        className="text-center font-semibold leading-snug cursor-move select-none whitespace-pre-wrap"
+        style={{
+          color: photo.captionColor || '#ffffff',
+          fontSize: 'clamp(14px, 2.2vw, 34px)',
+          textShadow: photo.captionBg ? 'none' : '0 2px 12px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.8)',
+          background: photo.captionBg || 'transparent',
+          padding: photo.captionBg ? '0.2em 0.5em' : '0.1em 0.2em',
+          borderRadius: photo.captionBg ? '0.3em' : 0,
+          maxWidth: '80vw',
+        }}
+      >
+        {text}
+      </span>
+    </div>
+  );
+};
 
 const Canvas: React.FC = () => {
-  const { photos, activeIndex, settings, addPhotos, playbackProgress, setAudio } = useReecapStore();
-  
+  const { photos, activeIndex, settings, addPhotos, playbackProgress, isPlaying, setAudio, updatePhoto } = useReecapStore();
+  const boxRef = useRef<HTMLDivElement>(null);
+
   const currentPhoto = photos[activeIndex];
   const nextIndex = (activeIndex + 1) % photos.length;
   const nextPhoto = photos[nextIndex];
@@ -135,7 +199,7 @@ const Canvas: React.FC = () => {
     }
 
     return (
-      <div 
+      <div
         key={`${photo.id}-${isNext ? 'next' : 'curr'}`}
         className={`relative w-full h-full overflow-hidden flex items-center justify-center`}
         style={style}
@@ -147,8 +211,8 @@ const Canvas: React.FC = () => {
             overflow: 'hidden'
           }}
         >
-          <img 
-            src={imageUrl} 
+          <img
+            src={imageUrl}
             className={`${settings.imageFit === 'cover' ? 'w-full h-full object-cover' : 'w-auto h-full max-w-full object-contain block'}`}
             draggable={false}
             alt=""
@@ -158,15 +222,20 @@ const Canvas: React.FC = () => {
     );
   };
 
+  // Caption intro animation progresses over the first ~35% of the slide while
+  // playing; at rest it shows the final state so it can be edited/positioned.
+  const captionAppear = isPlaying ? Math.min(1, playbackProgress / 0.35) : 1;
+
   return (
     <main 
       className="flex-1 overflow-hidden relative flex items-center justify-center p-8 bg-[var(--color-bg-page)]"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
-      <div 
+      <div
+        ref={boxRef}
         className="relative shadow-[var(--shadow-md)] bg-white overflow-hidden transition-all duration-500 flex items-center justify-center"
-        style={{ 
+        style={{
           height: '100%',
           width: 'auto',
           aspectRatio: settings.aspectRatio.split(':').join(' / '),
@@ -213,6 +282,16 @@ const Canvas: React.FC = () => {
             {p > 0 && renderSlide(nextPhoto, p, true)}
           </div>
         </div>
+
+        {/* Caption overlay (current slide) — draggable, animated */}
+        {currentPhoto?.caption && (
+          <CaptionOverlay
+            photo={currentPhoto}
+            boxRef={boxRef}
+            appear={captionAppear}
+            onMove={(x, y) => updatePhoto(currentPhoto.id, { captionX: x, captionY: y })}
+          />
+        )}
       </div>
     </main>
   );

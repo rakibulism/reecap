@@ -2,9 +2,66 @@ import React, { useState, useMemo } from 'react';
 import { useReecapStore } from '../../store/reecapStore';
 import Slider from '../ui/Slider';
 import SegmentedControl from '../ui/SegmentedControl';
-import { SpeakerHigh, Trash, MagnifyingGlass, MusicNotes, Plus } from 'phosphor-react';
+import { SpeakerHigh, Trash, MagnifyingGlass, MusicNotes, Plus, TextT } from 'phosphor-react';
 import { COMMUNITY_TRACKS } from '../../data/communityAudio';
 import { COMMUNITY_BACKGROUNDS, SUGGESTED_GRADIENTS } from '../../data/communityBackgrounds';
+import { slideDuration } from '../../lib/utils';
+
+// Defined at module scope so it keeps a stable identity across renders —
+// otherwise the whole subtree (and any focused input/textarea) remounts on
+// every keystroke.
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div className="py-6 border-b border-[var(--color-border-default)] last:border-0 px-5">
+    <h3 className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)] mb-5">
+      {title}
+    </h3>
+    <div className="flex flex-col gap-5">
+      {children}
+    </div>
+  </div>
+);
+
+const ColorField = ({
+  label,
+  value,
+  onChange,
+  allowNone,
+}: {
+  label: string;
+  value?: string;
+  onChange: (v: string | undefined) => void;
+  allowNone?: boolean;
+}) => (
+  <div className="flex flex-col gap-1.5">
+    <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">{label}</span>
+    <div className="flex items-center gap-2">
+      <label
+        className="w-8 h-8 rounded-[var(--radius-sm)] border border-[var(--color-border-default)] cursor-pointer shrink-0 overflow-hidden"
+        style={{
+          background: value || 'repeating-conic-gradient(#bbb 0% 25%, #fff 0% 50%) 50% / 10px 10px',
+        }}
+      >
+        <input
+          type="color"
+          value={value || '#ffffff'}
+          onChange={(e) => onChange(e.target.value)}
+          className="sr-only"
+        />
+      </label>
+      <span className="flex-1 text-[11px] tabular-nums text-[var(--color-text-secondary)] truncate">
+        {value || 'None'}
+      </span>
+      {allowNone && value && (
+        <button
+          onClick={() => onChange(undefined)}
+          className="text-[9px] font-bold uppercase text-[var(--color-text-muted)] hover:text-red-500"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  </div>
+);
 
 const ControlPanel: React.FC = () => {
   const { photos, activeIndex, settings, updateSettings, audio, setAudio, updatePhoto } = useReecapStore();
@@ -12,6 +69,20 @@ const ControlPanel: React.FC = () => {
 
   const activePhoto = photos[activeIndex];
   const activeTransition = activePhoto?.transition || settings.transition;
+  const activeDuration = slideDuration(activePhoto, settings);
+
+  const handleDurationChange = (v: number) => {
+    if (activePhoto) {
+      updatePhoto(activePhoto.id, { duration: v });
+    } else {
+      updateSettings({ duration: v });
+    }
+  };
+
+  const applyDurationToAll = () => {
+    photos.forEach((photo) => updatePhoto(photo.id, { duration: activeDuration }));
+    updateSettings({ duration: activeDuration });
+  };
 
   const handleTransitionChange = (t: any) => {
     if (activePhoto) {
@@ -37,29 +108,33 @@ const ControlPanel: React.FC = () => {
     );
   }, [searchQuery]);
 
-  const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="py-6 border-b border-[var(--color-border-default)] last:border-0 px-5">
-      <h3 className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)] mb-5">
-        {title}
-      </h3>
-      <div className="flex flex-col gap-5">
-        {children}
-      </div>
-    </div>
-  );
-
   return (
     <aside className="w-[280px] border-l border-[var(--color-border-default)] flex flex-col bg-[var(--color-bg-panel)] overflow-y-auto">
       <Section title="Animation">
-        <Slider
-          label="Duration"
-          value={settings.duration}
-          min={0.2}
-          max={5.0}
-          step={0.1}
-          unit="s"
-          onChange={(v) => updateSettings({ duration: v })}
-        />
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)] block">
+              Duration {activePhoto ? `(Slide ${activeIndex + 1})` : ''}
+            </label>
+            {activePhoto && photos.length > 1 && (
+              <button
+                onClick={applyDurationToAll}
+                className="text-[9px] font-bold uppercase text-[var(--color-interactive)] hover:underline"
+              >
+                Apply to All
+              </button>
+            )}
+          </div>
+          <Slider
+            label=""
+            value={activeDuration}
+            min={0.2}
+            max={5.0}
+            step={0.1}
+            unit="s"
+            onChange={handleDurationChange}
+          />
+        </div>
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)] block">
@@ -98,6 +173,97 @@ const ControlPanel: React.FC = () => {
             ))}
           </div>
         </div>
+      </Section>
+
+      <Section title="Caption">
+        {activePhoto ? (
+          <>
+            <div className="relative">
+              <div className="absolute left-3 top-3 text-[var(--color-text-muted)]">
+                <TextT size={14} />
+              </div>
+              <textarea
+                value={activePhoto.caption || ''}
+                onChange={(e) => updatePhoto(activePhoto.id, { caption: e.target.value })}
+                placeholder={`Add a caption to slide ${activeIndex + 1}…`}
+                rows={2}
+                className="w-full pl-9 pr-3 py-2.5 bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] text-[12px] resize-none focus:outline-none focus:border-[var(--color-interactive)] placeholder:text-[var(--color-text-muted)]/50 leading-relaxed"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)] block mb-2">
+                Position
+              </label>
+              <SegmentedControl
+                options={[
+                  { label: 'Top', value: 'top' },
+                  { label: 'Center', value: 'center' },
+                  { label: 'Bottom', value: 'bottom' },
+                ]}
+                value={activePhoto.captionPosition || 'bottom'}
+                onChange={(v) =>
+                  updatePhoto(activePhoto.id, {
+                    captionPosition: v as any,
+                    captionX: 0.5,
+                    captionY: v === 'top' ? 0.1 : v === 'center' ? 0.5 : 0.9,
+                  })
+                }
+              />
+              <p className="mt-2 text-[10px] text-[var(--color-text-muted)] italic">
+                Or drag the text on the canvas to place it anywhere.
+              </p>
+            </div>
+            <div>
+              <label className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)] block mb-2">
+                Animation
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: 'None', value: 'none' },
+                  { label: 'Fade', value: 'fade' },
+                  { label: 'Pop', value: 'pop' },
+                  { label: 'Slide ↑', value: 'slide-up' },
+                  { label: 'Slide ↓', value: 'slide-down' },
+                  { label: 'Type', value: 'typewriter' },
+                ].map((opt) => {
+                  const active = (activePhoto.captionAnimation || 'none') === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => updatePhoto(activePhoto.id, { captionAnimation: opt.value as any })}
+                      className={`h-8 rounded-[var(--radius-sm)] text-[10px] font-medium transition-all border
+                        ${active
+                          ? 'bg-[var(--color-interactive)] border-[var(--color-interactive)] text-white'
+                          : 'bg-[var(--color-bg-surface)] border-[var(--color-border-default)] text-[var(--color-text-muted)] hover:border-[var(--color-text-muted)]'}`}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-[10px] text-[var(--color-text-muted)] italic">
+                Animations play in preview; press play to preview.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <ColorField
+                label="Text"
+                value={activePhoto.captionColor || '#ffffff'}
+                onChange={(v) => updatePhoto(activePhoto.id, { captionColor: v })}
+              />
+              <ColorField
+                label="Background"
+                value={activePhoto.captionBg}
+                allowNone
+                onChange={(v) => updatePhoto(activePhoto.id, { captionBg: v })}
+              />
+            </div>
+          </>
+        ) : (
+          <p className="text-[11px] text-[var(--color-text-muted)] italic">
+            Select a slide to add a caption.
+          </p>
+        )}
       </Section>
 
       <Section title="Canvas">
