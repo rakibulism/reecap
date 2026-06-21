@@ -1,4 +1,5 @@
 import { type Photo, type ReecapSettings } from '../types';
+import { captionAnchor } from './utils';
 
 /**
  * Renders a single frame of a photo onto a canvas with the given settings.
@@ -90,15 +91,11 @@ export async function renderFrame(
   ctx.drawImage(img, drawX, drawY, drawW, drawH);
   ctx.restore();
 
-  // 4. Draw caption overlay (if any).
-  // Position relative to the VISIBLE frame, mirroring the preview: for 'cover'
-  // the image overflows the padded frame (drawW/H oversized, drawX/Y negative),
-  // so captions must use the padded frame rect, not the off-screen image rect.
+  // 4. Draw caption overlay (if any), positioned by its fractional anchor
+  // relative to the full output frame — matching the draggable preview overlay.
   if (photo.caption && photo.caption.trim()) {
-    const captionRect = settings.imageFit === 'cover'
-      ? { x: padding, y: padding, w: frameW, h: frameH }
-      : { x: drawX, y: drawY, w: drawW, h: drawH };
-    drawCaption(ctx, photo.caption.trim(), photo.captionPosition || 'bottom', captionRect, {
+    const anchor = captionAnchor(photo);
+    drawCaption(ctx, photo.caption.trim(), anchor.x * width, anchor.y * height, width, {
       color: photo.captionColor || '#FFFFFF',
       bg: photo.captionBg,
     });
@@ -106,20 +103,20 @@ export async function renderFrame(
 }
 
 /**
- * Draws a centered, word-wrapped caption over the photo rect. Optionally fills a
- * rounded pill behind the text; otherwise uses a soft shadow for legibility.
+ * Draws a word-wrapped caption centered on (centerX, centerY). Optionally fills
+ * a rounded pill behind the text; otherwise uses a soft shadow for legibility.
  */
 function drawCaption(
   ctx: CanvasRenderingContext2D,
   text: string,
-  position: 'top' | 'center' | 'bottom',
-  rect: { x: number; y: number; w: number; h: number },
+  centerX: number,
+  centerY: number,
+  frameWidth: number,
   style: { color: string; bg?: string }
 ) {
-  const fontSize = Math.max(16, Math.round(rect.h * 0.05));
+  const fontSize = Math.max(16, Math.round(frameWidth * 0.035));
   const lineHeight = fontSize * 1.25;
-  const maxWidth = rect.w * 0.88;
-  const margin = rect.h * 0.06;
+  const maxWidth = frameWidth * 0.8;
 
   ctx.save();
   ctx.font = `600 ${fontSize}px Inter, system-ui, -apple-system, sans-serif`;
@@ -142,15 +139,8 @@ function drawCaption(
   if (line) lines.push(line);
 
   const blockHeight = lines.length * lineHeight;
-  const centerX = rect.x + rect.w / 2;
-  let startY: number;
-  if (position === 'top') {
-    startY = rect.y + margin;
-  } else if (position === 'center') {
-    startY = rect.y + (rect.h - blockHeight) / 2;
-  } else {
-    startY = rect.y + rect.h - margin - blockHeight;
-  }
+  // Vertically center the text block on centerY.
+  const startY = centerY - blockHeight / 2;
 
   // Optional pill background behind the text block.
   if (style.bg) {

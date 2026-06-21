@@ -5,7 +5,8 @@ export async function exportWithWebCodecs(
   durations: number | number[], // seconds per frame (single value applies to all)
   dimensions: { width: number; height: number },
   onProgress: (p: number) => void,
-  audioBlob?: Blob | null
+  audioBlob?: Blob | null,
+  speed: number = 1 // playback speed; audio is time-stretched to match
 ): Promise<Blob> {
   const { width, height } = dimensions;
   const FPS = 30;
@@ -61,19 +62,31 @@ export async function exportWithWebCodecs(
     });
   }
 
-  // 3. Process Audio (Decode first)
+  // 3. Process Audio — render through an OfflineAudioContext so it is
+  // time-stretched by `speed` and clamped to exactly the video duration.
   if (audioBlob && audioEncoder) {
-    const audioContext = new OfflineAudioContext(2, Math.max(1, Math.ceil(44100 * totalDuration)), 44100);
-    const audioBuffer = await audioContext.decodeAudioData(await audioBlob.arrayBuffer());
-    
-    // Feed audio in chunks
+    const renderLength = Math.max(1, Math.ceil(44100 * totalDuration));
+    const decodeCtx = new OfflineAudioContext(2, 44100, 44100);
+    const decoded = await decodeCtx.decodeAudioData(await audioBlob.arrayBuffer());
+
+    const renderCtx = new OfflineAudioContext(2, renderLength, 44100);
+    const source = renderCtx.createBufferSource();
+    source.buffer = decoded;
+    source.playbackRate.value = speed; // >1 speeds up (and raises pitch)
+    source.connect(renderCtx.destination);
+    source.start(0);
+    const audioBuffer = await renderCtx.startRendering();
+
+    // Feed audio in chunks (always stereo from the render context).
     const totalSamples = audioBuffer.length;
+    const ch0 = audioBuffer.getChannelData(0);
+    const ch1 = audioBuffer.numberOfChannels > 1 ? audioBuffer.getChannelData(1) : ch0;
     const samplesPerChunk = 1024;
     for (let offset = 0; offset < totalSamples; offset += samplesPerChunk) {
       const length = Math.min(samplesPerChunk, totalSamples - offset);
       const data = new Float32Array(length * 2);
-      data.set(audioBuffer.getChannelData(0).subarray(offset, offset + length), 0);
-      data.set(audioBuffer.getChannelData(1).subarray(offset, offset + length), length);
+      data.set(ch0.subarray(offset, offset + length), 0);
+      data.set(ch1.subarray(offset, offset + length), length);
 
       const audioData = new AudioData({
         format: 'f32-planar',

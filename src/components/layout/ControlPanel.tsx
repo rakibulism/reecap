@@ -201,8 +201,49 @@ const ControlPanel: React.FC = () => {
                   { label: 'Bottom', value: 'bottom' },
                 ]}
                 value={activePhoto.captionPosition || 'bottom'}
-                onChange={(v) => updatePhoto(activePhoto.id, { captionPosition: v as any })}
+                onChange={(v) =>
+                  updatePhoto(activePhoto.id, {
+                    captionPosition: v as any,
+                    captionX: 0.5,
+                    captionY: v === 'top' ? 0.1 : v === 'center' ? 0.5 : 0.9,
+                  })
+                }
               />
+              <p className="mt-2 text-[10px] text-[var(--color-text-muted)] italic">
+                Or drag the text on the canvas to place it anywhere.
+              </p>
+            </div>
+            <div>
+              <label className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)] block mb-2">
+                Animation
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: 'None', value: 'none' },
+                  { label: 'Fade', value: 'fade' },
+                  { label: 'Pop', value: 'pop' },
+                  { label: 'Slide ↑', value: 'slide-up' },
+                  { label: 'Slide ↓', value: 'slide-down' },
+                  { label: 'Type', value: 'typewriter' },
+                ].map((opt) => {
+                  const active = (activePhoto.captionAnimation || 'none') === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => updatePhoto(activePhoto.id, { captionAnimation: opt.value as any })}
+                      className={`h-8 rounded-[var(--radius-sm)] text-[10px] font-medium transition-all border
+                        ${active
+                          ? 'bg-[var(--color-interactive)] border-[var(--color-interactive)] text-white'
+                          : 'bg-[var(--color-bg-surface)] border-[var(--color-border-default)] text-[var(--color-text-muted)] hover:border-[var(--color-text-muted)]'}`}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-[10px] text-[var(--color-text-muted)] italic">
+                Animations play in preview; press play to preview.
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <ColorField

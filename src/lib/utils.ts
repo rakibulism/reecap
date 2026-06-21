@@ -10,6 +10,20 @@ export function slideDuration(photo: Photo | undefined, settings: ReecapSettings
 }
 
 /**
+ * Caption anchor (center) as fractions of the frame (0–1). Prefers the custom
+ * captionX/Y; otherwise derives from the top/center/bottom preset.
+ */
+export function captionAnchor(photo: Photo): { x: number; y: number } {
+  const presetY = photo.captionPosition === 'top' ? 0.1
+    : photo.captionPosition === 'center' ? 0.5
+    : 0.9;
+  return {
+    x: photo.captionX ?? 0.5,
+    y: photo.captionY ?? presetY,
+  };
+}
+
+/**
  * Utility to process uploaded files, extract dimensions and generate thumbnails.
  */
 export async function processFiles(files: File[]): Promise<Photo[]> {

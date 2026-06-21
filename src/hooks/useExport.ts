@@ -5,7 +5,7 @@ import { exportWithWebCodecs } from '../lib/webCodecsEncoder';
 import { slideDuration } from '../lib/utils';
 
 export function useExport() {
-  const { photos, settings, audio, setExporting, setExportProgress } = useReecapStore();
+  const { photos, settings, audio, playbackSpeed, setExporting, setExportProgress } = useReecapStore();
   const [error, setError] = useState<string | null>(null);
 
   const startExport = async () => {
@@ -60,16 +60,19 @@ export function useExport() {
         setExportProgress(Math.round(((i + 1) / photos.length) * 15)); // First 15% is rendering
       }
 
-      // 2. Encode to MP4 using Hardware Accelerated WebCodecs
-      const durations = photos.map((p) => slideDuration(p, settings));
+      // 2. Encode to MP4 using Hardware Accelerated WebCodecs.
+      // Global speed scales every slide's on-screen duration (faster = shorter).
+      const speed = playbackSpeed || 1;
+      const durations = photos.map((p) => slideDuration(p, settings) / speed);
       const videoBlob = await exportWithWebCodecs(
         frameBlobs,
         durations,
         dim,
         (progress) => {
           setExportProgress(15 + Math.round(progress * 0.85));
-        }, 
-        audio ? await fetch(audio.url).then(r => r.blob()) : null
+        },
+        audio ? await fetch(audio.url).then(r => r.blob()) : null,
+        speed
       );
 
       // 3. Download
