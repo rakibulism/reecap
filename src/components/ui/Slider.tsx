@@ -12,6 +12,8 @@ interface SliderProps {
   format?: (value: number) => string;
   /** 'default' = chunky track with in-track value; 'thin' = slim track + thumb + value to the right. */
   variant?: 'default' | 'thin';
+  /** thin variant only: hide the trailing value label (when shown externally). */
+  showValue?: boolean;
 }
 
 // Accumulated scroll distance (px) required to advance one step via Shift+wheel.
@@ -35,6 +37,7 @@ const Slider: React.FC<SliderProps> = ({
   onChange,
   format,
   variant = 'default',
+  showValue = true,
 }) => {
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -145,9 +148,11 @@ const Slider: React.FC<SliderProps> = ({
             />
           </div>
         </div>
-        <span className="text-[12px] font-bold tabular-nums text-[var(--color-text-primary)] w-10 text-right shrink-0">
-          {display}
-        </span>
+        {showValue && (
+          <span className="text-[12px] font-bold tabular-nums text-[var(--color-text-primary)] w-10 text-right shrink-0">
+            {display}
+          </span>
+        )}
       </div>
     );
   }

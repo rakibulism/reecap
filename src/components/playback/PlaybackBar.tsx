@@ -1,9 +1,9 @@
 import React from 'react';
 import { useReecapStore } from '../../store/reecapStore';
-import { Play, Pause, CaretLeft, CaretRight, Gauge } from 'phosphor-react';
+import { Play, Pause, CaretLeft, CaretRight } from 'phosphor-react';
 import Button from '../ui/Button';
 import Tooltip from '../ui/Tooltip';
-import Slider from '../ui/Slider';
+import SpeedControl from './SpeedControl';
 
 const PlaybackBar: React.FC = () => {
   const { 
@@ -15,27 +15,7 @@ const PlaybackBar: React.FC = () => {
 
   return (
     <div className="h-11 border-t border-[var(--color-border-default)] flex items-center justify-between bg-[var(--color-bg-page)] px-4 select-none">
-      <div className="flex items-center gap-4 w-48">
-        <div className="flex items-center gap-2 w-full">
-          <Tooltip content="Speed Modifier">
-            <Gauge size={16} className="text-[var(--color-text-muted)]" />
-          </Tooltip>
-          <Tooltip content={`${playbackSpeed}x Speed`} position="top">
-            <div className="flex-1">
-              <Slider
-                variant="thin"
-                label=""
-                min={0.5}
-                max={2}
-                step={0.1}
-                value={playbackSpeed}
-                onChange={setPlaybackSpeed}
-                unit="x"
-              />
-            </div>
-          </Tooltip>
-        </div>
-      </div>
+      <SpeedControl speed={playbackSpeed} onChange={setPlaybackSpeed} />
 
       <div className="flex items-center gap-1">
         <Tooltip content="Previous (←)">
