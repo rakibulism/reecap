@@ -8,8 +8,10 @@ interface SliderProps {
   step?: number;
   unit?: string;
   onChange: (value: number) => void;
-  /** Optional custom formatter for the in-track value (overrides value+unit). */
+  /** Optional custom formatter for the value (overrides value+unit). */
   format?: (value: number) => string;
+  /** 'default' = chunky track with in-track value; 'thin' = slim track + thumb + value to the right. */
+  variant?: 'default' | 'thin';
 }
 
 // Accumulated scroll distance (px) required to advance one step via Shift+wheel.
@@ -32,6 +34,7 @@ const Slider: React.FC<SliderProps> = ({
   unit = '',
   onChange,
   format,
+  variant = 'default',
 }) => {
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -117,6 +120,38 @@ const Slider: React.FC<SliderProps> = ({
   const pos = `${ratio * 100}%`;
   const display = format ? format(value) : `${value}${unit}`;
 
+  const a11y = {
+    role: 'slider' as const,
+    tabIndex: 0,
+    'aria-valuenow': value,
+    'aria-valuemin': min,
+    'aria-valuemax': max,
+    'aria-label': label || undefined,
+  };
+
+  if (variant === 'thin') {
+    return (
+      <div className="flex items-center gap-3 w-full">
+        <div
+          ref={trackRef}
+          {...a11y}
+          className="relative flex-1 h-5 flex items-center cursor-ew-resize select-none touch-none outline-none"
+        >
+          <div className="relative w-full h-1.5 rounded-full bg-[var(--color-bg-hover)]">
+            <div className="absolute inset-y-0 left-0 rounded-full bg-[var(--color-primary)] pointer-events-none" style={{ width: pos }} />
+            <div
+              className="absolute top-1/2 w-4 h-4 rounded-full bg-[var(--color-primary)] border-2 border-white shadow-[var(--shadow-sm)] pointer-events-none"
+              style={{ left: pos, transform: 'translate(-50%, -50%)' }}
+            />
+          </div>
+        </div>
+        <span className="text-[12px] font-bold tabular-nums text-[var(--color-text-primary)] w-10 text-right shrink-0">
+          {display}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-2 w-full">
       {label && (
@@ -127,12 +162,7 @@ const Slider: React.FC<SliderProps> = ({
 
       <div
         ref={trackRef}
-        role="slider"
-        tabIndex={0}
-        aria-valuenow={value}
-        aria-valuemin={min}
-        aria-valuemax={max}
-        aria-label={label || undefined}
+        {...a11y}
         className="relative h-9 w-full rounded-[10px] bg-[var(--color-bg-hover)] border border-[var(--color-border-default)] overflow-hidden cursor-ew-resize select-none touch-none outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
       >
         {/* Filled (value) region */}

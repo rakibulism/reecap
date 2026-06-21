@@ -7,6 +7,62 @@ import { COMMUNITY_TRACKS } from '../../data/communityAudio';
 import { COMMUNITY_BACKGROUNDS, SUGGESTED_GRADIENTS } from '../../data/communityBackgrounds';
 import { slideDuration } from '../../lib/utils';
 
+// Defined at module scope so it keeps a stable identity across renders —
+// otherwise the whole subtree (and any focused input/textarea) remounts on
+// every keystroke.
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div className="py-6 border-b border-[var(--color-border-default)] last:border-0 px-5">
+    <h3 className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)] mb-5">
+      {title}
+    </h3>
+    <div className="flex flex-col gap-5">
+      {children}
+    </div>
+  </div>
+);
+
+const ColorField = ({
+  label,
+  value,
+  onChange,
+  allowNone,
+}: {
+  label: string;
+  value?: string;
+  onChange: (v: string | undefined) => void;
+  allowNone?: boolean;
+}) => (
+  <div className="flex flex-col gap-1.5">
+    <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">{label}</span>
+    <div className="flex items-center gap-2">
+      <label
+        className="w-8 h-8 rounded-[var(--radius-sm)] border border-[var(--color-border-default)] cursor-pointer shrink-0 overflow-hidden"
+        style={{
+          background: value || 'repeating-conic-gradient(#bbb 0% 25%, #fff 0% 50%) 50% / 10px 10px',
+        }}
+      >
+        <input
+          type="color"
+          value={value || '#ffffff'}
+          onChange={(e) => onChange(e.target.value)}
+          className="sr-only"
+        />
+      </label>
+      <span className="flex-1 text-[11px] tabular-nums text-[var(--color-text-secondary)] truncate">
+        {value || 'None'}
+      </span>
+      {allowNone && value && (
+        <button
+          onClick={() => onChange(undefined)}
+          className="text-[9px] font-bold uppercase text-[var(--color-text-muted)] hover:text-red-500"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  </div>
+);
+
 const ControlPanel: React.FC = () => {
   const { photos, activeIndex, settings, updateSettings, audio, setAudio, updatePhoto } = useReecapStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,17 +107,6 @@ const ControlPanel: React.FC = () => {
       t.tags.some(tag => tag.includes(query))
     );
   }, [searchQuery]);
-
-  const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="py-6 border-b border-[var(--color-border-default)] last:border-0 px-5">
-      <h3 className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--color-text-muted)] mb-5">
-        {title}
-      </h3>
-      <div className="flex flex-col gap-5">
-        {children}
-      </div>
-    </div>
-  );
 
   return (
     <aside className="w-[280px] border-l border-[var(--color-border-default)] flex flex-col bg-[var(--color-bg-panel)] overflow-y-auto">
@@ -157,6 +202,19 @@ const ControlPanel: React.FC = () => {
                 ]}
                 value={activePhoto.captionPosition || 'bottom'}
                 onChange={(v) => updatePhoto(activePhoto.id, { captionPosition: v as any })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <ColorField
+                label="Text"
+                value={activePhoto.captionColor || '#ffffff'}
+                onChange={(v) => updatePhoto(activePhoto.id, { captionColor: v })}
+              />
+              <ColorField
+                label="Background"
+                value={activePhoto.captionBg}
+                allowNone
+                onChange={(v) => updatePhoto(activePhoto.id, { captionBg: v })}
               />
             </div>
           </>

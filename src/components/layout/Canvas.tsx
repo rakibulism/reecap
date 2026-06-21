@@ -162,10 +162,14 @@ const Canvas: React.FC = () => {
           {photo.caption && (
             <div className={`absolute inset-0 flex justify-center px-[6%] pointer-events-none ${captionAlign}`}>
               <span
-                className="text-white text-center font-semibold leading-snug max-w-[88%]"
+                className="text-center font-semibold leading-snug max-w-[88%]"
                 style={{
+                  color: photo.captionColor || '#ffffff',
                   fontSize: 'clamp(14px, 2.2vw, 34px)',
-                  textShadow: '0 2px 12px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.8)',
+                  textShadow: photo.captionBg ? 'none' : '0 2px 12px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.8)',
+                  background: photo.captionBg || 'transparent',
+                  padding: photo.captionBg ? '0.2em 0.5em' : 0,
+                  borderRadius: photo.captionBg ? '0.3em' : 0,
                 }}
               >
                 {photo.caption}

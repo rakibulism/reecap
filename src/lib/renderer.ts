@@ -98,18 +98,23 @@ export async function renderFrame(
     const captionRect = settings.imageFit === 'cover'
       ? { x: padding, y: padding, w: frameW, h: frameH }
       : { x: drawX, y: drawY, w: drawW, h: drawH };
-    drawCaption(ctx, photo.caption.trim(), photo.captionPosition || 'bottom', captionRect);
+    drawCaption(ctx, photo.caption.trim(), photo.captionPosition || 'bottom', captionRect, {
+      color: photo.captionColor || '#FFFFFF',
+      bg: photo.captionBg,
+    });
   }
 }
 
 /**
- * Draws a centered, word-wrapped caption over the photo rect with a soft shadow.
+ * Draws a centered, word-wrapped caption over the photo rect. Optionally fills a
+ * rounded pill behind the text; otherwise uses a soft shadow for legibility.
  */
 function drawCaption(
   ctx: CanvasRenderingContext2D,
   text: string,
   position: 'top' | 'center' | 'bottom',
-  rect: { x: number; y: number; w: number; h: number }
+  rect: { x: number; y: number; w: number; h: number },
+  style: { color: string; bg?: string }
 ) {
   const fontSize = Math.max(16, Math.round(rect.h * 0.05));
   const lineHeight = fontSize * 1.25;
@@ -147,11 +152,26 @@ function drawCaption(
     startY = rect.y + rect.h - margin - blockHeight;
   }
 
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-  ctx.shadowBlur = fontSize * 0.4;
-  ctx.shadowOffsetY = Math.max(1, fontSize * 0.06);
-  ctx.fillStyle = '#FFFFFF';
+  // Optional pill background behind the text block.
+  if (style.bg) {
+    const widest = Math.min(maxWidth, Math.max(...lines.map((l) => ctx.measureText(l).width)));
+    const padX = fontSize * 0.5;
+    const padY = fontSize * 0.25;
+    const boxW = widest + padX * 2;
+    const boxH = blockHeight + padY * 2;
+    const boxX = centerX - boxW / 2;
+    const boxY = startY - padY;
+    ctx.fillStyle = style.bg;
+    ctx.beginPath();
+    roundRect(ctx, boxX, boxY, boxW, boxH, fontSize * 0.3);
+    ctx.fill();
+  } else {
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+    ctx.shadowBlur = fontSize * 0.4;
+    ctx.shadowOffsetY = Math.max(1, fontSize * 0.06);
+  }
 
+  ctx.fillStyle = style.color;
   lines.forEach((l, i) => {
     ctx.fillText(l, centerX, startY + i * lineHeight);
   });

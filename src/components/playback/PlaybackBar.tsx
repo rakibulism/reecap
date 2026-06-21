@@ -23,6 +23,7 @@ const PlaybackBar: React.FC = () => {
           <Tooltip content={`${playbackSpeed}x Speed`} position="top">
             <div className="flex-1">
               <Slider
+                variant="thin"
                 label=""
                 min={0.5}
                 max={2}

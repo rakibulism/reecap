@@ -10,6 +10,8 @@ export interface Photo {
   duration?: number;       // per-slide seconds; falls back to settings.duration
   caption?: string;        // optional text overlay
   captionPosition?: 'top' | 'center' | 'bottom';
+  captionColor?: string;   // text color (hex); defaults to white
+  captionBg?: string;      // pill background behind text (hex); undefined = none
 }
 
 export interface ReecapSettings {
