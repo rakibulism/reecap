@@ -165,7 +165,7 @@ const ControlPanel: React.FC = () => {
                 onClick={() => handleTransitionChange(opt.value as any)}
                 className={`h-8 rounded-[var(--radius-sm)] text-[10px] font-medium transition-all border
                   ${activeTransition === opt.value 
-                    ? 'bg-[var(--color-interactive)] border-[var(--color-interactive)] text-white' 
+                    ? 'bg-[var(--color-interactive)] border-[var(--color-interactive)] text-[var(--color-text-inverse)]' 
                     : 'bg-[var(--color-bg-surface)] border-[var(--color-border-default)] text-[var(--color-text-muted)] hover:border-[var(--color-text-muted)]'}`}
               >
                 {opt.label}
@@ -233,7 +233,7 @@ const ControlPanel: React.FC = () => {
                       onClick={() => updatePhoto(activePhoto.id, { captionAnimation: opt.value as any })}
                       className={`h-8 rounded-[var(--radius-sm)] text-[10px] font-medium transition-all border
                         ${active
-                          ? 'bg-[var(--color-interactive)] border-[var(--color-interactive)] text-white'
+                          ? 'bg-[var(--color-interactive)] border-[var(--color-interactive)] text-[var(--color-text-inverse)]'
                           : 'bg-[var(--color-bg-surface)] border-[var(--color-border-default)] text-[var(--color-text-muted)] hover:border-[var(--color-text-muted)]'}`}
                     >
                       {opt.label}
@@ -472,7 +472,7 @@ const ControlPanel: React.FC = () => {
         {audio ? (
           <div className="bg-[var(--color-bg-panel)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] p-3">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-full bg-[var(--color-interactive)] flex items-center justify-center text-white">
+              <div className="w-8 h-8 rounded-full bg-[var(--color-interactive)] flex items-center justify-center text-[var(--color-text-inverse)]">
                 <SpeakerHigh size={16} weight="fill" />
               </div>
               <div className="flex-1 min-w-0">
@@ -515,7 +515,7 @@ const ControlPanel: React.FC = () => {
                   onClick={() => setAudio({ url: track.url, name: track.name })}
                   className="w-full flex items-center gap-3 p-2 rounded-[var(--radius-sm)] hover:bg-[var(--color-bg-hover)] transition-colors text-left group"
                 >
-                  <div className="w-7 h-7 rounded-sm bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] flex items-center justify-center text-[var(--color-text-muted)] group-hover:bg-[var(--color-interactive)] group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-sm bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] flex items-center justify-center text-[var(--color-text-muted)] group-hover:bg-[var(--color-interactive)] group-hover:text-[var(--color-text-inverse)] transition-colors">
                     <MusicNotes size={14} />
                   </div>
                   <div className="flex-1 min-w-0">

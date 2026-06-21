@@ -188,7 +188,7 @@ const MediaShelf: React.FC = () => {
                     className={`flex-shrink-0 p-2 rounded-full transition-all duration-200 
                       ${isActive 
                         ? 'bg-blue-500 text-white shadow-lg scale-110' 
-                        : 'bg-[var(--color-bg-panel)] text-[var(--color-text-muted)] hover:bg-[var(--color-interactive)] hover:text-white hover:scale-110 shadow-sm'}`}
+                        : 'bg-[var(--color-bg-panel)] text-[var(--color-text-muted)] hover:bg-[var(--color-interactive)] hover:text-[var(--color-text-inverse)] hover:scale-110 shadow-sm'}`}
                   >
                     <Plus size={16} weight="bold" />
                   </button>

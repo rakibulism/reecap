@@ -80,7 +80,7 @@ const Sidebar: React.FC = () => {
               }}
             />
             <Tooltip content={audio ? `Audio: ${audio.name}` : "Add Audio"} position="right">
-              <div className={`w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center border-2 border-dashed ${audio ? 'border-[var(--color-interactive)] bg-[var(--color-interactive)] text-white' : 'border-[var(--color-border-default)] hover:border-[var(--color-interactive)] hover:text-[var(--color-interactive)]'} transition-all cursor-pointer`}>
+              <div className={`w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center border-2 border-dashed ${audio ? 'border-[var(--color-interactive)] bg-[var(--color-interactive)] text-[var(--color-text-inverse)]' : 'border-[var(--color-border-default)] hover:border-[var(--color-interactive)] hover:text-[var(--color-interactive)]'} transition-all cursor-pointer`}>
                 <MusicNotes size={20} weight={audio ? "fill" : "regular"} />
               </div>
             </Tooltip>
@@ -95,7 +95,7 @@ const Sidebar: React.FC = () => {
             onClick={() => setActivePanel(activePanel === 'assets' ? 'none' : 'assets')}
             className={`w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center transition-all cursor-pointer
               ${activePanel === 'assets' 
-                ? 'bg-[var(--color-interactive)] text-white shadow-sm' 
+                ? 'bg-[var(--color-interactive)] text-[var(--color-text-inverse)] shadow-sm'
                 : 'text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'}`}
           >
             <ImageSquare size={22} />
@@ -107,7 +107,7 @@ const Sidebar: React.FC = () => {
             onClick={() => setActivePanel(activePanel === 'music' ? 'none' : 'music')}
             className={`w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center transition-all cursor-pointer
               ${activePanel === 'music' 
-                ? 'bg-[var(--color-interactive)] text-white shadow-sm' 
+                ? 'bg-[var(--color-interactive)] text-[var(--color-text-inverse)] shadow-sm'
                 : 'text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'}`}
           >
             <MusicNotes size={22} weight="duotone" />
