@@ -3,8 +3,22 @@ import { useReecapStore } from '../store/reecapStore';
 import { slideDuration } from '../lib/utils';
 
 export function useAudioSync() {
-  const { isPlaying, audio, activeIndex, settings, photos, playbackSpeed, playbackProgress } = useReecapStore();
+  const { isPlaying, audio, activeIndex, settings, photos, playbackSpeed, playbackProgress, setPlaying } = useReecapStore();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Tear down the audio element when the hook unmounts (e.g. navigating away
+  // from /app), so playback doesn't leak onto other routes and remounting
+  // doesn't spawn a second element. Also stop playback to keep store state honest.
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+        audioRef.current = null;
+      }
+      setPlaying(false);
+    };
+  }, [setPlaying]);
 
   // Audio offset = elapsed timeline time up to the playhead, using cumulative
   // per-slide durations (slides can have custom durations), scaled by speed.
