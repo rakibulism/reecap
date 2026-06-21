@@ -10,6 +10,9 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
+// Remove the prerendered (crawler-facing) snapshot once the SPA has mounted.
+document.getElementById('prerender')?.remove()
+
 // Register the service worker so Reecap is installable as a PWA.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

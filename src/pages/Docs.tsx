@@ -1,5 +1,6 @@
 import React from 'react';
 import SiteLayout from '../components/site/SiteLayout';
+import { useSeo } from '../lib/seo';
 
 interface Section { id: string; title: string; blocks: { type: 'p' | 'ul'; text?: string; items?: string[] }[]; }
 
@@ -65,7 +66,14 @@ const SECTIONS: Section[] = [
   },
 ];
 
-const Docs: React.FC = () => (
+const Docs: React.FC = () => {
+  useSeo({
+    title: 'Docs — How to Use Reecap | Photo to Video Editor',
+    description: 'Learn how to use Reecap: importing photos, the timeline, transitions, captions, music, speed, and exporting an MP4 — all in your browser.',
+    path: '/docs',
+    keywords: ['reecap docs', 'how to use reecap', 'photo to video tutorial'],
+  });
+  return (
   <SiteLayout>
     <div className="max-w-6xl mx-auto px-5 sm:px-6 py-14 sm:py-20">
       <header className="mb-10">
@@ -113,6 +121,7 @@ const Docs: React.FC = () => (
       </div>
     </div>
   </SiteLayout>
-);
+  );
+};
 
 export default Docs;

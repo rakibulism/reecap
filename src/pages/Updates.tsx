@@ -4,6 +4,7 @@ import { ArrowRight } from 'phosphor-react';
 import SiteLayout from '../components/site/SiteLayout';
 import Button from '../components/ui/Button';
 import { UPDATES, TAG_LABEL, type UpdateTag } from '../data/updates';
+import { useSeo } from '../lib/seo';
 
 const tagColor: Record<UpdateTag, string> = {
   release: 'bg-blue-500/15 text-blue-500',
@@ -17,6 +18,12 @@ const fmtDate = (iso: string) =>
 
 const Updates: React.FC = () => {
   const navigate = useNavigate();
+  useSeo({
+    title: "What's New — Changelog | Reecap",
+    description: 'Every notable Reecap release, feature, and improvement — transitions in export, captions, whole-video speed, and more.',
+    path: '/updates',
+    keywords: ['reecap changelog', 'reecap updates', 'reecap new features'],
+  });
   return (
     <SiteLayout>
       <div className="max-w-3xl mx-auto px-5 sm:px-6 py-14 sm:py-20">

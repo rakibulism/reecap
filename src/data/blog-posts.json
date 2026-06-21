@@ -1,0 +1,582 @@
+[
+  {
+    "slug": "how-to-turn-photos-into-a-video-free",
+    "title": "How to Turn Photos Into a Video (Free, No Upload)",
+    "date": "2026-06-21", "updated": "2026-06-21", "author": "Rakibul Islam",
+    "readingTime": "5 min read", "category": "Guides",
+    "cover": "from-blue-500 via-indigo-500 to-violet-600",
+    "excerpt": "Turn a batch of photos into an animated MP4 in your browser — no app, no account, and nothing uploaded.",
+    "description": "Learn how to turn photos into a video for free in your browser with Reecap — add transitions, captions, and music, then export an MP4. No upload, no account.",
+    "keywords": ["how to turn photos into a video", "photo to video free", "make a video from photos", "photo video maker"],
+    "body": [
+      { "type": "p", "text": "To turn photos into a video, open a browser-based editor like Reecap, drag in 2–30 images, choose a transition and slide timing, optionally add music, and export an MP4. The whole process takes a couple of minutes and happens entirely on your device — no upload and no account required." },
+      { "type": "h2", "text": "Step-by-step: photos to video" },
+      { "type": "ul", "items": [
+        "Open the Reecap editor and drag your photos onto the canvas (JPG, PNG, or WebP).",
+        "Reorder the slides on the timeline so they tell the story you want.",
+        "Pick a transition — fade, slide, zoom, wipe, and more — per slide or for all.",
+        "Set how long each slide stays on screen (0.2s to 5s).",
+        "Add a music track and adjust the overall speed if you like.",
+        "Press Export to render a 1080p MP4 that downloads to your device."
+      ] },
+      { "type": "h2", "text": "Why use a browser tool instead of an app?" },
+      { "type": "p", "text": "A browser tool means there is nothing to install and nothing to sign up for. Because Reecap renders and encodes the video locally with the WebCodecs API, your photos never leave your computer or phone. That makes it faster than upload-based services and private by default." },
+      { "type": "h2", "text": "Tips for a better result" },
+      { "type": "p", "text": "Give your strongest photos a slightly longer duration, keep captions to a single line, and match your music so the cuts feel intentional. A 10-photo recap at around 1.5 seconds per slide makes a clean 15-second clip that fits most social feeds." },
+      { "type": "p", "text": "Ready to try it? Open the editor and turn your photos into a video in the next two minutes." }
+    ],
+    "faq": [
+      { "q": "Can I turn photos into a video for free?", "a": "Yes. Reecap is free and open source. You can turn photos into an MP4 in your browser without paying, signing up, or installing anything." },
+      { "q": "Do my photos get uploaded anywhere?", "a": "No. Reecap runs 100% in your browser. Rendering and export happen on your device, so your photos are never uploaded to a server." },
+      { "q": "What video format do I get?", "a": "Reecap exports a standard MP4 (H.264) at 720p or 1080p, which plays everywhere and uploads to any social platform." }
+    ]
+  },
+  {
+    "slug": "best-free-photo-to-video-maker-browser",
+    "title": "The Best Free Photo-to-Video Maker That Runs in Your Browser",
+    "date": "2026-06-20", "updated": "2026-06-20", "author": "Rakibul Islam",
+    "readingTime": "6 min read", "category": "Comparisons",
+    "cover": "from-emerald-400 via-teal-500 to-cyan-600",
+    "excerpt": "What to look for in a free photo-to-video maker, and why a browser-based tool beats heavy apps for quick recaps.",
+    "description": "Looking for the best free photo-to-video maker? Here is what matters — no watermark, no upload, real transitions and MP4 export — and how a browser tool compares.",
+    "keywords": ["best free photo to video maker", "free slideshow maker", "photo video maker no watermark", "online video maker"],
+    "body": [
+      { "type": "p", "text": "The best free photo-to-video maker is one that exports a clean MP4 with no watermark, keeps your photos private, and gives you real creative control over timing, transitions, and captions. A browser-based tool like Reecap covers all three without an account or download." },
+      { "type": "h2", "text": "What to look for in a free photo-to-video maker" },
+      { "type": "ul", "items": [
+        "No watermark on the exported video.",
+        "Real MP4 export (not just a preview you can't save).",
+        "Control over per-slide duration and transitions.",
+        "Captions and background music.",
+        "Privacy — ideally your files never get uploaded."
+      ] },
+      { "type": "h2", "text": "Browser tools vs. installed apps" },
+      { "type": "p", "text": "Installed apps are powerful but heavy, and most online services upload your photos to render in the cloud, then add a watermark unless you pay. A browser tool runs locally: there is nothing to install, nothing to upload, and no watermark on the output." },
+      { "type": "h2", "text": "Where Reecap fits" },
+      { "type": "p", "text": "Reecap is a free, open-source, browser-based editor built for quick recaps. It supports 2–30 photos, eight transition styles, draggable animated captions, music, a whole-video speed dial, and a true frame-by-frame MP4 export. Everything runs on your device." },
+      { "type": "p", "text": "Open the editor and make your first recap free — no watermark, no sign-up." }
+    ],
+    "faq": [
+      { "q": "What is the best free photo-to-video maker with no watermark?", "a": "Reecap is a free, open-source photo-to-video maker that exports watermark-free MP4s directly in your browser, with no account required." },
+      { "q": "Are free photo video makers safe?", "a": "Browser-based tools that render locally, like Reecap, are the safest because your photos are never uploaded — they stay on your device the whole time." },
+      { "q": "Can I use a free photo-to-video maker on my phone?", "a": "Yes, browser-based makers work on mobile browsers, though a tablet or desktop gives more room for the timeline and panels." }
+    ]
+  },
+  {
+    "slug": "how-to-make-a-photo-slideshow-with-music",
+    "title": "How to Make a Photo Slideshow With Music",
+    "date": "2026-06-19", "updated": "2026-06-19", "author": "Rakibul Islam",
+    "readingTime": "5 min read", "category": "Tutorials",
+    "cover": "from-rose-400 via-orange-400 to-amber-500",
+    "excerpt": "Add a soundtrack to your photo slideshow and time the cuts to the music — all in the browser.",
+    "description": "How to make a photo slideshow with music in your browser: add photos, pick a track, tune the pace to the beat, and export an MP4. Free, no upload.",
+    "keywords": ["photo slideshow with music", "slideshow maker with music", "add music to slideshow", "photo video with song"],
+    "body": [
+      { "type": "p", "text": "To make a photo slideshow with music, add your photos to a video editor, drop in a music track, then adjust each slide's duration so the cuts land with the rhythm. In Reecap you do this in the browser and export an MP4 with the audio baked in." },
+      { "type": "h2", "text": "Adding music to your slideshow" },
+      { "type": "p", "text": "Open the music library in the editor and pick a track. It plays across your whole recap in the preview and is muxed into the exported video automatically — you do not need a separate step to combine audio and visuals." },
+      { "type": "h2", "text": "Timing slides to the beat" },
+      { "type": "ul", "items": [
+        "Choose your track first, then set the pace to match it.",
+        "Use per-slide duration to hold key photos a beat longer.",
+        "Use the whole-video speed control to tighten or relax the overall rhythm.",
+        "Preview with playback to check the cuts sit on the music."
+      ] },
+      { "type": "h2", "text": "Keeping audio natural" },
+      { "type": "p", "text": "When you speed the video up, Reecap keeps the music at its natural pitch and simply spans the shorter video — so your soundtrack never sounds sped-up or chipmunk-like." },
+      { "type": "p", "text": "Open the editor, add a track, and build a slideshow that moves with the music." }
+    ],
+    "faq": [
+      { "q": "How do I add music to a photo slideshow for free?", "a": "Use a browser editor like Reecap: open the music library, select a track, and it is automatically included in the exported MP4 — no extra software needed." },
+      { "q": "Can I sync slides to the beat of a song?", "a": "Yes. Set per-slide durations and the overall speed so the slide changes land with the music's rhythm, then preview to confirm." }
+    ]
+  },
+  {
+    "slug": "how-to-make-an-instagram-reel-from-photos",
+    "title": "How to Make an Instagram Reel From Photos",
+    "date": "2026-06-18", "updated": "2026-06-18", "author": "Rakibul Islam",
+    "readingTime": "5 min read", "category": "Use cases",
+    "cover": "from-fuchsia-500 via-pink-500 to-rose-500",
+    "excerpt": "Turn a set of photos into a vertical 9:16 Reel with transitions, captions, and music — ready to post.",
+    "description": "How to make an Instagram Reel from photos: pick the 9:16 ratio, add transitions and captions, set music, and export a vertical MP4. Free and browser-based.",
+    "keywords": ["instagram reel from photos", "photo reel maker", "make a reel from pictures", "9:16 photo video"],
+    "body": [
+      { "type": "p", "text": "To make an Instagram Reel from photos, set your project to the vertical 9:16 aspect ratio, add your images, apply transitions and a caption, choose music, and export a vertical MP4 you can upload straight to Reels. Reecap does this in the browser for free." },
+      { "type": "h2", "text": "Set the right aspect ratio first" },
+      { "type": "p", "text": "Reels are vertical, so choose 9:16 before you start arranging photos. Reecap also supports 16:9, 1:1, 4:3, and 5:4, so you can repurpose the same photos for feed posts or YouTube later." },
+      { "type": "h2", "text": "Make it feel like a Reel" },
+      { "type": "ul", "items": [
+        "Keep it short — 8 to 15 seconds holds attention.",
+        "Use snappy transitions like Slide or Zoom between shots.",
+        "Add a one-line caption and animate it in (fade, pop, or typewriter).",
+        "Pick music with a clear beat and tune the speed to match."
+      ] },
+      { "type": "h2", "text": "Export and post" },
+      { "type": "p", "text": "Export a 1080p vertical MP4 and upload it to Instagram Reels. Because nothing is uploaded during editing, your photos stay private until you choose to post." },
+      { "type": "p", "text": "Open the editor, switch to 9:16, and build your Reel." }
+    ],
+    "faq": [
+      { "q": "What aspect ratio is an Instagram Reel?", "a": "Instagram Reels use a vertical 9:16 aspect ratio (1080×1920). Set this in Reecap before adding your photos." },
+      { "q": "Can I add text to my Reel?", "a": "Yes. Reecap lets you place a caption anywhere, choose its color and background, and animate it in — and the text renders into the exported MP4." }
+    ]
+  },
+  {
+    "slug": "how-to-make-youtube-shorts-from-photos",
+    "title": "How to Make YouTube Shorts From Photos",
+    "date": "2026-06-17", "updated": "2026-06-17", "author": "Rakibul Islam",
+    "readingTime": "5 min read", "category": "Use cases",
+    "cover": "from-red-500 via-rose-500 to-orange-500",
+    "excerpt": "Build a vertical Short from photos with motion and captions, then export an MP4 ready for YouTube.",
+    "description": "How to make YouTube Shorts from photos: use a 9:16 canvas, add transitions and captions, set music, and export a vertical MP4. Free, no upload, no account.",
+    "keywords": ["youtube shorts from photos", "photo to shorts", "make a short from pictures", "vertical video from photos"],
+    "body": [
+      { "type": "p", "text": "To make a YouTube Short from photos, create a vertical 9:16 project, add your images with transitions and a caption, set background music, and export an MP4 under 60 seconds. Reecap builds the Short entirely in your browser." },
+      { "type": "h2", "text": "Keep it under a minute" },
+      { "type": "p", "text": "Shorts must be 60 seconds or less. With 2–30 photos and per-slide durations, it is easy to keep a recap tight. A 12-photo Short at roughly one second per slide runs comfortably inside the limit." },
+      { "type": "h2", "text": "Add motion and a hook" },
+      { "type": "ul", "items": [
+        "Open on your strongest photo to hook viewers in the first second.",
+        "Use Zoom or Slide transitions for energy.",
+        "Add an animated caption to set context fast.",
+        "Use the speed dial (up to 10×) for a montage feel."
+      ] },
+      { "type": "h2", "text": "Export for YouTube" },
+      { "type": "p", "text": "Export a 1080p vertical MP4 and upload it as a Short. The transitions and caption animations are baked into the file, so it looks the same on YouTube as it did in the preview." },
+      { "type": "p", "text": "Open the editor and turn your photos into a Short." }
+    ],
+    "faq": [
+      { "q": "How long can a YouTube Short be?", "a": "Up to 60 seconds. Reecap's per-slide durations make it easy to keep a photo recap within the Shorts limit." },
+      { "q": "Do transitions show up in the exported Short?", "a": "Yes. Reecap renders the video frame by frame, so transitions and caption animations are baked into the exported MP4." }
+    ]
+  },
+  {
+    "slug": "photo-video-maker-no-watermark",
+    "title": "How to Make a Photo Video With No Watermark",
+    "date": "2026-06-16", "updated": "2026-06-16", "author": "Rakibul Islam",
+    "readingTime": "4 min read", "category": "Guides",
+    "cover": "from-slate-500 via-gray-600 to-zinc-700",
+    "excerpt": "Most free tools stamp a watermark on your export. Here is how to make a clean photo video without one.",
+    "description": "How to make a photo video with no watermark, for free. Reecap exports clean, watermark-free MP4s in your browser — no account, no upload, no logo.",
+    "keywords": ["photo video no watermark", "video maker no watermark free", "remove watermark slideshow", "free video no watermark"],
+    "body": [
+      { "type": "p", "text": "To make a photo video with no watermark, use a tool that does not brand your export — Reecap exports clean MP4s for free, with no logo, no account, and no upload. Many free online makers add a watermark unless you upgrade; Reecap never does because it is open source and runs locally." },
+      { "type": "h2", "text": "Why free tools add watermarks" },
+      { "type": "p", "text": "Cloud-based services pay for servers to render your video, so they often add a watermark on the free tier to push you toward a subscription. Because Reecap renders on your own device, there is no server cost to recoup and no watermark." },
+      { "type": "h2", "text": "Getting a clean export" },
+      { "type": "ul", "items": [
+        "Open the Reecap editor and add your photos.",
+        "Customize transitions, captions, and music.",
+        "Press Export — the MP4 downloads with no watermark.",
+        "Choose 720p or 1080p quality."
+      ] },
+      { "type": "p", "text": "Open the editor and export a watermark-free photo video in minutes." }
+    ],
+    "faq": [
+      { "q": "Is there a truly free video maker with no watermark?", "a": "Yes. Reecap is free and open source and exports MP4s with no watermark, because it renders locally in your browser rather than on a paid server." },
+      { "q": "Why do other free video makers add a watermark?", "a": "Cloud tools add watermarks on free plans to offset server costs and encourage upgrades. Local-rendering tools like Reecap have no such cost." }
+    ]
+  },
+  {
+    "slug": "how-to-add-text-and-captions-to-a-video",
+    "title": "How to Add Text and Captions to a Photo Video",
+    "date": "2026-06-15", "updated": "2026-06-15", "author": "Rakibul Islam",
+    "readingTime": "5 min read", "category": "Tutorials",
+    "cover": "from-violet-500 via-purple-500 to-fuchsia-600",
+    "excerpt": "Place text anywhere, style it, and animate it in — captions that render right into your MP4.",
+    "description": "How to add text and captions to a photo video: drag text anywhere, set color and background, animate it in, and export. Free, browser-based, no upload.",
+    "keywords": ["add text to video", "captions on photo video", "add caption to slideshow", "text animation video"],
+    "body": [
+      { "type": "p", "text": "To add text to a photo video, select a slide, type your caption, then position it with presets or by dragging it anywhere on the canvas. In Reecap you can also set the text color, add a background pill, and choose an intro animation — all of which render into the exported MP4." },
+      { "type": "h2", "text": "Positioning your caption" },
+      { "type": "p", "text": "Use the Top, Center, or Bottom presets for quick placement, or drag the text to any spot on the frame for full control. Place it where it will not cover the subject of the photo." },
+      { "type": "h2", "text": "Styling and animating text" },
+      { "type": "ul", "items": [
+        "Set a text color and an optional background pill for contrast.",
+        "Animate the caption in: Fade, Pop, Slide up, Slide down, or Typewriter.",
+        "Keep it to one short line so it is readable at a glance.",
+        "Captions appear in both the live preview and the exported video."
+      ] },
+      { "type": "h2", "text": "Why animated captions help" },
+      { "type": "p", "text": "A caption that animates in draws the eye at the start of a slide and helps a recap feel intentional. Because Reecap renders the video frame by frame, the animation is part of the final MP4, not just the preview." },
+      { "type": "p", "text": "Open the editor and add captions to your recap." }
+    ],
+    "faq": [
+      { "q": "Can I put text anywhere on a video?", "a": "Yes. In Reecap you can drag a caption to any position on the canvas, or use Top/Center/Bottom presets." },
+      { "q": "Do captions appear in the exported video?", "a": "Yes. Caption text, color, background, and intro animation are all baked into the exported MP4." }
+    ]
+  },
+  {
+    "slug": "how-to-make-a-travel-recap-video",
+    "title": "How to Make a Travel Recap Video From Your Photos",
+    "date": "2026-06-14", "updated": "2026-06-14", "author": "Rakibul Islam",
+    "readingTime": "5 min read", "category": "Use cases",
+    "cover": "from-sky-400 via-cyan-500 to-blue-600",
+    "excerpt": "Turn a trip's worth of photos into a shareable travel recap with motion, captions, and music.",
+    "description": "How to make a travel recap video from your photos: sequence the journey, add transitions and captions, set music, and export an MP4. Free and private.",
+    "keywords": ["travel recap video", "trip video from photos", "vacation slideshow", "travel montage maker"],
+    "body": [
+      { "type": "p", "text": "To make a travel recap video, gather your best trip photos, order them to follow the journey, add transitions and a few captions for places, set music, and export an MP4. Reecap turns a trip's photos into a shareable recap in minutes, all in your browser." },
+      { "type": "h2", "text": "Tell the story in order" },
+      { "type": "p", "text": "Arrange slides chronologically or by location so the recap reads like a journey. Drag to reorder on the timeline until the flow feels right, and caption a few key stops with place names." },
+      { "type": "h2", "text": "Add pace and atmosphere" },
+      { "type": "ul", "items": [
+        "Hold scenic shots a little longer; let transitions move quickly between similar ones.",
+        "Use Dissolve or Fade for a calm, cinematic feel.",
+        "Pick music that matches the trip's mood.",
+        "Export 9:16 for Stories or 16:9 for YouTube."
+      ] },
+      { "type": "p", "text": "Open the editor and turn your trip into a travel recap." }
+    ],
+    "faq": [
+      { "q": "How many photos do I need for a travel recap?", "a": "Reecap supports 2 to 30 photos. For a trip, 12 to 20 strong photos usually make a well-paced recap." },
+      { "q": "Can I make a travel recap on my phone?", "a": "Yes, via a mobile browser, though a tablet or desktop gives the timeline and panels more room to work." }
+    ]
+  },
+  {
+    "slug": "how-to-make-a-year-in-review-video",
+    "title": "How to Make a Year-in-Review Recap Video",
+    "date": "2026-06-13", "updated": "2026-06-13", "author": "Rakibul Islam",
+    "readingTime": "5 min read", "category": "Use cases",
+    "cover": "from-amber-400 via-orange-500 to-red-500",
+    "excerpt": "Wrap up the year in a short, shareable recap built from your favorite photos.",
+    "description": "How to make a year-in-review video from photos: pick highlights, sequence by month, add captions and music, and export an MP4. Free, browser-based, private.",
+    "keywords": ["year in review video", "year recap video", "annual recap from photos", "12 months slideshow"],
+    "body": [
+      { "type": "p", "text": "To make a year-in-review video, select a handful of standout photos from each month, arrange them in order, add month captions and music, and export an MP4. Reecap makes a clean annual recap without any uploads or accounts." },
+      { "type": "h2", "text": "Curate, do not dump" },
+      { "type": "p", "text": "A recap is stronger with fewer, better photos. Pick one to three highlights per month and let each breathe. Reecap supports up to 30 photos, which is plenty for a 12-month story." },
+      { "type": "h2", "text": "Structure the year" },
+      { "type": "ul", "items": [
+        "Order photos chronologically across the year.",
+        "Caption section breaks with the month or a milestone.",
+        "Use a consistent transition for a cohesive feel.",
+        "Tune the speed so the whole recap lands around 20–40 seconds."
+      ] },
+      { "type": "p", "text": "Open the editor and build your year-in-review recap." }
+    ],
+    "faq": [
+      { "q": "How long should a year-in-review video be?", "a": "Around 20 to 40 seconds works well for sharing. Use per-slide durations and the speed dial in Reecap to fit your highlights into that window." },
+      { "q": "Can I add the month as a caption?", "a": "Yes. Add a caption to the first slide of each month and position it anywhere on the frame." }
+    ]
+  },
+  {
+    "slug": "how-to-make-a-monthly-recap-video",
+    "title": "How to Make a Monthly Recap Video for Social",
+    "date": "2026-06-12", "updated": "2026-06-12", "author": "Rakibul Islam",
+    "readingTime": "4 min read", "category": "Use cases",
+    "cover": "from-teal-400 via-emerald-500 to-green-600",
+    "excerpt": "A repeatable way to recap each month's photos into a short clip your followers look forward to.",
+    "description": "How to make a monthly recap video from your photos for Instagram, TikTok, or LinkedIn. Add transitions, captions, and music, then export an MP4 — free.",
+    "keywords": ["monthly recap video", "month in photos", "recap reel", "monthly highlights video"],
+    "body": [
+      { "type": "p", "text": "To make a monthly recap, collect the month's best photos, drop them into Reecap, add quick transitions and a title caption, set music, and export a vertical or square MP4 for social. A monthly recap is an easy, repeatable post that keeps your feed consistent." },
+      { "type": "h2", "text": "Make it a repeatable habit" },
+      { "type": "ul", "items": [
+        "Keep the same format each month so your audience recognizes it.",
+        "Open with a title slide caption like the month name.",
+        "Use 9:16 for Reels/TikTok or 1:1 for the feed.",
+        "Aim for 10–15 seconds."
+      ] },
+      { "type": "p", "text": "Open the editor and start your monthly recap series." }
+    ],
+    "faq": [
+      { "q": "What is a recap reel?", "a": "A recap reel is a short vertical video summarizing a period — a month, trip, or event — using photos with transitions, captions, and music. Reecap creates them in the browser." },
+      { "q": "What size should a monthly recap be?", "a": "Use 9:16 for Reels and TikTok, or 1:1 for an Instagram feed post. Reecap supports both and several other ratios." }
+    ]
+  },
+  {
+    "slug": "what-is-a-recap-video",
+    "title": "What Is a Recap Video? (And How to Make One)",
+    "date": "2026-06-11", "updated": "2026-06-11", "author": "Rakibul Islam",
+    "readingTime": "4 min read", "category": "Guides",
+    "cover": "from-indigo-500 via-blue-500 to-sky-500",
+    "excerpt": "A plain definition of recap videos, where they're used, and the fastest way to make one from photos.",
+    "description": "What is a recap video? A short clip that summarizes an event or period using photos with transitions, captions, and music. Learn how to make one free in your browser.",
+    "keywords": ["what is a recap video", "recap video meaning", "recap video definition", "how to make a recap video"],
+    "body": [
+      { "type": "p", "text": "A recap video is a short clip that summarizes an event, trip, project, or period of time using a sequence of photos (or clips) set to transitions and music. Recap videos are popular on Instagram, TikTok, and YouTube because they tell a story quickly and are easy to share." },
+      { "type": "h2", "text": "Where recap videos are used" },
+      { "type": "ul", "items": [
+        "Travel and vacation summaries.",
+        "Event recaps — weddings, conferences, launches.",
+        "Monthly or year-in-review highlights.",
+        "Project and product progress updates."
+      ] },
+      { "type": "h2", "text": "How to make a recap video" },
+      { "type": "p", "text": "The fastest way is a browser-based editor like Reecap: add 2–30 photos, choose transitions and per-slide timing, add captions and music, then export an MP4. There is nothing to install and nothing to upload." },
+      { "type": "p", "text": "Open the editor and make a recap video now." }
+    ],
+    "faq": [
+      { "q": "What is a recap video?", "a": "A recap video is a short video that summarizes an event or period using a sequence of photos or clips with transitions, captions, and music." },
+      { "q": "How do you make a recap video for free?", "a": "Use a free browser editor like Reecap: add your photos, customize transitions and timing, add music, and export an MP4 — no account or upload needed." }
+    ]
+  },
+  {
+    "slug": "how-to-export-photos-to-mp4-in-browser",
+    "title": "How to Export Photos to MP4 Right in Your Browser",
+    "date": "2026-06-10", "updated": "2026-06-10", "author": "Rakibul Islam",
+    "readingTime": "5 min read", "category": "Guides",
+    "cover": "from-blue-600 via-indigo-600 to-purple-700",
+    "excerpt": "Modern browsers can encode MP4 video locally. Here's how Reecap turns photos into a downloadable file.",
+    "description": "How to export photos to MP4 in your browser using WebCodecs — no server, no upload. Reecap renders every frame locally and downloads a standard MP4.",
+    "keywords": ["export photos to mp4", "browser mp4 export", "webcodecs video export", "photos to mp4 online"],
+    "body": [
+      { "type": "p", "text": "You can export photos to MP4 directly in your browser using the WebCodecs API, which gives web pages access to the device's hardware video encoder. Reecap uses WebCodecs to render each frame on a canvas and encode an H.264 MP4 locally — no server and no upload." },
+      { "type": "h2", "text": "How browser MP4 export works" },
+      { "type": "p", "text": "For each moment in the timeline, the editor composites the background, the current and incoming photos with their transition, and any captions onto a canvas. That canvas becomes a video frame, which is fed to the hardware encoder and muxed into an MP4 in memory." },
+      { "type": "h2", "text": "What you get" },
+      { "type": "ul", "items": [
+        "A standard MP4 (H.264) that plays everywhere.",
+        "720p (1×) or 1080p (2×) quality.",
+        "Your choice of aspect ratio: 16:9, 9:16, 1:1, 4:3, or 5:4.",
+        "Transitions and animations baked into the file."
+      ] },
+      { "type": "p", "text": "Open the editor and export your photos to MP4." }
+    ],
+    "faq": [
+      { "q": "Can a browser export MP4 video?", "a": "Yes. Modern browsers expose the WebCodecs API, which lets a page encode H.264 MP4 using the device's hardware encoder. Reecap uses this to export locally." },
+      { "q": "Is browser MP4 export private?", "a": "Yes. Because encoding happens on your device, your photos and the rendered video never leave your browser." }
+    ]
+  },
+  {
+    "slug": "video-transitions-explained",
+    "title": "Video Transitions Explained: Fade, Slide, Zoom, and More",
+    "date": "2026-06-09", "updated": "2026-06-09", "author": "Rakibul Islam",
+    "readingTime": "6 min read", "category": "Guides",
+    "cover": "from-pink-500 via-rose-500 to-red-500",
+    "excerpt": "What each common transition does and when to use it in a photo recap.",
+    "description": "Video transitions explained — fade, slide, slide up, zoom, wipe, flip, and dissolve — and when to use each in a photo recap. With examples you can try free.",
+    "keywords": ["video transitions explained", "types of video transitions", "fade vs dissolve", "best transitions for photo video"],
+    "body": [
+      { "type": "p", "text": "A video transition is the visual effect used to move from one slide to the next. The most common transitions are fade, slide, zoom, wipe, flip, and dissolve, and each sets a different mood. Reecap offers eight transition styles you can set per slide." },
+      { "type": "h2", "text": "Common transitions and when to use them" },
+      { "type": "ul", "items": [
+        "Fade — a soft crossfade; calm and cinematic.",
+        "Slide — pushes the next photo in; energetic and modern.",
+        "Slide Up — the next photo rises into frame; great for vertical video.",
+        "Zoom — scales in with a crossfade; adds momentum.",
+        "Wipe — reveals the next photo with a moving edge; bold.",
+        "Flip — a perspective turn; playful.",
+        "Dissolve — a blurred crossfade; dreamy.",
+        "None — a hard cut; punchy and fast."
+      ] },
+      { "type": "h2", "text": "Choosing transitions for a recap" },
+      { "type": "p", "text": "Pick one or two transitions and stay consistent for a cohesive look. Use calm transitions like Fade and Dissolve for travel and memories; use Slide and Zoom for energetic social clips. In Reecap, transitions render into the exported MP4, not just the preview." },
+      { "type": "p", "text": "Open the editor and try the transitions on your own photos." }
+    ],
+    "faq": [
+      { "q": "What is the difference between fade and dissolve?", "a": "A fade is a clean crossfade between two slides; a dissolve adds a slight blur during the crossfade for a softer, dreamier feel." },
+      { "q": "How many transitions does Reecap have?", "a": "Reecap offers eight transition styles — fade, slide, slide up, zoom, wipe, flip, dissolve, and none — set per slide or applied to all." }
+    ]
+  },
+  {
+    "slug": "how-to-change-video-speed",
+    "title": "How to Change the Speed of a Photo Video",
+    "date": "2026-06-08", "updated": "2026-06-08", "author": "Rakibul Islam",
+    "readingTime": "4 min read", "category": "Tutorials",
+    "cover": "from-cyan-500 via-blue-500 to-indigo-600",
+    "excerpt": "Speed up or slow down your whole recap with one control — and keep the music sounding normal.",
+    "description": "How to change the speed of a photo video from 0.5× to 10× with one control. Reecap speeds the whole recap while keeping audio at its natural pitch.",
+    "keywords": ["change video speed", "speed up slideshow", "slow motion photo video", "video speed control"],
+    "body": [
+      { "type": "p", "text": "To change the speed of a photo video in Reecap, use the speed dial at the top-left of the timeline. It sets the pace of the entire recap from 0.5× (slower) to 10× (much faster), and applies to both the live preview and the exported MP4." },
+      { "type": "h2", "text": "Speed for whole-video pacing" },
+      { "type": "p", "text": "Lower speeds give a calm, lingering feel; higher speeds create a fast montage. Because the control affects the whole video, your slide order and per-slide timing are preserved — everything just plays faster or slower together." },
+      { "type": "h2", "text": "Audio stays natural" },
+      { "type": "p", "text": "When you speed the recap up, Reecap does not pitch-shift the music. The track plays at its normal pitch and spans the shorter video, so a 10× recap never sounds chipmunk-like." },
+      { "type": "p", "text": "Open the editor and find the speed dial above the timeline." }
+    ],
+    "faq": [
+      { "q": "Can I speed up a photo slideshow?", "a": "Yes. Reecap's speed control sets the whole-video pace from 0.5× to 10×, affecting both preview and export." },
+      { "q": "Does speeding up the video change the music pitch?", "a": "No. Reecap keeps audio at its natural pitch and simply fits it to the sped-up video length." }
+    ]
+  },
+  {
+    "slug": "make-a-video-without-uploading-photos",
+    "title": "How to Make a Video Without Uploading Your Photos",
+    "date": "2026-06-07", "updated": "2026-06-07", "author": "Rakibul Islam",
+    "readingTime": "5 min read", "category": "Guides",
+    "cover": "from-emerald-500 via-green-600 to-teal-700",
+    "excerpt": "Privacy-first video editing: your photos stay on your device the entire time.",
+    "description": "How to make a video without uploading your photos. Reecap is a private, browser-based editor that renders and exports locally — your images never touch a server.",
+    "keywords": ["video without uploading", "private video maker", "no upload slideshow", "offline photo video"],
+    "body": [
+      { "type": "p", "text": "To make a video without uploading your photos, use a tool that renders locally in the browser. Reecap processes, renders, and exports your video entirely on your device — your photos, audio, and the finished MP4 never touch a server, account, or analytics system." },
+      { "type": "h2", "text": "Why local rendering matters" },
+      { "type": "p", "text": "Most online video makers upload your files to the cloud to render them, which means your private photos sit on someone else's servers. Reecap avoids that completely by using your device's own hardware to composite and encode the video." },
+      { "type": "h2", "text": "What stays private" },
+      { "type": "ul", "items": [
+        "Your source photos — never uploaded.",
+        "Your music selection and the mixed audio.",
+        "The rendered MP4 — created and saved on your device.",
+        "Close the tab and nothing is left behind."
+      ] },
+      { "type": "p", "text": "Open the editor and make a video that stays private." }
+    ],
+    "faq": [
+      { "q": "Can I make a video without uploading my photos?", "a": "Yes. Reecap renders entirely in your browser, so your photos are never uploaded — they stay on your device throughout editing and export." },
+      { "q": "Is Reecap private?", "a": "Yes. There are no servers, accounts, or tracking on your media. Everything runs locally and nothing persists after you close the tab." }
+    ]
+  },
+  {
+    "slug": "photo-video-aspect-ratios-guide",
+    "title": "Photo Video Aspect Ratios: 16:9 vs 9:16 vs 1:1",
+    "date": "2026-06-06", "updated": "2026-06-06", "author": "Rakibul Islam",
+    "readingTime": "5 min read", "category": "Guides",
+    "cover": "from-orange-400 via-amber-500 to-yellow-500",
+    "excerpt": "Which aspect ratio to use for YouTube, Reels, TikTok, and feed posts — and how to switch.",
+    "description": "A guide to photo video aspect ratios: 16:9 for YouTube, 9:16 for Reels/Shorts/TikTok, 1:1 for the feed. Learn which to use and switch easily in Reecap.",
+    "keywords": ["video aspect ratio", "16:9 vs 9:16", "best aspect ratio for reels", "square video size"],
+    "body": [
+      { "type": "p", "text": "The right aspect ratio depends on where you will post: use 16:9 (landscape) for YouTube, 9:16 (vertical) for Reels, Shorts, and TikTok, and 1:1 (square) for the Instagram feed. Reecap supports 16:9, 9:16, 1:1, 4:3, and 5:4, so you can match any platform." },
+      { "type": "h2", "text": "Which ratio for which platform" },
+      { "type": "ul", "items": [
+        "16:9 — YouTube, landscape players, presentations.",
+        "9:16 — Instagram Reels, TikTok, YouTube Shorts, Stories.",
+        "1:1 — Instagram and Facebook feed posts.",
+        "4:3 and 5:4 — classic photo proportions and some feeds."
+      ] },
+      { "type": "h2", "text": "Choosing before you start" },
+      { "type": "p", "text": "Set your aspect ratio before arranging photos so framing and captions sit correctly. In Reecap you can change the ratio at any time from the top bar, which makes it easy to repurpose the same photos for multiple platforms." },
+      { "type": "p", "text": "Open the editor and pick the right ratio for your post." }
+    ],
+    "faq": [
+      { "q": "What is the best aspect ratio for Reels and TikTok?", "a": "Vertical 9:16 (1080×1920) is the standard for Instagram Reels, TikTok, and YouTube Shorts." },
+      { "q": "Can I make the same video in different ratios?", "a": "Yes. In Reecap you can switch the aspect ratio at any time and re-export, so one set of photos can become a YouTube, Reels, and feed version." }
+    ]
+  },
+  {
+    "slug": "how-to-make-a-wedding-recap-video",
+    "title": "How to Make a Wedding or Event Recap Video",
+    "date": "2026-06-05", "updated": "2026-06-05", "author": "Rakibul Islam",
+    "readingTime": "5 min read", "category": "Use cases",
+    "cover": "from-rose-300 via-pink-400 to-fuchsia-500",
+    "excerpt": "Turn event photos into a heartfelt recap to share with guests — cinematic and quick.",
+    "description": "How to make a wedding or event recap video from photos: sequence the day, use soft transitions and music, add captions, and export an MP4. Free and private.",
+    "keywords": ["wedding recap video", "event recap video", "wedding slideshow", "event highlights from photos"],
+    "body": [
+      { "type": "p", "text": "To make a wedding or event recap, choose the most meaningful photos from the day, order them to follow the timeline of the event, use soft transitions and gentle music, add a few captions, and export an MP4 to share with guests. Reecap keeps the photos private while you build it." },
+      { "type": "h2", "text": "Sequence the day" },
+      { "type": "p", "text": "Order photos in the order things happened — preparations, ceremony, celebration — so the recap feels like reliving the day. Caption key moments lightly; let the photos carry the emotion." },
+      { "type": "h2", "text": "Set the mood" },
+      { "type": "ul", "items": [
+        "Use Fade or Dissolve transitions for a soft, cinematic feel.",
+        "Hold important photos a beat longer with per-slide timing.",
+        "Choose music that matches the tone of the event.",
+        "Export 16:9 to share or 9:16 for Stories."
+      ] },
+      { "type": "p", "text": "Open the editor and create an event recap to remember." }
+    ],
+    "faq": [
+      { "q": "What transitions work best for a wedding video?", "a": "Soft transitions like Fade and Dissolve suit weddings and events, giving a calm, cinematic feel that lets the photos shine." },
+      { "q": "Can I share the recap with guests?", "a": "Yes. Export a standard MP4 and share it however you like. Reecap never uploads your photos, so privacy is preserved until you choose to share." }
+    ]
+  },
+  {
+    "slug": "how-to-make-a-product-launch-recap",
+    "title": "How to Make a Product or Launch Recap for Social",
+    "date": "2026-06-04", "updated": "2026-06-04", "author": "Rakibul Islam",
+    "readingTime": "4 min read", "category": "Use cases",
+    "cover": "from-blue-500 via-sky-500 to-cyan-500",
+    "excerpt": "Recap a launch, event, or sprint with a punchy photo video your team and audience will share.",
+    "description": "How to make a product or launch recap video from photos for social media. Add captions and motion, keep it on-brand, and export an MP4 — free, no upload.",
+    "keywords": ["product launch recap", "event recap for business", "marketing recap video", "company highlights video"],
+    "body": [
+      { "type": "p", "text": "To make a product or launch recap, collect photos from the event or build process, order them into a quick narrative, add captions for context, set an upbeat track, and export a vertical or square MP4 for social. A recap is an easy, high-engagement post for product, marketing, and community teams." },
+      { "type": "h2", "text": "Make it punchy and on-brand" },
+      { "type": "ul", "items": [
+        "Open with the strongest shot and a one-line caption.",
+        "Use consistent transitions and a brand-appropriate caption color.",
+        "Keep it short — 10 to 20 seconds for social.",
+        "Export 9:16 for Reels/Shorts or 1:1 for LinkedIn and the feed."
+      ] },
+      { "type": "p", "text": "Open the editor and recap your launch." }
+    ],
+    "faq": [
+      { "q": "Is Reecap good for business or marketing videos?", "a": "Yes. It is a fast way to turn event or product photos into a branded recap for social, with captions, motion, and watermark-free MP4 export." },
+      { "q": "Can I match captions to my brand colors?", "a": "Yes. You can set the caption text color and background to match your brand in Reecap." }
+    ]
+  },
+  {
+    "slug": "reecap-vs-online-video-makers",
+    "title": "Reecap vs Cloud Video Makers: A Quick Comparison",
+    "date": "2026-06-03", "updated": "2026-06-03", "author": "Rakibul Islam",
+    "readingTime": "5 min read", "category": "Comparisons",
+    "cover": "from-violet-500 via-indigo-500 to-blue-600",
+    "excerpt": "How a local, browser-based editor compares to upload-based online video makers.",
+    "description": "Reecap vs cloud video makers: compare privacy, watermarks, cost, and speed. See why a local browser editor is faster and more private for photo recaps.",
+    "keywords": ["reecap vs", "browser vs cloud video maker", "private video editor comparison", "free online video maker comparison"],
+    "body": [
+      { "type": "p", "text": "Reecap differs from typical online video makers in one key way: it renders locally in your browser instead of uploading your photos to the cloud. That makes it more private, watermark-free, and free to use — with the trade-off that it is built for quick recaps rather than full timeline editing." },
+      { "type": "h2", "text": "How they compare" },
+      { "type": "ul", "items": [
+        "Privacy — Reecap renders locally; cloud tools upload your files.",
+        "Watermark — Reecap exports clean MP4s; many free cloud tools add a logo.",
+        "Cost — Reecap is free and open source; cloud tools often gate export behind a subscription.",
+        "Speed — local rendering avoids upload and queue time.",
+        "Scope — Reecap focuses on photo recaps; full editors do more but are heavier."
+      ] },
+      { "type": "h2", "text": "Which should you choose?" },
+      { "type": "p", "text": "Choose Reecap when you want a fast, private, watermark-free photo recap with transitions, captions, and music. Choose a full cloud editor when you need multi-track timelines, video clips, and advanced effects." },
+      { "type": "p", "text": "Open the editor and see how quick a local recap is." }
+    ],
+    "faq": [
+      { "q": "Is a browser video maker better than a cloud one?", "a": "For quick, private photo recaps, a local browser tool like Reecap is faster and more private, with no watermark. Cloud editors offer more advanced features but upload your files." },
+      { "q": "Is Reecap really free?", "a": "Yes. Reecap is free and open source, with no subscription and no watermark on exports." }
+    ]
+  },
+  {
+    "slug": "make-videos-on-phone-vs-desktop-browser",
+    "title": "Making Photo Videos on Phone vs Desktop (in the Browser)",
+    "date": "2026-06-02", "updated": "2026-06-02", "author": "Rakibul Islam",
+    "readingTime": "4 min read", "category": "Guides",
+    "cover": "from-gray-500 via-slate-600 to-zinc-700",
+    "excerpt": "When to edit on mobile and when a bigger screen wins — and how the browser handles both.",
+    "description": "Phone vs desktop for making photo videos in the browser: where mobile works, where a desktop wins for the timeline, and how Reecap handles each.",
+    "keywords": ["make video on phone", "desktop vs mobile video editing", "browser video editor mobile", "photo video on computer"],
+    "body": [
+      { "type": "p", "text": "You can make a photo video in any modern browser on phone or desktop, but a bigger screen makes the timeline and side panels far easier to use. Reecap runs in the browser on both; for serious editing — reordering many slides, fine timing, dragging captions — a tablet or desktop is the better experience." },
+      { "type": "h2", "text": "When mobile is fine" },
+      { "type": "p", "text": "For a quick recap from a handful of photos, a phone browser works. You can add photos, pick a transition, and export. The constraint is screen space: the timeline and control panels need room." },
+      { "type": "h2", "text": "When a desktop wins" },
+      { "type": "ul", "items": [
+        "Reordering and timing many slides on the timeline.",
+        "Precise caption placement by dragging.",
+        "Comparing transitions quickly.",
+        "Exporting larger projects."
+      ] },
+      { "type": "p", "text": "Open the editor on whichever device you have — and reach for a bigger screen when you want more control." }
+    ],
+    "faq": [
+      { "q": "Can I make a photo video on my phone?", "a": "Yes, in a mobile browser. For more control over the timeline and captions, a tablet or desktop is recommended." },
+      { "q": "Do I need to install an app?", "a": "No. Reecap runs in the browser. You can optionally install it as a PWA, but no app store download is required." }
+    ]
+  },
+  {
+    "slug": "how-long-should-a-recap-video-be",
+    "title": "How Long Should a Recap Video Be?",
+    "date": "2026-06-01", "updated": "2026-06-01", "author": "Rakibul Islam",
+    "readingTime": "4 min read", "category": "Guides",
+    "cover": "from-purple-500 via-violet-500 to-indigo-600",
+    "excerpt": "Ideal lengths for recaps by platform, and how to hit them with per-slide timing and speed.",
+    "description": "How long should a recap video be? Aim for 8–15s on Reels/TikTok, under 60s for Shorts, and 20–40s for a year-in-review. Hit any length easily in Reecap.",
+    "keywords": ["how long should a recap video be", "ideal video length", "reel length", "slideshow duration"],
+    "body": [
+      { "type": "p", "text": "A recap video should usually be 8 to 15 seconds for Reels and TikTok, under 60 seconds for YouTube Shorts, and 20 to 40 seconds for a year-in-review. Shorter recaps hold attention better; the right length depends on the platform and how many photos you have." },
+      { "type": "h2", "text": "Recommended lengths by use case" },
+      { "type": "ul", "items": [
+        "Instagram Reels / TikTok — 8 to 15 seconds.",
+        "YouTube Shorts — up to 60 seconds.",
+        "Feed posts — 10 to 20 seconds.",
+        "Year-in-review — 20 to 40 seconds."
+      ] },
+      { "type": "h2", "text": "Hitting your target length" },
+      { "type": "p", "text": "Total length is the sum of your per-slide durations, divided by the speed. In Reecap, lower the per-slide duration or raise the speed to shorten a recap, and do the opposite to lengthen it. Preview playback shows the exact runtime." },
+      { "type": "p", "text": "Open the editor and dial in the perfect length." }
+    ],
+    "faq": [
+      { "q": "What is the ideal length for a recap video?", "a": "8 to 15 seconds for Reels and TikTok, under 60 seconds for Shorts, and 20 to 40 seconds for a year-in-review. Shorter generally holds attention better." },
+      { "q": "How do I control the length of my video?", "a": "Length equals total per-slide duration divided by speed. In Reecap, adjust per-slide timing and the speed dial to hit your target." }
+    ]
+  }
+]

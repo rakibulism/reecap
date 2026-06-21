@@ -7,12 +7,40 @@ import {
 } from 'phosphor-react';
 import Button from '../components/ui/Button';
 import SiteLayout from '../components/site/SiteLayout';
+import { useSeo, SITE_URL } from '../lib/seo';
 
 const REPO_URL = 'https://github.com/rakibulism/reecap';
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
   const openApp = () => navigate('/app');
+
+  useSeo({
+    title: 'Reecap — Turn your photos into a cinematic video recap',
+    description: 'Reecap is a free, browser-based editor that turns your photos into a shareable MP4 — transitions, captions, music, and a real timeline. No upload, no account.',
+    path: '/',
+    keywords: ['photo to video', 'recap video maker', 'slideshow maker', 'free online video editor', 'browser video editor'],
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'Reecap',
+        applicationCategory: 'MultimediaApplication',
+        operatingSystem: 'Web',
+        url: SITE_URL,
+        description: 'A free, browser-based editor that turns photos into a shareable MP4 with transitions, captions, music, and MP4 export. Runs 100% client-side.',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'Reecap',
+        url: SITE_URL,
+        logo: `${SITE_URL}/icon-512.png`,
+        sameAs: [REPO_URL, 'https://x.com/rakibulism'],
+      },
+    ],
+  });
 
   return (
     <SiteLayout>
