@@ -8,7 +8,6 @@ interface EncodeOptions {
   /** Paints the full frame for absolute time `t` (seconds) onto the context. */
   renderFrame: (ctx: CanvasRenderingContext2D, t: number) => void;
   audioBlob?: Blob | null;
-  speed?: number; // audio is time-stretched to match
 }
 
 /**
@@ -23,7 +22,6 @@ export async function encodeVideo({
   onProgress,
   renderFrame,
   audioBlob,
-  speed = 1,
 }: EncodeOptions): Promise<Blob> {
   const { width, height } = dimensions;
 
@@ -59,7 +57,7 @@ export async function encodeVideo({
       sampleRate: 44100,
       bitrate: 128_000,
     });
-    await processAudio(audioEncoder, audioBlob, totalDuration, speed);
+    await processAudio(audioEncoder, audioBlob, totalDuration);
   }
 
   // Render + encode every frame.
@@ -88,12 +86,12 @@ export async function encodeVideo({
   return new Blob([buffer], { type: 'video/mp4' });
 }
 
-/** Decodes, time-stretches by `speed`, and clamps audio to the video length. */
+/** Decodes the audio at normal speed/pitch and clamps it to the video length,
+ *  so the track simply spans the (speed-shortened) video without pitch shift. */
 async function processAudio(
   audioEncoder: AudioEncoder,
   audioBlob: Blob,
-  totalDuration: number,
-  speed: number
+  totalDuration: number
 ) {
   const renderLength = Math.max(1, Math.ceil(44100 * totalDuration));
   const decodeCtx = new OfflineAudioContext(2, 44100, 44100);
@@ -102,7 +100,6 @@ async function processAudio(
   const renderCtx = new OfflineAudioContext(2, renderLength, 44100);
   const source = renderCtx.createBufferSource();
   source.buffer = decoded;
-  source.playbackRate.value = speed; // >1 speeds up (and raises pitch)
   source.connect(renderCtx.destination);
   source.start(0);
   const audioBuffer = await renderCtx.startRendering();

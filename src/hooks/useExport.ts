@@ -60,7 +60,6 @@ export function useExport() {
         onProgress: (p) => setExportProgress(p),
         renderFrame: (ctx, t) => renderTimelineFrame(ctx, t, clips, settings, dim, imageMap),
         audioBlob: audio ? await fetch(audio.url).then((r) => r.blob()) : null,
-        speed,
       });
 
       // Download

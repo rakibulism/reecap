@@ -58,7 +58,9 @@ export function useAudioSync() {
         audioRef.current.currentTime = currentTime;
       }
       
-      audioRef.current.playbackRate = playbackSpeed;
+      // Play at normal pitch — audioTargetTime() already maps to wall-clock,
+      // so the track just spans the (speed-shortened) video without speeding up.
+      audioRef.current.playbackRate = 1;
       audioRef.current.play().catch(console.error);
     } else {
       audioRef.current.pause();
