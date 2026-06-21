@@ -7,6 +7,9 @@ export interface Photo {
   width: number;
   height: number;
   transition?: 'fade' | 'slide' | 'zoom' | 'none' | 'slide-up' | 'wipe' | 'flip' | 'dissolve';
+  duration?: number;       // per-slide seconds; falls back to settings.duration
+  caption?: string;        // optional text overlay
+  captionPosition?: 'top' | 'center' | 'bottom';
 }
 
 export interface ReecapSettings {

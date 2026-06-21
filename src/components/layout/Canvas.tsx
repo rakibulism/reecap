@@ -134,8 +134,14 @@ const Canvas: React.FC = () => {
       style.opacity = isNext ? (progress > 0.5 ? 1 : 0) : (progress > 0.5 ? 0 : 1);
     }
 
+    const captionPos = photo.captionPosition || 'bottom';
+    const captionAlign =
+      captionPos === 'top' ? 'items-start pt-[6%]' :
+      captionPos === 'center' ? 'items-center' :
+      'items-end pb-[6%]';
+
     return (
-      <div 
+      <div
         key={`${photo.id}-${isNext ? 'next' : 'curr'}`}
         className={`relative w-full h-full overflow-hidden flex items-center justify-center`}
         style={style}
@@ -147,12 +153,25 @@ const Canvas: React.FC = () => {
             overflow: 'hidden'
           }}
         >
-          <img 
-            src={imageUrl} 
+          <img
+            src={imageUrl}
             className={`${settings.imageFit === 'cover' ? 'w-full h-full object-cover' : 'w-auto h-full max-w-full object-contain block'}`}
             draggable={false}
             alt=""
           />
+          {photo.caption && (
+            <div className={`absolute inset-0 flex justify-center px-[6%] pointer-events-none ${captionAlign}`}>
+              <span
+                className="text-white text-center font-semibold leading-snug max-w-[88%]"
+                style={{
+                  fontSize: 'clamp(14px, 2.2vw, 34px)',
+                  textShadow: '0 2px 12px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.8)',
+                }}
+              >
+                {photo.caption}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     );

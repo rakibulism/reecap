@@ -1,4 +1,13 @@
-import { type Photo } from '../types';
+import { type Photo, type ReecapSettings } from '../types';
+
+/**
+ * Resolve the effective on-screen duration (seconds) for a slide,
+ * falling back to the project-wide default when no per-slide value is set.
+ */
+export function slideDuration(photo: Photo | undefined, settings: ReecapSettings): number {
+  const d = photo?.duration;
+  return typeof d === 'number' && d > 0 ? d : settings.duration;
+}
 
 /**
  * Utility to process uploaded files, extract dimensions and generate thumbnails.

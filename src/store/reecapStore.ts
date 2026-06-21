@@ -18,7 +18,6 @@ interface ReecapStore {
   isSidebarOpen: boolean;
   isPremium: boolean;
   inviteCount: number;
-  hasStarted: boolean;
 
   // Actions
   addPhotos: (newPhotos: Photo[]) => void;
@@ -41,7 +40,6 @@ interface ReecapStore {
   setSidebarOpen: (v: boolean) => void;
   setPremium: (v: boolean) => void;
   addInvite: () => void;
-  setStarted: (v: boolean) => void;
 }
 
 export const useReecapStore = create<ReecapStore>((set) => ({
@@ -74,7 +72,6 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   isSidebarOpen: false,
   isPremium: false,
   inviteCount: 0,
-  hasStarted: localStorage.getItem('reecap-started') === 'true',
 
   addPhotos: (newPhotos) =>
     set((state) => ({
@@ -137,8 +134,4 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   setSidebarOpen: (v) => set({ isSidebarOpen: v }),
   setPremium: (v) => set({ isPremium: v }),
   addInvite: () => set((state) => ({ inviteCount: state.inviteCount + 1 })),
-  setStarted: (v) => {
-    localStorage.setItem('reecap-started', String(v));
-    set({ hasStarted: v });
-  },
 }));

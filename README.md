@@ -150,8 +150,11 @@ src/
 
 ## Roadmap
 
-- [ ] Background audio support
-- [ ] Text / caption overlay per slide
+- [x] Background audio support
+- [x] Per-slide duration (variable timing on the timeline)
+- [x] Text / caption overlay per slide
+- [ ] Transition rendering in exported video
+- [ ] Ken Burns (pan / zoom) motion
 - [ ] Brand watermark
 - [ ] GIF export
 - [ ] Preset themes

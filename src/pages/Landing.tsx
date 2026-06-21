@@ -1,14 +1,14 @@
 import React from 'react';
-import { useReecapStore } from '../../store/reecapStore';
-import Button from '../ui/Button';
+import { useNavigate } from 'react-router-dom';
+import Button from '../components/ui/Button';
 import { ArrowRight, Sparkle, Image as ImageIcon, MusicNotes, Play } from 'phosphor-react';
-import heroBg from '../../assets/landing-hero.png';
+import heroBg from '../assets/landing-hero.png';
 
-const LandingPage: React.FC = () => {
-  const { setStarted } = useReecapStore();
+const Landing: React.FC = () => {
+  const navigate = useNavigate();
 
   const handleStart = () => {
-    setStarted(true);
+    navigate('/app');
   };
 
   return (
@@ -30,9 +30,9 @@ const LandingPage: React.FC = () => {
       <section className="relative pt-44 pb-32 px-8 flex flex-col items-center text-center">
         {/* Decorative background */}
         <div className="absolute inset-0 z-0 opacity-40">
-          <img 
-            src={heroBg} 
-            alt="Hero Background" 
+          <img
+            src={heroBg}
+            alt="Hero Background"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg-page)] via-transparent to-[var(--color-bg-page)]" />
@@ -43,16 +43,16 @@ const LandingPage: React.FC = () => {
             <Sparkle size={16} weight="fill" />
             <span>Introducing Reecap 1.0</span>
           </div>
-          
+
           <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-8 leading-[1.1]">
             Turn your memories into <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-600">stunning recaps</span>
           </h1>
-          
+
           <p className="text-xl md:text-2xl text-[var(--color-text-secondary)] mb-12 max-w-2xl mx-auto leading-relaxed">
             Beautifully crafted photo recaps with cinematic transitions, perfectly synced music, and professional templates.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button variant="primary" size="xl" onClick={handleStart} className="px-10 h-16 text-lg group">
               Open app in browser
@@ -68,17 +68,17 @@ const LandingPage: React.FC = () => {
       {/* Features Grid */}
       <section className="px-8 py-32 bg-[var(--color-bg-panel)]/30 border-y border-[var(--color-border-default)]/50">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-          <FeatureCard 
+          <FeatureCard
             icon={<ImageIcon size={32} weight="duotone" className="text-blue-500" />}
             title="Batch Upload"
             description="Drag and drop your finest photo collections and let Reecap do the heavy lifting."
           />
-          <FeatureCard 
+          <FeatureCard
             icon={<MusicNotes size={32} weight="duotone" className="text-purple-500" />}
             title="Audio Sync"
             description="Sync your visuals with a curated library of high-fidelity community music."
           />
-          <FeatureCard 
+          <FeatureCard
             icon={<Play size={32} weight="duotone" className="text-indigo-500" />}
             title="Pro Transitions"
             description="Choose from a variety of smooth, cinematic transitions to tell your story."
@@ -91,9 +91,12 @@ const LandingPage: React.FC = () => {
         <div className="w-full max-w-5xl aspect-video rounded-3xl bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-2xl overflow-hidden relative group">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5" />
           <div className="absolute inset-0 flex items-center justify-center">
-             <div className="w-24 h-24 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-2xl">
-                <Play size={40} weight="fill" className="text-white ml-2" />
-             </div>
+            <button
+              onClick={handleStart}
+              className="w-24 h-24 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-2xl"
+            >
+              <Play size={40} weight="fill" className="text-white ml-2" />
+            </button>
           </div>
           {/* Mock app status bar */}
           <div className="absolute top-0 left-0 right-0 h-12 bg-[var(--color-bg-page)]/80 backdrop-blur-md border-b border-[var(--color-border-default)] flex items-center px-6 justify-between">
@@ -137,4 +140,4 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description:
   </div>
 );
 
-export default LandingPage;
+export default Landing;

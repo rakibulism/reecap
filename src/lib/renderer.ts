@@ -89,6 +89,73 @@ export async function renderFrame(
 
   ctx.drawImage(img, drawX, drawY, drawW, drawH);
   ctx.restore();
+
+  // 4. Draw caption overlay (if any)
+  if (photo.caption && photo.caption.trim()) {
+    drawCaption(ctx, photo.caption.trim(), photo.captionPosition || 'bottom', {
+      x: drawX,
+      y: drawY,
+      w: drawW,
+      h: drawH,
+    });
+  }
+}
+
+/**
+ * Draws a centered, word-wrapped caption over the photo rect with a soft shadow.
+ */
+function drawCaption(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  position: 'top' | 'center' | 'bottom',
+  rect: { x: number; y: number; w: number; h: number }
+) {
+  const fontSize = Math.max(16, Math.round(rect.h * 0.05));
+  const lineHeight = fontSize * 1.25;
+  const maxWidth = rect.w * 0.88;
+  const margin = rect.h * 0.06;
+
+  ctx.save();
+  ctx.font = `600 ${fontSize}px Inter, system-ui, -apple-system, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+
+  // Word-wrap into lines that fit maxWidth.
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let line = '';
+  for (const word of words) {
+    const test = line ? `${line} ${word}` : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  }
+  if (line) lines.push(line);
+
+  const blockHeight = lines.length * lineHeight;
+  const centerX = rect.x + rect.w / 2;
+  let startY: number;
+  if (position === 'top') {
+    startY = rect.y + margin;
+  } else if (position === 'center') {
+    startY = rect.y + (rect.h - blockHeight) / 2;
+  } else {
+    startY = rect.y + rect.h - margin - blockHeight;
+  }
+
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+  ctx.shadowBlur = fontSize * 0.4;
+  ctx.shadowOffsetY = Math.max(1, fontSize * 0.06);
+  ctx.fillStyle = '#FFFFFF';
+
+  lines.forEach((l, i) => {
+    ctx.fillText(l, centerX, startY + i * lineHeight);
+  });
+
+  ctx.restore();
 }
 
 /**

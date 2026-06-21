@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useReecapStore } from '../store/reecapStore';
 import { renderFrame } from '../lib/renderer';
 import { exportWithWebCodecs } from '../lib/webCodecsEncoder';
+import { slideDuration } from '../lib/utils';
 
 export function useExport() {
   const { photos, settings, audio, setExporting, setExportProgress } = useReecapStore();
@@ -60,9 +61,10 @@ export function useExport() {
       }
 
       // 2. Encode to MP4 using Hardware Accelerated WebCodecs
+      const durations = photos.map((p) => slideDuration(p, settings));
       const videoBlob = await exportWithWebCodecs(
-        frameBlobs, 
-        settings.duration,
+        frameBlobs,
+        durations,
         dim,
         (progress) => {
           setExportProgress(15 + Math.round(progress * 0.85));

@@ -2,12 +2,19 @@ import * as mp4uxer from 'mp4-muxer';
 
 export async function exportWithWebCodecs(
   frameBlobs: Blob[],
-  durationPerFrame: number, // In seconds
+  durations: number | number[], // seconds per frame (single value applies to all)
   dimensions: { width: number; height: number },
   onProgress: (p: number) => void,
   audioBlob?: Blob | null
 ): Promise<Blob> {
   const { width, height } = dimensions;
+  const FPS = 30;
+
+  // Normalize to a per-frame duration array.
+  const perFrame = Array.isArray(durations)
+    ? durations
+    : frameBlobs.map(() => durations);
+  const totalDuration = perFrame.reduce((sum, d) => sum + d, 0);
 
   // 1. Initialize Muxer
   const muxer = new mp4uxer.Muxer({
@@ -56,7 +63,7 @@ export async function exportWithWebCodecs(
 
   // 3. Process Audio (Decode first)
   if (audioBlob && audioEncoder) {
-    const audioContext = new OfflineAudioContext(2, 44100 * (frameBlobs.length * durationPerFrame), 44100);
+    const audioContext = new OfflineAudioContext(2, Math.max(1, Math.ceil(44100 * totalDuration)), 44100);
     const audioBuffer = await audioContext.decodeAudioData(await audioBlob.arrayBuffer());
     
     // Feed audio in chunks
@@ -83,17 +90,19 @@ export async function exportWithWebCodecs(
   }
 
   // 4. Process Video Frames
+  let frameCounter = 0;
   for (let i = 0; i < frameBlobs.length; i++) {
     const bitmap = await createImageBitmap(frameBlobs[i]);
-    const framesToFeed = Math.max(1, Math.round(durationPerFrame * 30));
-    
+    const framesToFeed = Math.max(1, Math.round(perFrame[i] * FPS));
+
     for (let j = 0; j < framesToFeed; j++) {
-      const frameTimestamp = (i * framesToFeed + j) * (1 / 30) * 1_000_000;
+      const frameTimestamp = frameCounter * (1 / FPS) * 1_000_000;
       const frame = new VideoFrame(bitmap, { timestamp: frameTimestamp });
       videoEncoder.encode(frame, { keyFrame: j === 0 });
       frame.close();
+      frameCounter++;
     }
-    
+
     bitmap.close();
     onProgress(Math.round(((i + 1) / frameBlobs.length) * 100));
   }
