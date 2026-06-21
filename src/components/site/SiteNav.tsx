@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { FilmStrip, GithubLogo, ArrowRight, List, X } from 'phosphor-react';
 import Button from '../ui/Button';
 import InstallButton from '../ui/InstallButton';
+import ThemeToggle from '../ui/ThemeToggle';
 import NotificationBell from './NotificationBell';
 
 const REPO_URL = 'https://github.com/rakibulism/reecap';
@@ -28,7 +29,7 @@ const SiteNav: React.FC = () => {
     `transition-colors ${isActive ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'}`;
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 border-b border-[var(--color-border-default)]/40 bg-[var(--color-bg-page)]/80 backdrop-blur-xl" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <header className="fixed top-0 inset-x-0 z-50 bg-[var(--color-bg-page)]/70 backdrop-blur-xl after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-[var(--color-border-default)]/60 after:to-transparent" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 shrink-0" onClick={() => setMenu(false)}>
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
@@ -47,6 +48,7 @@ const SiteNav: React.FC = () => {
 
         {/* Desktop actions */}
         <div className="hidden md:flex items-center gap-1.5">
+          <ThemeToggle className="mr-1" />
           <NotificationBell />
           <InstallButton variant="ghost" />
           <Button variant="primary" size="md" onClick={() => navigate('/app')} className="group ml-1">
@@ -87,7 +89,11 @@ const SiteNav: React.FC = () => {
             <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className="px-3 py-3 rounded-[var(--radius-md)] text-base font-medium text-[var(--color-text-secondary)] flex items-center gap-2">
               <GithubLogo size={18} /> GitHub
             </a>
-            <div className="mt-3 flex flex-col gap-2">
+            <div className="mt-3 flex items-center justify-between px-3 py-2">
+              <span className="text-sm font-medium text-[var(--color-text-secondary)]">Theme</span>
+              <ThemeToggle />
+            </div>
+            <div className="mt-1 flex flex-col gap-2">
               <InstallButton variant="solid" className="w-full justify-center h-12" />
               <Button variant="primary" size="lg" onClick={() => { setMenu(false); navigate('/app'); }} className="w-full justify-center h-12">
                 Open editor
