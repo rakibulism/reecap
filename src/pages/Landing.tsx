@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Sparkle, FilmStrip, TextT, Gauge, MusicNotes, Export,
   Sliders, ShieldCheck, Image as ImageIcon, DownloadSimple, Play,
-  GithubLogo, Check, Lightning, Stack,
+  GithubLogo, Check, Stack, MagicWand, FigmaLogo, Cube,
 } from 'phosphor-react';
 import Button from '../components/ui/Button';
 import SiteLayout from '../components/site/SiteLayout';
@@ -16,10 +16,10 @@ const Landing: React.FC = () => {
   const openApp = () => navigate('/app');
 
   useSeo({
-    title: 'Reecap — Turn your photos into a cinematic video recap',
-    description: 'Reecap is a free, browser-based editor that turns your photos into a shareable MP4 — transitions, captions, music, and a real timeline. No upload, no account.',
+    title: 'Reecap — Cinematic photo recaps & a Motion Design studio',
+    description: 'Reecap is a free, browser-based studio with two tools: turn photos into a shareable MP4, and animate your Figma designs layer by layer in the new Motion Design tool. No upload, no account.',
     path: '/',
-    keywords: ['photo to video', 'recap video maker', 'slideshow maker', 'free online video editor', 'browser video editor'],
+    keywords: ['photo to video', 'recap video maker', 'slideshow maker', 'free online video editor', 'browser video editor', 'motion design tool', 'animate figma designs', 'jitter alternative'],
     jsonLd: [
       {
         '@context': 'https://schema.org',
@@ -28,7 +28,7 @@ const Landing: React.FC = () => {
         applicationCategory: 'MultimediaApplication',
         operatingSystem: 'Web',
         url: SITE_URL,
-        description: 'A free, browser-based editor that turns photos into a shareable MP4 with transitions, captions, music, and MP4 export. Runs 100% client-side.',
+        description: 'A free, browser-based studio with a photo-to-video recap editor and a layer-by-layer Motion Design tool that animates Figma designs. Runs 100% client-side.',
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
       },
       {
@@ -46,8 +46,10 @@ const Landing: React.FC = () => {
     <SiteLayout>
       <Hero onOpen={openApp} />
       <TrustStrip />
+      <TwoTools onOpen={openApp} />
       <Steps />
       <Features />
+      <MotionDesign onOpen={openApp} />
       <SpeedShowcase onOpen={openApp} />
       <Formats />
       <Privacy />
@@ -65,20 +67,21 @@ const Hero: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
     </div>
 
     <div className="relative max-w-4xl mx-auto text-center">
-      <a href={REPO_URL} target="_blank" rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-bg-panel)] border border-[var(--color-border-default)] text-[12px] sm:text-[13px] font-medium text-[var(--color-text-secondary)] mb-7 hover:border-[var(--color-primary)]/40 transition-colors">
-        <Sparkle size={14} weight="fill" className="text-[var(--color-primary)]" />
-        Free &amp; open source · runs in your browser
-      </a>
+      <button onClick={onOpen}
+        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/30 text-[12px] sm:text-[13px] font-semibold text-[var(--color-primary)] mb-7 hover:bg-[var(--color-primary)]/15 transition-colors">
+        <MagicWand size={14} weight="fill" />
+        New · Motion Design tool — animate your Figma designs
+        <ArrowRight size={13} weight="bold" />
+      </button>
 
       <h1 className="text-[2.5rem] leading-[1.08] sm:text-6xl md:text-7xl font-bold tracking-tight mb-6">
-        Turn your photos into a{' '}
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600">cinematic recap</span>
+        Bring your photos &amp; designs{' '}
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600">to life</span>
       </h1>
 
       <p className="text-base sm:text-xl text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed mb-9">
-        A browser-based editor that animates your photos into a shareable MP4 — cinematic
-        transitions, captions, music, and a real timeline. No upload, no account.
+        One browser-based studio, two tools: turn photos into a cinematic MP4 recap, and animate
+        your Figma designs layer by layer in the new Motion Design tool. No upload, no account.
       </p>
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
@@ -174,9 +177,9 @@ const TrustStrip: React.FC = () => (
     <div className="max-w-5xl mx-auto px-5 sm:px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
       {[
         { icon: <ShieldCheck size={18} weight="fill" />, label: 'No upload' },
-        { icon: <Lightning size={18} weight="fill" />, label: 'WebCodecs export' },
-        { icon: <FilmStrip size={18} weight="fill" />, label: '8 transitions' },
-        { icon: <DownloadSimple size={18} weight="fill" />, label: 'MP4 in seconds' },
+        { icon: <MagicWand size={18} weight="fill" />, label: 'Motion Design' },
+        { icon: <FigmaLogo size={18} weight="fill" />, label: 'Figma import' },
+        { icon: <DownloadSimple size={18} weight="fill" />, label: '1080p MP4' },
       ].map((b) => (
         <div key={b.label} className="flex items-center justify-center gap-2 text-[12px] sm:text-[13px] font-medium text-[var(--color-text-secondary)]">
           <span className="text-[var(--color-primary)]">{b.icon}</span>
@@ -185,6 +188,124 @@ const TrustStrip: React.FC = () => (
       ))}
     </div>
   </section>
+);
+
+/* ----------------------------------------------------------- Two tools --- */
+
+const TwoTools: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
+  <section className="max-w-5xl mx-auto px-5 sm:px-6 py-16 sm:py-20">
+    <SectionHeading eyebrow="Two tools, one studio" title="Pick the right canvas for the job" />
+    <div className="grid md:grid-cols-2 gap-5 mt-12 sm:mt-14">
+      <div className="p-6 sm:p-7 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-border-default)]">
+        <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-5">
+          <FilmStrip size={24} weight="duotone" />
+        </div>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Video Editor</p>
+        <h3 className="text-xl font-bold mb-2">Photos → cinematic recap</h3>
+        <p className="text-[var(--color-text-secondary)] leading-relaxed text-[15px]">
+          Drop in photos, set transitions, captions, music and timing on a real timeline, then export
+          a 1080p MP4 — every animation baked in.
+        </p>
+      </div>
+      <button
+        onClick={onOpen}
+        className="text-left p-6 sm:p-7 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-primary)]/40 ring-1 ring-[var(--color-primary)]/10 hover:ring-[var(--color-primary)]/30 transition-all relative"
+      >
+        <span className="absolute top-5 right-5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-[var(--color-primary)]/15 text-[var(--color-primary)]">New</span>
+        <div className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center mb-5">
+          <MagicWand size={24} weight="duotone" />
+        </div>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Motion Design</p>
+        <h3 className="text-xl font-bold mb-2">Animate designs, layer by layer</h3>
+        <p className="text-[var(--color-text-secondary)] leading-relaxed text-[15px]">
+          Paste a frame from Figma, then bring text, shapes and groups to life with keyframe-free
+          presets and a scrubbable timeline.
+        </p>
+        <span className="inline-flex items-center gap-1.5 mt-4 text-[14px] font-semibold text-[var(--color-primary)]">
+          Try Motion Design <ArrowRight size={15} weight="bold" />
+        </span>
+      </button>
+    </div>
+  </section>
+);
+
+/* --------------------------------------------------- Motion Design tool --- */
+
+const MotionDesign: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
+  <section id="motion" className="border-y border-[var(--color-border-default)] bg-[var(--color-bg-panel)]/30">
+    <div className="max-w-6xl mx-auto px-5 sm:px-6 py-16 sm:py-24 grid lg:grid-cols-2 gap-12 lg:gap-14 items-center">
+      <div className="order-2 lg:order-1 relative">
+        <div className="absolute -inset-6 bg-gradient-to-br from-[var(--color-primary)]/15 to-fuchsia-500/10 blur-2xl rounded-full" />
+        <MotionMock />
+      </div>
+      <div className="order-1 lg:order-2">
+        <SectionHeading align="left" eyebrow="New in Reecap" title="A Motion Design tool, built right in" />
+        <p className="mt-5 text-[15px] sm:text-base text-[var(--color-text-secondary)] leading-relaxed max-w-lg">
+          A second canvas for designers — animate UI screens and graphics layer by layer, no complex
+          keyframes. Perfect for turning a static design into a scroll-stopping clip.
+        </p>
+        <ul className="mt-7 space-y-4">
+          {[
+            { icon: <FigmaLogo size={18} weight="fill" />, t: 'Paste a Figma frame — editable text, shapes, frames & groups, with their colors.' },
+            { icon: <Sparkle size={18} weight="fill" />, t: 'Keyframe-free presets: fade, slide, scale, pop, blur, rotate — with spring & bounce easing.' },
+            { icon: <Stack size={18} weight="fill" />, t: 'Group, reorder and time layers on a draggable, zoomable timeline.' },
+            { icon: <Cube size={18} weight="fill" />, t: 'Switch between the video editor and Motion in a single click.' },
+          ].map((b) => (
+            <li key={b.t} className="flex items-start gap-3 text-[15px] text-[var(--color-text-secondary)]">
+              <span className="text-[var(--color-primary)] mt-0.5 shrink-0">{b.icon}</span>
+              {b.t}
+            </li>
+          ))}
+        </ul>
+        <Button variant="primary" size="lg" onClick={onOpen} className="mt-9 group">
+          Open Motion Design
+          <ArrowRight size={16} className="ml-1.5 transition-transform group-hover:translate-x-0.5" />
+        </Button>
+      </div>
+    </div>
+  </section>
+);
+
+const MotionMock: React.FC = () => (
+  <div className="relative rounded-xl sm:rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] shadow-2xl shadow-black/20 overflow-hidden">
+    <div className="h-9 px-4 flex items-center justify-between border-b border-[var(--color-border-default)] bg-[var(--color-bg-panel)]">
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold">
+        <span className="px-2 py-0.5 rounded bg-[var(--color-bg-surface)] text-[var(--color-text-muted)]">Video</span>
+        <span className="px-2 py-0.5 rounded bg-[var(--color-primary)] text-white">Motion</span>
+      </div>
+      <span className="text-[10px] font-medium text-[var(--color-text-muted)]">reecap.app — motion</span>
+      <MagicWand size={15} className="text-[var(--color-primary)]" />
+    </div>
+
+    <div className="flex h-[210px] sm:h-[300px]">
+      {/* layers */}
+      <div className="w-24 sm:w-32 shrink-0 border-r border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-2 space-y-1">
+        {[{ i: <Cube size={11} />, n: 'Card', s: true }, { i: <TextT size={11} />, n: 'Title', p: true }, { i: <Stack size={11} />, n: 'Button', p: true }, { i: <ImageIcon size={11} />, n: 'Logo', p: true }].map((l) => (
+          <div key={l.n} className={`flex items-center gap-1.5 px-1.5 h-6 rounded text-[10px] font-medium ${l.s ? 'bg-[var(--color-primary)]/15 text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'} ${l.p ? 'pl-4' : ''}`}>
+            {l.i}<span className="truncate">{l.n}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* canvas */}
+      <div className="flex-1 relative flex items-center justify-center bg-[var(--color-bg-page)] p-4">
+        <div className="relative w-full max-w-[220px] aspect-[4/3] rounded-lg bg-[#1E293B] shadow-xl overflow-hidden flex flex-col justify-between p-4">
+          <span className="text-white font-bold text-sm">Welcome</span>
+          <div className="w-20 h-6 rounded-md bg-[var(--color-primary)]" />
+          <span className="absolute -inset-px rounded-lg ring-2 ring-[var(--color-primary)] ring-inset pointer-events-none" />
+        </div>
+      </div>
+    </div>
+
+    {/* timeline */}
+    <div className="border-t border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-2 space-y-1">
+      {[0.0, 0.18, 0.32].map((off, i) => (
+        <div key={i} className="flex items-center gap-2 h-4">
+          <div className="h-2.5 rounded-sm bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary)]/40" style={{ marginLeft: `${off * 100}%`, width: `${55 - off * 60}%` }} />
+        </div>
+      ))}
+    </div>
+  </div>
 );
 
 /* --------------------------------------------------------------- Steps --- */

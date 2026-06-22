@@ -12,6 +12,36 @@ export interface Update {
 // Newest first.
 export const UPDATES: Update[] = [
   {
+    id: 'motion-figma-import',
+    date: '2026-06-23',
+    version: 'v1.6',
+    tag: 'feature',
+    title: 'Bring your Figma designs into Motion',
+    summary: 'A companion Figma plugin copies any frame — paste it into the Motion tool and it lands as one editable frame with its text, shapes, groups and colors intact, ready to animate.',
+  },
+  {
+    id: 'motion-accounts-menu',
+    date: '2026-06-22',
+    tag: 'improvement',
+    title: 'Accounts, settings & help in one menu',
+    summary: 'Sign in as a Free or Pro member, switch themes, and reach the docs and support from a single expanded sidebar.',
+  },
+  {
+    id: 'motion-grouping-timeline',
+    date: '2026-06-22',
+    tag: 'improvement',
+    title: 'Layer grouping and a hands-on timeline',
+    summary: 'Group layers, reorder with right-click and keyboard shortcuts, and drag, resize, zoom and fit clips on the reworked Motion timeline.',
+  },
+  {
+    id: 'motion-design-launch',
+    date: '2026-06-22',
+    version: 'v1.2.0',
+    tag: 'release',
+    title: 'Introducing Motion Design',
+    summary: 'A whole new tool inside Reecap — a layer-by-layer animation studio. Add text, shapes and images, give each layer a keyframe-free preset with easing, and scrub a timeline. Switch between the video editor and Motion in one click.',
+  },
+  {
     id: 'pwa-install',
     date: '2026-06-21',
     tag: 'feature',
