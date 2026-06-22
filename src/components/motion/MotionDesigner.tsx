@@ -35,21 +35,37 @@ const MotionDesigner: React.FC = () => {
     return () => cancelAnimationFrame(raf);
   }, [isPlaying, setTime]);
 
-  // Keyboard: Space toggles playback, Delete removes the selected layer.
+  // Keyboard: playback, deletion, z-order ([ ] ⌘[ ⌘]) and grouping (⌘G / ⌘⇧G).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isEditingTarget(e.target)) return;
+      const s = useMotionStore.getState();
+      const mod = e.metaKey || e.ctrlKey;
+
       if (e.code === 'Space') {
         e.preventDefault();
-        const { isPlaying: playing, time, doc: d, setTime: st, setPlaying: sp } = useMotionStore.getState();
-        if (!playing && time >= d.duration - 0.001) st(0);
-        sp(!playing);
+        if (!s.isPlaying && s.time >= s.doc.duration - 0.001) s.setTime(0);
+        s.setPlaying(!s.isPlaying);
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
-        const { selectedId: sel, removeLayer: rm } = useMotionStore.getState();
-        if (sel) {
+        if (s.selectedIds.length) {
           e.preventDefault();
-          rm(sel);
+          s.selectedIds.forEach((id) => s.removeLayer(id));
         }
+      } else if (e.key === 'g' && mod) {
+        e.preventDefault();
+        if (e.shiftKey) {
+          if (s.selectedId) s.ungroup(s.selectedId);
+        } else {
+          s.groupSelection();
+        }
+      } else if (e.key === ']') {
+        if (!s.selectedId) return;
+        e.preventDefault();
+        mod ? s.bringToFront(s.selectedId) : s.bringForward(s.selectedId);
+      } else if (e.key === '[') {
+        if (!s.selectedId) return;
+        e.preventDefault();
+        mod ? s.sendToBack(s.selectedId) : s.sendBackward(s.selectedId);
       }
     };
     window.addEventListener('keydown', onKey);

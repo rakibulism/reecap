@@ -21,7 +21,7 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 let layerCounter = 0;
 function layerName(type: LayerType): string {
   layerCounter += 1;
-  const base = type.charAt(0).toUpperCase() + type.slice(1);
+  const base = type === 'group' ? 'Group' : type.charAt(0).toUpperCase() + type.slice(1);
   return `${base} ${layerCounter}`;
 }
 
@@ -32,7 +32,7 @@ function makeLayer(type: LayerType, doc: MotionDoc, patch: Partial<MotionLayer> 
   const base: MotionLayer = {
     id: uid(),
     type,
-    name: layerName(type),
+    name: patch.name ?? layerName(type),
     x: patch.x ?? Math.round((doc.width - width) / 2),
     y: patch.y ?? Math.round((doc.height - height) / 2),
     width,
@@ -41,9 +41,10 @@ function makeLayer(type: LayerType, doc: MotionDoc, patch: Partial<MotionLayer> 
     opacity: 1,
     fill: type === 'ellipse' ? '#FF3D03' : '#3B82F6',
     cornerRadius: type === 'rectangle' ? 16 : 0,
+    parentId: patch.parentId ?? null,
     visible: true,
     locked: false,
-    animation: defaultAnimation(),
+    animation: defaultAnimation(doc.duration),
     ...patch,
   };
   if (type === 'text') {
@@ -72,31 +73,92 @@ function fitIntoDoc(doc: MotionDoc, srcW: number, srcH: number) {
   };
 }
 
+// Indices (in paint order) of the layers that share a layer's parent.
+function siblingIndices(layers: MotionLayer[], id: string): { idx: number; siblings: number[] } {
+  const idx = layers.findIndex((l) => l.id === id);
+  if (idx < 0) return { idx, siblings: [] };
+  const parentId = layers[idx].parentId ?? null;
+  const siblings = layers.map((l, i) => ({ l, i })).filter(({ l }) => (l.parentId ?? null) === parentId).map(({ i }) => i);
+  return { idx, siblings };
+}
+
+function moveWithin(layers: MotionLayer[], from: number, to: number): MotionLayer[] {
+  const next = [...layers];
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved);
+  return next;
+}
+
+// Collect a layer plus all of its (transitive) descendants by parentId.
+function withDescendants(layers: MotionLayer[], id: string): Set<string> {
+  const out = new Set<string>([id]);
+  let added = true;
+  while (added) {
+    added = false;
+    for (const l of layers) {
+      if (l.parentId && out.has(l.parentId) && !out.has(l.id)) {
+        out.add(l.id);
+        added = true;
+      }
+    }
+  }
+  return out;
+}
+
+const SNAP = 0.05;
+const MIN_SPAN = 0.2;
+const snap = (s: number) => Math.round(s / SNAP) * SNAP;
+
 interface MotionStore {
   doc: MotionDoc;
-  selectedId: string | null;
-  time: number;       // playhead position, seconds
+  selectedId: string | null;     // primary selection (drives the inspector)
+  selectedIds: string[];         // full multi-selection
+  time: number;                  // playhead position, seconds
   isPlaying: boolean;
+  timelineHeight: number;        // px
+  timelineZoom: number | null;   // px-per-second; null = fit-to-width
 
   addLayer: (type: LayerType) => void;
   addImageLayer: (src: string, naturalW: number, naturalH: number, name?: string) => void;
   importPayload: (payload: ReecapMotionPayload) => void;
   updateLayer: (id: string, patch: Partial<MotionLayer>) => void;
+  setLayerPositions: (positions: { id: string; x: number; y: number }[]) => void;
   removeLayer: (id: string) => void;
   duplicateLayer: (id: string) => void;
   reorderLayer: (fromIndex: number, toIndex: number) => void;
-  selectLayer: (id: string | null) => void;
+
+  // Selection
+  selectLayer: (id: string | null, additive?: boolean) => void;
+  selectMany: (ids: string[]) => void;
+
+  // Z-order (within same-parent siblings)
+  bringForward: (id: string) => void;
+  sendBackward: (id: string) => void;
+  bringToFront: (id: string) => void;
+  sendToBack: (id: string) => void;
+
+  // Grouping
+  groupSelection: () => void;
+  ungroup: (groupId: string) => void;
+
+  // Timeline
+  setLayerSpan: (id: string, start: number, end: number) => void;
   setTime: (t: number) => void;
   setPlaying: (v: boolean) => void;
   setDuration: (seconds: number) => void;
   setBackground: (color: string) => void;
+  setTimelineHeight: (h: number) => void;
+  setTimelineZoom: (z: number | null) => void;
 }
 
 export const useMotionStore = create<MotionStore>((set) => ({
   doc: DEFAULT_DOC,
   selectedId: null,
+  selectedIds: [],
   time: 0,
   isPlaying: false,
+  timelineHeight: 240,
+  timelineZoom: null,
 
   addLayer: (type) =>
     set((state) => {
@@ -104,6 +166,7 @@ export const useMotionStore = create<MotionStore>((set) => ({
       return {
         doc: { ...state.doc, layers: [...state.doc.layers, layer] },
         selectedId: layer.id,
+        selectedIds: [layer.id],
       };
     }),
 
@@ -114,13 +177,15 @@ export const useMotionStore = create<MotionStore>((set) => ({
       return {
         doc: { ...state.doc, layers: [...state.doc.layers, layer] },
         selectedId: layer.id,
+        selectedIds: [layer.id],
       };
     }),
 
   importPayload: (payload) =>
     set((state) => {
       // Resize the composition to match the imported frame's aspect, then drop
-      // the frame in as a full-bleed image layer.
+      // the frame in as a full-bleed image layer. (Phase 2 will reconstruct a
+      // layer tree when payload.layers is present.)
       const doc: MotionDoc = {
         ...state.doc,
         width: payload.width || state.doc.width,
@@ -137,6 +202,7 @@ export const useMotionStore = create<MotionStore>((set) => ({
       return {
         doc: { ...doc, layers: [...doc.layers, layer] },
         selectedId: layer.id,
+        selectedIds: [layer.id],
       };
     }),
 
@@ -148,11 +214,30 @@ export const useMotionStore = create<MotionStore>((set) => ({
       },
     })),
 
+  setLayerPositions: (positions) =>
+    set((state) => {
+      const map = new Map(positions.map((p) => [p.id, p]));
+      return {
+        doc: {
+          ...state.doc,
+          layers: state.doc.layers.map((l) => {
+            const p = map.get(l.id);
+            return p ? { ...l, x: p.x, y: p.y } : l;
+          }),
+        },
+      };
+    }),
+
   removeLayer: (id) =>
-    set((state) => ({
-      doc: { ...state.doc, layers: state.doc.layers.filter((l) => l.id !== id) },
-      selectedId: state.selectedId === id ? null : state.selectedId,
-    })),
+    set((state) => {
+      const doomed = withDescendants(state.doc.layers, id);
+      const layers = state.doc.layers.filter((l) => !doomed.has(l.id));
+      return {
+        doc: { ...state.doc, layers },
+        selectedIds: state.selectedIds.filter((s) => !doomed.has(s)),
+        selectedId: state.selectedId && doomed.has(state.selectedId) ? null : state.selectedId,
+      };
+    }),
 
   duplicateLayer: (id) =>
     set((state) => {
@@ -169,24 +254,136 @@ export const useMotionStore = create<MotionStore>((set) => ({
       const idx = state.doc.layers.findIndex((l) => l.id === id);
       const layers = [...state.doc.layers];
       layers.splice(idx + 1, 0, copy);
-      return { doc: { ...state.doc, layers }, selectedId: copy.id };
+      return { doc: { ...state.doc, layers }, selectedId: copy.id, selectedIds: [copy.id] };
     }),
 
   reorderLayer: (fromIndex, toIndex) =>
+    set((state) => ({ doc: { ...state.doc, layers: moveWithin(state.doc.layers, fromIndex, toIndex) } })),
+
+  selectLayer: (id, additive = false) =>
     set((state) => {
+      if (id === null) return { selectedId: null, selectedIds: [] };
+      if (additive) {
+        const has = state.selectedIds.includes(id);
+        const selectedIds = has ? state.selectedIds.filter((s) => s !== id) : [...state.selectedIds, id];
+        return { selectedIds, selectedId: selectedIds[selectedIds.length - 1] ?? null };
+      }
+      return { selectedId: id, selectedIds: [id] };
+    }),
+
+  selectMany: (ids) => set({ selectedIds: ids, selectedId: ids[ids.length - 1] ?? null }),
+
+  bringForward: (id) =>
+    set((state) => {
+      const { idx, siblings } = siblingIndices(state.doc.layers, id);
+      const next = siblings.find((i) => i > idx);
+      if (next === undefined) return state;
       const layers = [...state.doc.layers];
-      const [moved] = layers.splice(fromIndex, 1);
-      layers.splice(toIndex, 0, moved);
+      [layers[idx], layers[next]] = [layers[next], layers[idx]];
       return { doc: { ...state.doc, layers } };
     }),
 
-  selectLayer: (id) => set({ selectedId: id }),
+  sendBackward: (id) =>
+    set((state) => {
+      const { idx, siblings } = siblingIndices(state.doc.layers, id);
+      const prev = [...siblings].reverse().find((i) => i < idx);
+      if (prev === undefined) return state;
+      const layers = [...state.doc.layers];
+      [layers[idx], layers[prev]] = [layers[prev], layers[idx]];
+      return { doc: { ...state.doc, layers } };
+    }),
+
+  bringToFront: (id) =>
+    set((state) => {
+      const { idx, siblings } = siblingIndices(state.doc.layers, id);
+      const last = siblings[siblings.length - 1];
+      if (last === undefined || last === idx) return state;
+      return { doc: { ...state.doc, layers: moveWithin(state.doc.layers, idx, last) } };
+    }),
+
+  sendToBack: (id) =>
+    set((state) => {
+      const { idx, siblings } = siblingIndices(state.doc.layers, id);
+      const first = siblings[0];
+      if (first === undefined || first === idx) return state;
+      return { doc: { ...state.doc, layers: moveWithin(state.doc.layers, idx, first) } };
+    }),
+
+  groupSelection: () =>
+    set((state) => {
+      const ids = state.selectedIds.filter((id) => state.doc.layers.some((l) => l.id === id));
+      if (ids.length < 2) return state;
+      const members = state.doc.layers.filter((l) => ids.includes(l.id));
+      // Group inherits the parent of the topmost member.
+      const topIdx = Math.max(...members.map((m) => state.doc.layers.findIndex((l) => l.id === m.id)));
+      const parentId = state.doc.layers[topIdx].parentId ?? null;
+      const minX = Math.min(...members.map((m) => m.x));
+      const minY = Math.min(...members.map((m) => m.y));
+      const maxX = Math.max(...members.map((m) => m.x + m.width));
+      const maxY = Math.max(...members.map((m) => m.y + m.height));
+      const group = makeLayer('group', state.doc, {
+        parentId,
+        x: minX,
+        y: minY,
+        width: maxX - minX,
+        height: maxY - minY,
+      });
+      // Default group animation has no presets so it doesn't alter children
+      // until the user gives it one.
+      group.animation = { ...group.animation, inPreset: 'none', outPreset: 'none' };
+      const layers = state.doc.layers.map((l) =>
+        ids.includes(l.id) ? { ...l, parentId: group.id } : l,
+      );
+      // Insert the group just after the topmost member's position.
+      layers.splice(topIdx + 1, 0, group);
+      return { doc: { ...state.doc, layers }, selectedId: group.id, selectedIds: [group.id] };
+    }),
+
+  ungroup: (groupId) =>
+    set((state) => {
+      const group = state.doc.layers.find((l) => l.id === groupId);
+      if (!group || group.type !== 'group') return state;
+      const layers = state.doc.layers
+        .filter((l) => l.id !== groupId)
+        .map((l) => (l.parentId === groupId ? { ...l, parentId: group.parentId ?? null } : l));
+      const freed = state.doc.layers.filter((l) => l.parentId === groupId).map((l) => l.id);
+      return { doc: { ...state.doc, layers }, selectedId: freed[freed.length - 1] ?? null, selectedIds: freed };
+    }),
+
+  setLayerSpan: (id, start, end) =>
+    set((state) => {
+      let s = Math.max(0, Math.min(state.doc.duration - MIN_SPAN, snap(start)));
+      let e = Math.min(state.doc.duration, Math.max(s + MIN_SPAN, snap(end)));
+      return {
+        doc: {
+          ...state.doc,
+          layers: state.doc.layers.map((l) =>
+            l.id === id ? { ...l, animation: { ...l.animation, start: s, end: e } } : l,
+          ),
+        },
+      };
+    }),
+
   setTime: (t) => set((state) => ({ time: Math.max(0, Math.min(state.doc.duration, t)) })),
   setPlaying: (v) => set({ isPlaying: v }),
   setDuration: (seconds) =>
-    set((state) => ({
-      doc: { ...state.doc, duration: Math.max(0.5, seconds) },
-      time: Math.min(state.time, Math.max(0.5, seconds)),
-    })),
+    set((state) => {
+      const duration = Math.max(0.5, seconds);
+      return {
+        doc: {
+          ...state.doc,
+          duration,
+          // Keep any clip that ended at the old comp end pinned to the new end.
+          layers: state.doc.layers.map((l) =>
+            l.animation.end >= state.doc.duration - 0.001
+              ? { ...l, animation: { ...l.animation, end: duration } }
+              : l,
+          ),
+        },
+        time: Math.min(state.time, duration),
+      };
+    }),
   setBackground: (color) => set((state) => ({ doc: { ...state.doc, background: color } })),
+  setTimelineHeight: (h) => set({ timelineHeight: Math.max(140, Math.min(640, h)) }),
+  setTimelineZoom: (z) => set({ timelineZoom: z === null ? null : Math.max(8, Math.min(2000, z)) }),
 }));
