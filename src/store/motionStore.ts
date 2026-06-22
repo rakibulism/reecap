@@ -402,11 +402,16 @@ export const useMotionStore = create<MotionStore>((set) => ({
 
   setLayerSpan: (id, start, end) =>
     set((state) => {
-      let s = Math.max(0, Math.min(state.doc.duration - MIN_SPAN, snap(start)));
-      let e = Math.min(state.doc.duration, Math.max(s + MIN_SPAN, snap(end)));
+      const s = Math.max(0, snap(start));
+      const e = Math.max(s + MIN_SPAN, snap(end));
+      // Grow the composition live so a clip can be dragged/resized past the
+      // current end — the duration tracks the longest clip. It only grows here
+      // (never shrinks mid-drag); use Auto-fit or Duration − to pull it back in.
+      const duration = Math.max(state.doc.duration, Math.ceil(e * 10) / 10);
       return {
         doc: {
           ...state.doc,
+          duration,
           layers: state.doc.layers.map((l) =>
             l.id === id ? { ...l, animation: { ...l.animation, start: s, end: e } } : l,
           ),

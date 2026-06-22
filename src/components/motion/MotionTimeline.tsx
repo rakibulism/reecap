@@ -60,6 +60,12 @@ const MotionTimeline: React.FC = () => {
   const pxPerSec = timelineZoom ?? fitPxPerSec;
   const contentW = doc.duration * pxPerSec;
 
+  // Live scale for in-flight drags: in fit mode pxPerSec shrinks as the comp
+  // grows, so the handlers read this ref instead of the value captured at
+  // drag start — keeps the dragged edge under the cursor.
+  const pxPerSecRef = useRef(pxPerSec);
+  pxPerSecRef.current = pxPerSec;
+
   // Same visible tree order as the layers panel (roots reversed, nested groups).
   const rows: RowMeta[] = useMemo(() => {
     const childrenOf = new Map<string | null, MotionLayer[]>();
@@ -166,10 +172,9 @@ const MotionTimeline: React.FC = () => {
       const orig = kids.map((k) => ({ id: k.id, start: k.animation.start, end: k.animation.end }));
       if (orig.length === 0) return;
       const minStart = Math.min(...orig.map((o) => o.start));
-      const maxEnd = Math.max(...orig.map((o) => o.end));
       const move = (ev: PointerEvent) => {
-        let d = (ev.clientX - startX) / pxPerSec;
-        d = Math.max(-minStart, Math.min(doc.duration - maxEnd, d)); // keep all in range
+        let d = (ev.clientX - startX) / pxPerSecRef.current;
+        d = Math.max(-minStart, d); // can't go below 0; dragging right grows the comp
         orig.forEach((o) => setLayerSpan(o.id, o.start + d, o.end + d));
       };
       const up = () => {
@@ -183,9 +188,9 @@ const MotionTimeline: React.FC = () => {
 
     const o = { start: layer.animation.start, end: layer.animation.end };
     const move = (ev: PointerEvent) => {
-      const d = (ev.clientX - startX) / pxPerSec;
+      const d = (ev.clientX - startX) / pxPerSecRef.current;
       if (mode === 'move') {
-        const cd = Math.max(-o.start, Math.min(doc.duration - o.end, d));
+        const cd = Math.max(-o.start, d); // dragging right grows the comp
         setLayerSpan(layer.id, o.start + cd, o.end + cd);
       } else if (mode === 'l') {
         setLayerSpan(layer.id, o.start + d, o.end);
