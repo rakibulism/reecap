@@ -4,8 +4,12 @@
 // Motion Design tool: text → text, rectangle/ellipse → shapes, frames/groups →
 // groups, and anything else (vectors, icons, images, gradients, effects) is
 // rasterized to a PNG image layer. A full-frame PNG is included as a fallback.
+//
+// The heavy export runs only when the user clicks "Copy to Reecap" (never on
+// launch), and every entry point is wrapped so a single odd node can't crash
+// the whole plugin — it surfaces a friendly message instead.
 
-figma.showUI(__html__, { width: 320, height: 480, themeColors: true });
+figma.showUI(__html__, { width: 320, height: 520, themeColors: true });
 
 const CONTAINER_TYPES = ['FRAME', 'GROUP', 'COMPONENT', 'INSTANCE', 'COMPONENT_SET', 'SECTION'];
 
@@ -14,21 +18,26 @@ function hex(c) {
   return '#' + to(c.r) + to(c.g) + to(c.b);
 }
 
-// First visible solid fill as a hex color, or null when there isn't one.
 function solidFill(node) {
-  const fills = node.fills;
-  if (!Array.isArray(fills)) return null;
-  const solid = fills.find((f) => f.visible !== false && f.type === 'SOLID');
-  return solid ? hex(solid.color) : null;
+  try {
+    const fills = node.fills;
+    if (!Array.isArray(fills)) return null;
+    const solid = fills.find((f) => f.visible !== false && f.type === 'SOLID');
+    return solid ? hex(solid.color) : null;
+  } catch (e) {
+    return null;
+  }
 }
 
-// True when a node can't be represented as a flat solid fill (gradient/image
-// fills, mixed fills, or visible effects) — those get rasterized.
 function isComplex(node) {
-  const fills = node.fills;
-  if (fills === figma.mixed) return true;
-  if (Array.isArray(fills) && fills.some((f) => f.visible !== false && f.type !== 'SOLID')) return true;
-  if (Array.isArray(node.effects) && node.effects.some((e) => e.visible !== false)) return true;
+  try {
+    const fills = node.fills;
+    if (fills === figma.mixed) return true;
+    if (Array.isArray(fills) && fills.some((f) => f.visible !== false && f.type !== 'SOLID')) return true;
+    if (Array.isArray(node.effects) && node.effects.some((e) => e.visible !== false)) return true;
+  } catch (e) {
+    return true; // when in doubt, rasterize
+  }
   return false;
 }
 
@@ -61,74 +70,94 @@ async function rasterize(node) {
 }
 
 // Depth-first walk; pushes a flat list (parents before children) into `out`.
+// Any failure on a single node is swallowed so the rest still imports.
 async function walk(node, frameBox, parentId, out) {
-  const box = node.absoluteBoundingBox;
-  if (!box || node.visible === false) return;
+  try {
+    const box = node.absoluteBoundingBox;
+    if (!box || node.visible === false) return;
 
-  const base = {
-    id: node.id,
-    parentId,
-    name: node.name,
-    x: Math.round(box.x - frameBox.x),
-    y: Math.round(box.y - frameBox.y),
-    w: Math.round(box.width),
-    h: Math.round(box.height),
-    rotation: Math.round((node.rotation || 0) * -1), // Figma rotation is CCW
-    opacity: typeof node.opacity === 'number' ? node.opacity : 1,
-  };
+    const base = {
+      id: node.id,
+      parentId,
+      name: node.name || 'Layer',
+      x: Math.round(box.x - frameBox.x),
+      y: Math.round(box.y - frameBox.y),
+      w: Math.round(box.width),
+      h: Math.round(box.height),
+      rotation: Math.round((node.rotation || 0) * -1),
+      opacity: typeof node.opacity === 'number' ? node.opacity : 1,
+    };
 
-  if (node.type === 'TEXT') {
-    out.push({
-      ...base,
-      kind: 'text',
-      text: node.characters,
-      fontSize: typeof node.fontSize === 'number' ? node.fontSize : 24,
-      fontWeight: weightFromStyle(node.fontName),
-      color: solidFill(node) || '#FFFFFF',
-      align: alignOf(node),
-    });
-    return;
+    if (node.type === 'TEXT') {
+      out.push({
+        ...base,
+        kind: 'text',
+        text: typeof node.characters === 'string' ? node.characters : '',
+        fontSize: typeof node.fontSize === 'number' ? node.fontSize : 24,
+        fontWeight: weightFromStyle(node.fontName),
+        color: solidFill(node) || '#FFFFFF',
+        align: alignOf(node),
+      });
+      return;
+    }
+
+    if ((node.type === 'RECTANGLE' || node.type === 'ELLIPSE') && !isComplex(node)) {
+      out.push({
+        ...base,
+        kind: node.type === 'ELLIPSE' ? 'ellipse' : 'rectangle',
+        fill: solidFill(node) || '#CCCCCC',
+        cornerRadius: typeof node.cornerRadius === 'number' ? Math.round(node.cornerRadius) : 0,
+      });
+      return;
+    }
+
+    if (CONTAINER_TYPES.indexOf(node.type) !== -1 && 'children' in node) {
+      out.push({ ...base, kind: 'group' });
+      for (const child of node.children) await walk(child, frameBox, node.id, out);
+      return;
+    }
+
+    const bytes = await rasterize(node);
+    if (bytes) out.push({ ...base, kind: 'image', imageBytes: bytes });
+  } catch (e) {
+    // Skip this node; keep going.
   }
-
-  if ((node.type === 'RECTANGLE' || node.type === 'ELLIPSE') && !isComplex(node)) {
-    out.push({
-      ...base,
-      kind: node.type === 'ELLIPSE' ? 'ellipse' : 'rectangle',
-      fill: solidFill(node) || '#CCCCCC',
-      cornerRadius: typeof node.cornerRadius === 'number' ? Math.round(node.cornerRadius) : 0,
-    });
-    return;
-  }
-
-  if (CONTAINER_TYPES.indexOf(node.type) !== -1 && 'children' in node) {
-    out.push({ ...base, kind: 'group' });
-    for (const child of node.children) await walk(child, frameBox, node.id, out);
-    return;
-  }
-
-  // Fallback: rasterize anything we can't represent natively.
-  const bytes = await rasterize(node);
-  if (bytes) out.push({ ...base, kind: 'image', imageBytes: bytes });
 }
 
-async function exportSelection() {
-  const sel = figma.currentPage.selection;
-  if (sel.length === 0) {
-    figma.ui.postMessage({ type: 'empty', message: 'Select a frame to send to Reecap.' });
-    return;
-  }
-  if (sel.length > 1) {
-    figma.ui.postMessage({ type: 'empty', message: 'Select just one frame.' });
-    return;
-  }
-
-  const node = sel[0];
-  if (typeof node.exportAsync !== 'function' || !node.absoluteBoundingBox) {
-    figma.ui.postMessage({ type: 'empty', message: 'That layer can’t be exported. Pick a frame, component, or group.' });
-    return;
-  }
-
+// Lightweight selection check (no traversal/export) — runs on launch and on
+// every selection change to keep the panel's status in sync.
+function reportSelection() {
   try {
+    const sel = figma.currentPage.selection;
+    if (sel.length === 1 && typeof sel[0].exportAsync === 'function' && sel[0].absoluteBoundingBox) {
+      figma.ui.postMessage({
+        type: 'selection',
+        ready: true,
+        name: sel[0].name,
+        w: Math.round(sel[0].width),
+        h: Math.round(sel[0].height),
+      });
+    } else {
+      figma.ui.postMessage({
+        type: 'selection',
+        ready: false,
+        message: sel.length > 1 ? 'Select just one frame.' : 'Select a frame to send to Reecap.',
+      });
+    }
+  } catch (e) {
+    figma.ui.postMessage({ type: 'selection', ready: false, message: 'Select a frame to send to Reecap.' });
+  }
+}
+
+// Heavy export — only on demand, fully guarded.
+async function doExport() {
+  try {
+    const sel = figma.currentPage.selection;
+    const node = sel[0];
+    if (!node || typeof node.exportAsync !== 'function' || !node.absoluteBoundingBox) {
+      figma.ui.postMessage({ type: 'error', message: 'Select a single frame, then try again.' });
+      return;
+    }
     const frameBox = node.absoluteBoundingBox;
     const layers = [];
     if ('children' in node && node.children.length) {
@@ -146,14 +175,20 @@ async function exportSelection() {
       layers,
     });
   } catch (err) {
-    figma.ui.postMessage({ type: 'empty', message: 'Export failed: ' + err.message });
+    figma.ui.postMessage({ type: 'error', message: (err && err.message) ? err.message : String(err) });
   }
 }
 
 figma.ui.onmessage = (msg) => {
-  if (msg.type === 'refresh') exportSelection();
-  if (msg.type === 'close') figma.closePlugin();
+  try {
+    if (!msg) return;
+    if (msg.type === 'export') doExport();
+    else if (msg.type === 'refresh') reportSelection();
+    else if (msg.type === 'close') figma.closePlugin();
+  } catch (e) {
+    figma.ui.postMessage({ type: 'error', message: (e && e.message) ? e.message : String(e) });
+  }
 };
 
-exportSelection();
-figma.on('selectionchange', exportSelection);
+reportSelection();
+figma.on('selectionchange', reportSelection);

@@ -1,46 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useReecapStore } from '../../store/reecapStore';
-import { 
-  X, 
-  User, 
-  Crown, 
-  Users, 
-  Gift, 
+import {
+  X,
+  User,
+  Crown,
+  Users,
+  Gift,
   MusicNotes,
   House,
   MagicWand,
   GithubLogo,
   TwitterLogo,
+  BookOpen,
+  Lifebuoy,
   SignOut,
   CaretRight
 } from 'phosphor-react';
 import Button from '../ui/Button';
 import InstallButton from '../ui/InstallButton';
+import ThemeToggle from '../ui/ThemeToggle';
+import LoginModal from '../ui/LoginModal';
 
 const REPO_URL = 'https://github.com/rakibulism/reecap';
 const X_URL = 'https://x.com/rakibulism';
 
 const MainSidebar: React.FC = () => {
-  const { 
-    isSidebarOpen, 
-    toggleSidebar, 
-    activeView, 
+  const {
+    isSidebarOpen,
+    toggleSidebar,
+    activeView,
     setActiveView,
     isPremium,
-    inviteCount
+    inviteCount,
+    user,
+    logout,
   } = useReecapStore();
+  const navigate = useNavigate();
+  const [loginOpen, setLoginOpen] = useState(false);
 
   if (!isSidebarOpen) return null;
 
-  const NavItem = ({ 
-    icon: Icon, 
-    label, 
-    id, 
+  const NavItem = ({
+    icon: Icon,
+    label,
+    id,
     badge,
-    onClick 
-  }: { 
-    icon: any; 
-    label: string; 
+    onClick,
+  }: {
+    icon: any;
+    label: string;
     id?: string;
     badge?: string;
     onClick?: () => void;
@@ -50,60 +59,93 @@ const MainSidebar: React.FC = () => {
         if (onClick) onClick();
         else if (id) setActiveView(id as any);
       }}
-      className={`w-full flex items-center justify-between px-4 py-3 rounded-[var(--radius-md)] transition-all group
-        ${activeView === id 
-          ? 'bg-[var(--color-bg-hover)] text-[var(--color-text-primary)]' 
+      className={`w-full flex items-center justify-between gap-2 px-4 py-3 rounded-[var(--radius-md)] transition-all group
+        ${activeView === id
+          ? 'bg-[var(--color-bg-hover)] text-[var(--color-text-primary)]'
           : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'}`}
     >
-      <div className="flex items-center gap-3">
-        <Icon size={20} weight={activeView === id ? "fill" : "regular"} />
-        <span className="text-[14px] font-medium">{label}</span>
+      <div className="flex items-center gap-3 min-w-0">
+        <Icon size={20} weight={activeView === id ? 'fill' : 'regular'} className="shrink-0" />
+        <span className="text-[14px] font-medium truncate">{label}</span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         {badge && (
-          <span className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+          <span className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold whitespace-nowrap">
             {badge}
           </span>
         )}
-        <CaretRight size={14} className={`opacity-0 group-hover:opacity-40 transition-opacity`} />
+        <CaretRight size={14} className="opacity-0 group-hover:opacity-40 transition-opacity" />
       </div>
     </button>
   );
 
   // External link styled to match NavItem (anchors can't reuse NavItem's <button>).
-  const LinkItem = ({ icon: Icon, label, href }: { icon: any; label: string; href: string }) => (
+  const LinkItem = ({
+    icon: Icon,
+    label,
+    href,
+    external,
+  }: {
+    icon: any;
+    label: string;
+    href: string;
+    external?: boolean;
+  }) => (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       className="w-full flex items-center gap-3 px-4 py-3 rounded-[var(--radius-md)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all"
     >
-      <Icon size={20} />
-      <span className="text-[14px] font-medium">{label}</span>
+      <Icon size={20} className="shrink-0" />
+      <span className="text-[14px] font-medium truncate">{label}</span>
+      {external && <CaretRight size={12} className="ml-auto opacity-30" />}
     </a>
   );
+
+  const signOut = () => {
+    logout();
+    toggleSidebar();
+    navigate('/');
+  };
 
   return (
     <div className="fixed inset-0 z-[2000] flex">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-in fade-in"
         onClick={toggleSidebar}
       />
-      
+
       {/* Sidebar Content */}
       <aside className="relative w-[280px] bg-[var(--color-bg-surface)] border-r border-[var(--color-border-default)] h-full shadow-[var(--shadow-md)] flex flex-col animate-in slide-in-from-left duration-300">
-        <div className="h-12 border-b border-[var(--color-border-default)] flex items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-sm">
-              <Crown size={18} weight="fill" />
+        <div className="h-14 border-b border-[var(--color-border-default)] flex items-center justify-between px-4">
+          <div className="flex items-center gap-3 min-w-0">
+            {user ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                referrerPolicy="no-referrer"
+                className="w-9 h-9 rounded-full object-cover border-2 border-[var(--color-primary)] shrink-0"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-sm shrink-0">
+                <Crown size={18} weight="fill" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <div className="text-[14px] font-bold tracking-tight truncate">
+                {user ? user.name : 'Reecap'}
+              </div>
+              <div className="text-[10px] text-[var(--color-text-muted)] font-medium uppercase tracking-wide">
+                {user ? `${user.plan} plan` : 'Guest'}
+              </div>
             </div>
-            <span className="text-[15px] font-bold tracking-tight">Reecap Pro</span>
           </div>
           <Button variant="ghost" size="sm" onClick={toggleSidebar} icon={<X size={18} />} />
         </div>
 
-        <div className="flex-1 overflow-y-auto p-3 space-y-6">
+        <div className="flex-1 overflow-y-auto p-3 space-y-6 custom-scrollbar">
           <nav className="space-y-1">
             <NavItem icon={House} label="Video Editor" id="editor" />
             <NavItem icon={MagicWand} label="Motion Design" id="motion" badge="New" />
@@ -112,29 +154,37 @@ const MainSidebar: React.FC = () => {
 
           <div className="h-px bg-[var(--color-border-default)] mx-1" />
 
-          <div className="space-y-4 px-2">
-            <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Account</h4>
+          <div className="space-y-4">
+            <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider px-1">Account</h4>
             <div className="space-y-1">
-              <NavItem icon={User} label="Login / Register" />
-              <NavItem 
-                icon={Crown} 
-                label="Subscribe Premium" 
-                badge={isPremium ? "Active" : ""} 
-              />
+              {user ? (
+                <NavItem icon={User} label="Switch account" onClick={() => setLoginOpen(true)} />
+              ) : (
+                <NavItem icon={User} label="Login / Register" onClick={() => setLoginOpen(true)} />
+              )}
+              <NavItem icon={Crown} label="Subscribe Premium" badge={isPremium ? 'Active' : ''} />
             </div>
           </div>
 
-          <div className="space-y-4 px-2">
-            <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Rewards</h4>
-            <NavItem
-              icon={Gift}
-              label="Invite & Earn Audio"
-              badge={`${inviteCount * 3}d`}
-            />
+          <div className="space-y-4">
+            <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider px-1">Rewards</h4>
+            <NavItem icon={Gift} label="Invite & Earn Audio" badge={`${inviteCount * 3}d`} />
           </div>
 
-          <div className="space-y-4 px-2">
-            <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Connect</h4>
+          <div className="space-y-3">
+            <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider px-1">Settings</h4>
+            <div className="flex items-center justify-between px-4 py-2.5 rounded-[var(--radius-md)]">
+              <span className="text-[14px] font-medium text-[var(--color-text-secondary)]">Theme</span>
+              <ThemeToggle />
+            </div>
+            <div className="space-y-1">
+              <LinkItem icon={BookOpen} label="Documentation" href="/docs" external />
+              <LinkItem icon={Lifebuoy} label="Help & Support" href="/help" external />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider px-1">Connect</h4>
             <div className="space-y-1">
               <LinkItem icon={TwitterLogo} label="Follow on X" href={X_URL} />
               <LinkItem icon={GithubLogo} label="GitHub" href={REPO_URL} />
@@ -153,12 +203,18 @@ const MainSidebar: React.FC = () => {
               Unlock 10,000+ premium tracks with Pro.
             </p>
           </div>
-          <Button variant="ghost" className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50/10">
+          <Button
+            variant="ghost"
+            onClick={signOut}
+            className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50/10"
+          >
             <SignOut size={18} className="mr-3" />
             <span className="text-[14px]">Sign Out</span>
           </Button>
         </div>
       </aside>
+
+      <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
   );
 };
