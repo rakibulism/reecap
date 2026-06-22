@@ -18,6 +18,7 @@ interface ReecapStore {
   isSidebarOpen: boolean;
   isPremium: boolean;
   inviteCount: number;
+  user: { plan: 'pro' | 'free'; name: string; avatar: string } | null;
 
   // Actions
   addPhotos: (newPhotos: Photo[]) => void;
@@ -40,7 +41,14 @@ interface ReecapStore {
   setSidebarOpen: (v: boolean) => void;
   setPremium: (v: boolean) => void;
   addInvite: () => void;
+  login: (plan: 'pro' | 'free') => void;
+  logout: () => void;
 }
+
+const AVATARS = {
+  pro: 'https://avatars.githubusercontent.com/u/74898633?v=4',
+  free: 'https://scontent.fdac80-1.fna.fbcdn.net/v/t39.30808-6/709728364_1695604148259716_6570136783596587279_n.jpg?stp=cp6_dst-jpg_tt6&cstp=mx480x480&ctp=s480x480&_nc_cat=109&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeG6bm9maI_sHLNHEMqwso_OROPNSUvO6EZE481JS87oRjsFBX27DGRCe25QHGFUG_IQKqZB_XQM5cqhAilyq3dQ&_nc_ohc=7QBKdbfZqjUQ7kNvwEfkOwZ&_nc_oc=AdrstV-zHIGpNkBKkS-FrTyK_dQd1P-ZIIRkqW9-mJh97hC0ceUHFMnfgW04bPahLfA&_nc_zt=23&_nc_ht=scontent.fdac80-1.fna&_nc_gid=qENcDJV2SJ1pEEtd5HmN0w&_nc_ss=7b2a8&oh=00_Af-jvEvOmQID4hou56fMOM4Otjqvdr-HX2KoHbX3O9KLQA&oe=6A3F2B6A',
+} as const;
 
 export const useReecapStore = create<ReecapStore>((set) => ({
   photos: [],
@@ -72,6 +80,7 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   isSidebarOpen: false,
   isPremium: false,
   inviteCount: 0,
+  user: null,
 
   addPhotos: (newPhotos) =>
     set((state) => ({
@@ -134,4 +143,14 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   setSidebarOpen: (v) => set({ isSidebarOpen: v }),
   setPremium: (v) => set({ isPremium: v }),
   addInvite: () => set((state) => ({ inviteCount: state.inviteCount + 1 })),
+  login: (plan) =>
+    set({
+      user: {
+        plan,
+        name: plan === 'pro' ? 'Pro Member' : 'Free User',
+        avatar: AVATARS[plan],
+      },
+      isPremium: plan === 'pro',
+    }),
+  logout: () => set({ user: null, isPremium: false }),
 }));

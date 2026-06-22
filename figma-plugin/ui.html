@@ -12,9 +12,9 @@
       padding: 14px;
     }
     h1 { font-size: 13px; margin: 0 0 2px; }
-    p.sub { font-size: 11px; color: var(--figma-color-text-secondary, #888); margin: 0 0 12px; }
+    p.sub { font-size: 11px; color: var(--figma-color-text-secondary, #888); margin: 0 0 12px; line-height: 1.45; }
     .preview {
-      width: 100%; height: 190px; border-radius: 8px;
+      width: 100%; height: 168px; border-radius: 8px;
       border: 1px solid var(--figma-color-border, #e5e5e5);
       background:
         repeating-conic-gradient(#0000000d 0% 25%, transparent 0% 50%) 50% / 16px 16px,
@@ -31,15 +31,24 @@
     .primary:disabled { opacity: 0.45; cursor: not-allowed; }
     .ghost { background: transparent; color: var(--figma-color-text, #1a1a1a);
       border: 1px solid var(--figma-color-border, #e5e5e5); }
-    .status { font-size: 11px; text-align: center; min-height: 16px; margin-top: 4px; }
+    .status { font-size: 11px; text-align: center; min-height: 16px; margin-top: 2px; }
     .status.ok { color: #16a34a; }
     .status.err { color: #dc2626; }
     .empty { font-size: 11px; color: var(--figma-color-text-secondary, #888); text-align: center; padding: 0 14px; }
+    .cta {
+      margin-top: 14px; padding: 12px; border-radius: 8px;
+      background: linear-gradient(135deg, rgba(255,61,3,0.10), rgba(255,61,3,0.03));
+      border: 1px solid rgba(255,61,3,0.25);
+    }
+    .cta h2 { font-size: 12px; margin: 0 0 4px; }
+    .cta p { font-size: 11px; color: var(--figma-color-text-secondary, #888); margin: 0 0 10px; line-height: 1.45; }
+    .cta button { margin-bottom: 0; }
+    .cta .open { background: #111; color: #fff; }
   </style>
 </head>
 <body>
   <h1>Reecap Motion</h1>
-  <p class="sub">Send a frame to the Reecap Motion Design tool.</p>
+  <p class="sub">Send a frame to the Reecap Motion Design tool — its text, shapes and groups arrive as editable layers, ready to animate.</p>
 
   <div class="preview" id="preview">
     <span class="empty" id="emptyMsg">Select a frame…</span>
@@ -51,7 +60,14 @@
   <button class="ghost" id="downloadBtn" disabled>Download PNG</button>
   <div class="status" id="status"></div>
 
+  <div class="cta">
+    <h2>✨ Animate it in Reecap</h2>
+    <p>Turn this static frame into a scroll-stopping animation — layer-by-layer motion, presets, and a timeline, right in your browser. No install, no account.</p>
+    <button class="open" id="openBtn">Open Reecap Motion →</button>
+  </div>
+
   <script>
+    var APP_URL = 'https://reecap.vercel.app/app';
     var payload = null;
     var img = document.getElementById('img');
     var emptyMsg = document.getElementById('emptyMsg');
@@ -59,6 +75,7 @@
     var copyBtn = document.getElementById('copyBtn');
     var downloadBtn = document.getElementById('downloadBtn');
     var statusEl = document.getElementById('status');
+    var openBtn = document.getElementById('openBtn');
 
     function setStatus(text, kind) {
       statusEl.textContent = text || '';
@@ -74,26 +91,40 @@
       return btoa(binary);
     }
 
+    function showEmpty(message) {
+      payload = null;
+      img.style.display = 'none';
+      emptyMsg.style.display = 'block';
+      emptyMsg.textContent = message;
+      copyBtn.disabled = true;
+      downloadBtn.disabled = true;
+    }
+
     onmessage = function (event) {
       var msg = event.data.pluginMessage;
       if (!msg) return;
 
-      if (msg.type === 'empty') {
-        payload = null;
-        img.style.display = 'none';
-        emptyMsg.style.display = 'block';
-        emptyMsg.textContent = msg.message;
-        meta.textContent = '';
-        copyBtn.disabled = true;
-        downloadBtn.disabled = true;
-        setStatus('');
+      if (msg.type === 'selection') {
+        if (msg.ready) {
+          emptyMsg.textContent = 'Ready: ' + msg.name;
+          meta.textContent = msg.name + ' · ' + msg.w + ' × ' + msg.h;
+          copyBtn.disabled = false;
+          setStatus('');
+        } else {
+          showEmpty(msg.message);
+          meta.textContent = '';
+          setStatus('');
+        }
+        return;
+      }
+
+      if (msg.type === 'error') {
+        setStatus(msg.message || 'Something went wrong.', 'err');
         return;
       }
 
       if (msg.type === 'export') {
         var dataUrl = 'data:image/png;base64,' + bytesToBase64(msg.image);
-        // Convert each rasterized leaf's bytes into a data URL; keep editable
-        // layers (text/shape/group) as-is.
         var layers = (msg.layers || []).map(function (l) {
           var out = {};
           for (var k in l) if (k !== 'imageBytes') out[k] = l[k];
@@ -113,20 +144,18 @@
         img.style.display = 'block';
         emptyMsg.style.display = 'none';
         meta.textContent = msg.name + ' · ' + msg.width + ' × ' + msg.height + ' · ' + layers.length + ' layers';
-        copyBtn.disabled = false;
         downloadBtn.disabled = false;
-        setStatus('');
+        copy(); // copy immediately after a successful export
       }
     };
 
-    copyBtn.onclick = async function () {
+    async function copy() {
       if (!payload) return;
       var text = JSON.stringify(payload);
       try {
         await navigator.clipboard.writeText(text);
         setStatus('Copied! Paste into Reecap with ⌘V / Ctrl+V', 'ok');
       } catch (e) {
-        // Fallback: select a hidden textarea and execCommand('copy').
         var ta = document.createElement('textarea');
         ta.value = text;
         document.body.appendChild(ta);
@@ -139,6 +168,11 @@
         }
         document.body.removeChild(ta);
       }
+    }
+
+    copyBtn.onclick = function () {
+      setStatus('Reading frame…');
+      parent.postMessage({ pluginMessage: { type: 'export' } }, '*');
     };
 
     downloadBtn.onclick = function () {
@@ -148,6 +182,10 @@
       a.download = (payload.name || 'reecap-frame') + '.png';
       a.click();
       setStatus('Downloaded. Drag the PNG into Reecap.', 'ok');
+    };
+
+    openBtn.onclick = function () {
+      window.open(APP_URL, '_blank');
     };
   </script>
 </body>

@@ -35,10 +35,12 @@ const MotionTimeline: React.FC = () => {
     setPlaying,
     setDuration,
     selectLayer,
+    selectMany,
     setLayerSpan,
     setTimelineHeight,
     setTimelineZoom,
   } = useMotionStore();
+  const anchorRef = useRef(0);
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const [viewW, setViewW] = useState(0);
@@ -102,6 +104,22 @@ const MotionTimeline: React.FC = () => {
     };
   };
 
+  // Row selection: plain = single (sets the range anchor), ⌘/Ctrl = toggle add,
+  // Shift = select every row between the anchor and this one.
+  const selectRow = (e: { metaKey: boolean; ctrlKey: boolean; shiftKey: boolean }, index: number, id: string) => {
+    if (e.metaKey || e.ctrlKey) {
+      selectLayer(id, true);
+      anchorRef.current = index;
+    } else if (e.shiftKey) {
+      const a = Math.min(anchorRef.current, index);
+      const b = Math.max(anchorRef.current, index);
+      selectMany(rows.slice(a, b + 1).map((r) => r.layer.id));
+    } else {
+      selectLayer(id);
+      anchorRef.current = index;
+    }
+  };
+
   const scrub = (clientX: number) => {
     const el = viewportRef.current;
     if (!el) return;
@@ -132,7 +150,12 @@ const MotionTimeline: React.FC = () => {
   ) => {
     e.preventDefault();
     e.stopPropagation();
-    selectLayer(layer.id, e.shiftKey || e.metaKey || e.ctrlKey);
+    // Modifier-click selects (toggle / range) without starting a drag.
+    if (e.shiftKey || e.metaKey || e.ctrlKey) {
+      selectRow(e, rows.findIndex((r) => r.layer.id === layer.id), layer.id);
+      return;
+    }
+    if (!selectedIds.includes(layer.id)) selectLayer(layer.id);
     setPlaying(false);
     const startX = e.clientX;
 
@@ -281,10 +304,10 @@ const MotionTimeline: React.FC = () => {
         {/* Name gutter */}
         <div className="shrink-0 border-r border-[var(--color-border-default)] bg-[var(--color-bg-panel)]" style={{ width: GUTTER }}>
           <div className="border-b border-[var(--color-border-default)]" style={{ height: RULER_H }} />
-          {rows.map(({ layer, depth }) => (
+          {rows.map(({ layer, depth }, i) => (
             <div
               key={layer.id}
-              onClick={() => selectLayer(layer.id)}
+              onClick={(e) => selectRow(e, i, layer.id)}
               className={`flex items-center gap-1.5 pr-2 cursor-pointer text-[11px] font-medium truncate border-b border-[var(--color-border-default)]/50
                 ${selectedIds.includes(layer.id) ? 'text-[var(--color-text-primary)] bg-[var(--color-bg-hover)]' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'}`}
               style={{ height: ROW_H, paddingLeft: 10 + depth * 12 }}
@@ -325,7 +348,7 @@ const MotionTimeline: React.FC = () => {
                   key={layer.id}
                   className="absolute left-0 right-0 border-b border-[var(--color-border-default)]/40"
                   style={{ top: RULER_H + i * ROW_H, height: ROW_H }}
-                  onPointerDown={() => selectLayer(layer.id)}
+                  onPointerDown={(e) => selectRow(e, i, layer.id)}
                 >
                   <div
                     onPointerDown={(e) => startClipDrag(e, layer, 'move')}
