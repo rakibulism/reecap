@@ -6,6 +6,7 @@ import Editor from './pages/Editor';
 import Docs from './pages/Docs';
 import Help from './pages/Help';
 import Updates from './pages/Updates';
+import Pricing from './pages/Pricing';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 
@@ -38,6 +39,7 @@ function App() {
         <Route path="/docs" element={<Docs />} />
         <Route path="/help" element={<Help />} />
         <Route path="/updates" element={<Updates />} />
+        <Route path="/pricing" element={<Pricing />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/app" element={<Editor />} />
