@@ -20,9 +20,9 @@ const Updates: React.FC = () => {
   const navigate = useNavigate();
   useSeo({
     title: "What's New — Changelog | Reecap",
-    description: 'Every notable Reecap release, feature, and improvement — transitions in export, captions, whole-video speed, and more.',
+    description: 'Every notable Reecap release, feature, and improvement — the new Motion Design tool, Figma import, transitions in export, captions, whole-video speed, and more.',
     path: '/updates',
-    keywords: ['reecap changelog', 'reecap updates', 'reecap new features'],
+    keywords: ['reecap changelog', 'reecap updates', 'reecap new features', 'reecap motion design'],
   });
   return (
     <SiteLayout>
