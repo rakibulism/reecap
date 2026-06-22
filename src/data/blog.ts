@@ -1,6 +1,7 @@
 import postsData from './blog-posts.json';
 import postsData2 from './blog-posts-2.json';
 import postsData3 from './blog-posts-3.json';
+import postsData4 from './blog-posts-4.json';
 
 export interface FAQItem { q: string; a: string; }
 export interface BlogBlock { type: 'p' | 'h2' | 'ul'; text?: string; items?: string[]; }
@@ -24,6 +25,7 @@ export interface BlogPost {
 // Posts live in batched files (blog-posts.json, blog-posts-2.json, …) so large
 // additions stay reviewable. Merge and present newest-first.
 export const BLOG_POSTS = ([
+  ...(postsData4 as BlogPost[]),
   ...(postsData3 as BlogPost[]),
   ...(postsData2 as BlogPost[]),
   ...(postsData as BlogPost[]),
