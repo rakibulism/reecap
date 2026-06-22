@@ -162,13 +162,9 @@ try {
       }
       var frameBox = node.absoluteBoundingBox;
       var layers = [];
-      if ('children' in node && node.children.length) {
-        for (var i = 0; i < node.children.length; i++) {
-          await walk(node.children[i], frameBox, null, layers);
-        }
-      } else {
-        await walk(node, frameBox, null, layers);
-      }
+      // Walk the selection itself so the frame becomes a single top-level group
+      // (its children nested under it) rather than a pile of loose layers.
+      await walk(node, frameBox, null, layers);
       var frameBytes = await node.exportAsync({ format: 'PNG', constraint: { type: 'SCALE', value: 2 } });
       figma.ui.postMessage({
         type: 'export',

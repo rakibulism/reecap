@@ -228,6 +228,8 @@ export const useMotionStore = create<MotionStore>((set) => ({
             layer.align = pl.align ?? 'left';
           }
           if (pl.kind === 'image') layer.src = pl.src;
+          // Imported frames/groups land collapsed so the panel stays tidy.
+          if (pl.kind === 'group') layer.collapsed = true;
           return layer;
         });
         return {
