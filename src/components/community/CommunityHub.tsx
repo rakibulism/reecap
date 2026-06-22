@@ -15,7 +15,7 @@ import { COMMUNITY_TEMPLATES, type CommunityTemplate } from '../../data/communit
 import { COMMUNITY_TRACKS } from '../../data/communityAudio';
 import Button from '../ui/Button';
 
-const CommunityHub: React.FC = () => {
+const CommunityHub: React.FC<{ hideBack?: boolean }> = ({ hideBack }) => {
   const { setActiveView, setAudio, addPhotos } = useReecapStore();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'templates' | 'audio'>('all');
@@ -70,14 +70,16 @@ const CommunityHub: React.FC = () => {
           <h1 className="text-2xl font-bold mb-2">Community Hub</h1>
           <p className="text-[var(--color-text-secondary)] text-[14px]">Discover templates and sounds created by the community.</p>
         </div>
-        <Button 
-          variant="secondary" 
-          size="md" 
-          icon={<CaretLeft size={18} />}
-          onClick={() => setActiveView('editor')}
-        >
-          Back to Editor
-        </Button>
+        {!hideBack && (
+          <Button
+            variant="secondary"
+            size="md"
+            icon={<CaretLeft size={18} />}
+            onClick={() => setActiveView('editor')}
+          >
+            Back to Editor
+          </Button>
+        )}
       </div>
 
       <div className="flex items-center gap-4 px-8 py-4 border-b border-[var(--color-border-default)]">
