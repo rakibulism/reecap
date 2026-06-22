@@ -32,20 +32,31 @@ const NumberField: React.FC<{
   </label>
 );
 
-const ColorField: React.FC<{ label: string; value: string; onChange: (v: string) => void }> = ({
-  label,
-  value,
-  onChange,
-}) => (
+const ColorField: React.FC<{
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  allowNone?: boolean;
+}> = ({ label, value, onChange, allowNone }) => (
   <div className="flex items-center gap-2">
     <label
       className="w-8 h-8 rounded-[var(--radius-sm)] border border-[var(--color-border-default)] cursor-pointer shrink-0 overflow-hidden"
-      style={{ background: value }}
+      style={{
+        background: value || 'repeating-conic-gradient(#bbb 0% 25%, #fff 0% 50%) 50% / 10px 10px',
+      }}
     >
-      <input type="color" value={value} onChange={(e) => onChange(e.target.value)} className="sr-only" />
+      <input type="color" value={value || '#ffffff'} onChange={(e) => onChange(e.target.value)} className="sr-only" />
     </label>
     <span className="text-[10px] font-bold uppercase text-[var(--color-text-muted)] flex-1">{label}</span>
-    <span className="text-[11px] tabular-nums text-[var(--color-text-secondary)]">{value}</span>
+    {allowNone && value && (
+      <button
+        onClick={() => onChange('')}
+        className="text-[9px] font-bold uppercase text-[var(--color-text-muted)] hover:text-red-500"
+      >
+        Clear
+      </button>
+    )}
+    <span className="text-[11px] tabular-nums text-[var(--color-text-secondary)]">{value || 'None'}</span>
   </div>
 );
 
@@ -79,15 +90,22 @@ const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, 
 );
 
 const MotionInspector: React.FC = () => {
-  const { doc, selectedId, updateLayer } = useMotionStore();
+  const { doc, selectedId, updateLayer, setBackground } = useMotionStore();
   const layer = doc.layers.find((l) => l.id === selectedId);
 
+  // Nothing selected → composition settings (the overall frame background).
   if (!layer) {
     return (
-      <aside className="w-[280px] shrink-0 border-l border-[var(--color-border-default)] bg-[var(--color-bg-panel)] flex items-center justify-center">
-        <p className="text-[11px] text-[var(--color-text-muted)] italic px-6 text-center leading-relaxed">
-          Select a layer to edit its properties and animation.
-        </p>
+      <aside className="w-[280px] shrink-0 border-l border-[var(--color-border-default)] bg-[var(--color-bg-panel)] overflow-y-auto custom-scrollbar">
+        <Section title="Composition">
+          <ColorField label="Background" value={doc.background} onChange={(v) => setBackground(v || '#000000')} />
+          <p className="text-[11px] text-[var(--color-text-muted)] leading-relaxed">
+            {doc.width} × {doc.height}px
+          </p>
+          <p className="text-[11px] text-[var(--color-text-muted)] italic leading-relaxed">
+            Select a layer to edit its properties and animation.
+          </p>
+        </Section>
       </aside>
     );
   }
@@ -122,10 +140,16 @@ const MotionInspector: React.FC = () => {
 
       <Section title="Appearance">
         {layer.type === 'group' ? (
-          <p className="text-[11px] text-[var(--color-text-muted)] italic leading-relaxed">
-            Group — move and animate all of its layers together. Edit a child layer to change its
-            own appearance.
-          </p>
+          <>
+            <ColorField label="Background" value={layer.fill} allowNone onChange={(v) => set({ fill: v })} />
+            <Field label="Corner Radius">
+              <Slider value={layer.cornerRadius} min={0} max={200} step={2} unit="px" onChange={(v) => set({ cornerRadius: v })} />
+            </Field>
+            <p className="text-[10px] text-[var(--color-text-muted)] italic leading-relaxed">
+              Frame — set a background or leave it transparent. Moving or animating it affects all its
+              layers.
+            </p>
+          </>
         ) : layer.type === 'text' ? (
           <>
             <Field label="Text">

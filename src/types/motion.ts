@@ -126,6 +126,7 @@ export interface ReecapMotionPayload {
   width: number;
   height: number;
   name?: string;
-  image: string;        // data URL (PNG) — full-frame fallback
+  background?: string;  // root frame's solid background, applied to the composition
+  image: string;        // data URL (PNG) — full-frame fallback / preview
   layers?: PayloadLayer[];
 }
