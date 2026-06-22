@@ -168,7 +168,7 @@ const MainSidebar: React.FC = () => {
               <Code size={16} className="shrink-0" />
               <span className="text-[13px] font-medium truncate">Dev tool</span>
             </button>
-            <NavItem icon={Users} label="Community" id="community" />
+            <NavItem icon={Users} label="Community" id="community" badge="New" />
           </nav>
 
           <div className="h-px bg-[var(--color-border-default)] mx-1" />

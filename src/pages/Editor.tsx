@@ -8,7 +8,7 @@ import Timeline from '../components/layout/Timeline';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useAudioSync } from '../hooks/useAudioSync';
 import MainSidebar from '../components/layout/MainSidebar';
-import CommunityHub from '../components/community/CommunityHub';
+import Community from '../components/community/Community';
 import MediaShelf from '../components/layout/MediaShelf';
 import ShortcutsModal from '../components/ui/ShortcutsModal';
 import EditorMobileGate from '../components/layout/EditorMobileGate';
@@ -113,7 +113,7 @@ function Editor() {
           ) : activeView === 'design' ? (
             <DesignStudio />
           ) : (
-            <CommunityHub />
+            <Community />
           )}
         </>
       )}
