@@ -146,6 +146,7 @@ interface MotionStore {
   setTime: (t: number) => void;
   setPlaying: (v: boolean) => void;
   setDuration: (seconds: number) => void;
+  autoFitDuration: () => void;
   setBackground: (color: string) => void;
   setTimelineHeight: (h: number) => void;
   setTimelineZoom: (z: number | null) => void;
@@ -429,6 +430,20 @@ export const useMotionStore = create<MotionStore>((set) => ({
               : l,
           ),
         },
+        time: Math.min(state.time, duration),
+      };
+    }),
+  autoFitDuration: () =>
+    set((state) => {
+      // Fit the composition to the longest layer: the maximum clip end across
+      // all visual layers (groups are containers, so they don't count).
+      const ends = state.doc.layers
+        .filter((l) => l.type !== 'group')
+        .map((l) => l.animation.end);
+      if (!ends.length) return state;
+      const duration = Math.max(0.5, Math.ceil(Math.max(...ends) * 10) / 10);
+      return {
+        doc: { ...state.doc, duration },
         time: Math.min(state.time, duration),
       };
     }),
