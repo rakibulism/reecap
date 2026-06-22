@@ -35,7 +35,8 @@ const MotionDesigner: React.FC = () => {
     return () => cancelAnimationFrame(raf);
   }, [isPlaying, setTime]);
 
-  // Keyboard: playback, deletion, z-order ([ ] ⌘[ ⌘]) and grouping (⌘G / ⌘⇧G).
+  // Keyboard: playback, duplicate (⌘D), deletion (Del/⌫), z-order ([ ] ⌘[ ⌘])
+  // and grouping (⌘G / ⌘⇧G).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isEditingTarget(e.target)) return;
@@ -50,6 +51,11 @@ const MotionDesigner: React.FC = () => {
         if (s.selectedIds.length) {
           e.preventDefault();
           s.selectedIds.forEach((id) => s.removeLayer(id));
+        }
+      } else if (e.key === 'd' && mod) {
+        if (s.selectedIds.length) {
+          e.preventDefault();
+          s.selectedIds.forEach((id) => s.duplicateLayer(id));
         }
       } else if (e.key === 'g' && mod) {
         e.preventDefault();
