@@ -21,6 +21,7 @@ import InstallButton from '../ui/InstallButton';
 import ThemeToggle from '../ui/ThemeToggle';
 import LoginModal from '../ui/LoginModal';
 import PremiumModal from '../ui/PremiumModal';
+import InviteModal from '../ui/InviteModal';
 
 const REPO_URL = 'https://github.com/rakibulism/reecap';
 const X_URL = 'https://x.com/rakibulism';
@@ -39,6 +40,7 @@ const MainSidebar: React.FC = () => {
   const navigate = useNavigate();
   const [loginOpen, setLoginOpen] = useState(false);
   const [premiumOpen, setPremiumOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   if (!isSidebarOpen) return null;
 
@@ -174,7 +176,7 @@ const MainSidebar: React.FC = () => {
 
           <div className="space-y-4">
             <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider px-1">Rewards</h4>
-            <NavItem icon={Gift} label="Invite & Earn Audio" badge={`${inviteCount * 3}d`} />
+            <NavItem icon={Gift} label="Invite & Earn Audio" badge={`${inviteCount * 3}d`} onClick={() => setInviteOpen(true)} />
           </div>
 
           <div className="space-y-3">
@@ -228,6 +230,7 @@ const MainSidebar: React.FC = () => {
 
       <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
       <PremiumModal isOpen={premiumOpen} onClose={() => setPremiumOpen(false)} />
+      <InviteModal isOpen={inviteOpen} onClose={() => setInviteOpen(false)} />
     </div>
   );
 };
