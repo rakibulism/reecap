@@ -1,25 +1,19 @@
 import React from 'react';
 import { useReecapStore } from '../../store/reecapStore';
-import { 
-  Sun, 
-  Moon, 
-  Export, 
-  GithubLogo, 
-  TwitterLogo, 
+import {
+  Export,
   Keyboard,
-  Monitor,
   List
 } from 'phosphor-react';
 import Button from '../ui/Button';
 import BrandMark from '../ui/BrandMark';
 import SegmentedControl from '../ui/SegmentedControl';
 import Tooltip from '../ui/Tooltip';
-import InstallButton from '../ui/InstallButton';
 import { useExport } from '../../hooks/useExport';
 
 const Topbar: React.FC = () => {
   const {
-    theme, setTheme, settings, updateSettings,
+    settings, updateSettings,
     isExporting, exportProgress, setShowShortcuts,
     toggleSidebar, activeView, setActiveView
   } = useReecapStore();
@@ -49,19 +43,6 @@ const Topbar: React.FC = () => {
         <span className="text-[16px] font-bold text-[var(--color-text-primary)] tracking-tight">
           Reecap
         </span>
-        <div className="hidden sm:flex items-center gap-1 border-l border-[var(--color-border-default)] pl-4">
-          <Tooltip content="Follow on X" position="bottom">
-            <a href="https://x.com/rakibulism" target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="sm" icon={<TwitterLogo size={18} />} />
-            </a>
-          </Tooltip>
-          <Tooltip content="View GitHub Repo" position="bottom">
-            <a href="https://github.com/rakibulism/reecap" target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="sm" icon={<GithubLogo size={18} />} />
-            </a>
-          </Tooltip>
-        </div>
-
         {/* Tool mode switch: Video editor ↔ Motion design */}
         <div className="border-l border-[var(--color-border-default)] pl-3 ml-1">
           <SegmentedControl
@@ -108,37 +89,6 @@ const Topbar: React.FC = () => {
             <div className="h-8 w-px bg-[var(--color-border-default)]" />
           </>
         )}
-
-        <div className="flex items-center bg-[var(--color-bg-panel)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] p-1">
-          <Tooltip content="Light" position="bottom">
-            <button 
-              onClick={() => setTheme('light')}
-              className={`p-1 rounded-[2px] ${theme === 'light' ? 'bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] shadow-sm' : 'text-[var(--color-text-muted)]'}`}
-            >
-              <Sun size={16} />
-            </button>
-          </Tooltip>
-          <Tooltip content="Dark" position="bottom">
-            <button 
-              onClick={() => setTheme('dark')}
-              className={`p-1 rounded-[2px] ${theme === 'dark' ? 'bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] shadow-sm' : 'text-[var(--color-text-muted)]'}`}
-            >
-              <Moon size={16} />
-            </button>
-          </Tooltip>
-          <Tooltip content="System" position="bottom">
-            <button 
-              onClick={() => setTheme('system')}
-              className={`p-1 rounded-[2px] ${theme === 'system' ? 'bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] shadow-sm' : 'text-[var(--color-text-muted)]'}`}
-            >
-              <Monitor size={16} />
-            </button>
-          </Tooltip>
-        </div>
-
-        <div className="hidden md:block">
-          <InstallButton variant="ghost" />
-        </div>
 
         <Tooltip content="Keyboard Shortcuts (?)" position="left">
           <Button variant="ghost" size="sm" onClick={() => setShowShortcuts(true)} icon={<Keyboard size={18} />} />
