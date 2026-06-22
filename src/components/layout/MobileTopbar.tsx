@@ -1,7 +1,8 @@
 import React from 'react';
 import { useReecapStore } from '../../store/reecapStore';
-import { List, FilmStrip, Export } from 'phosphor-react';
+import { List, Export } from 'phosphor-react';
 import Button from '../ui/Button';
+import BrandMark from '../ui/BrandMark';
 import { useExport } from '../../hooks/useExport';
 
 /** Compact editor header for phones: menu · brand · export. */
@@ -23,7 +24,7 @@ const MobileTopbar: React.FC = () => {
       </button>
 
       <div className="flex items-center gap-1.5">
-        <FilmStrip size={20} weight="bold" className="text-[var(--color-primary)]" />
+        <BrandMark size={26} rounded="rounded-lg" />
         <span className="text-[15px] font-bold tracking-tight">Reecap</span>
       </div>
 

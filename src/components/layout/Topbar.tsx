@@ -6,12 +6,12 @@ import {
   Export, 
   GithubLogo, 
   TwitterLogo, 
-  Keyboard, 
+  Keyboard,
   Monitor,
-  List,
-  FilmStrip
+  List
 } from 'phosphor-react';
 import Button from '../ui/Button';
+import BrandMark from '../ui/BrandMark';
 import SegmentedControl from '../ui/SegmentedControl';
 import Tooltip from '../ui/Tooltip';
 import InstallButton from '../ui/InstallButton';
@@ -43,7 +43,7 @@ const Topbar: React.FC = () => {
           icon={<List size={22} weight="bold" />} 
           className="mr-1"
         />
-        <FilmStrip size={24} weight="bold" className="text-[var(--color-primary)] ml-2" />
+        <BrandMark size={28} rounded="rounded-lg" className="ml-2" />
         <span className="text-[16px] font-bold text-[var(--color-text-primary)] tracking-tight">
           Reecap
         </span>
