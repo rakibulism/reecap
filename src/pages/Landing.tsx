@@ -73,7 +73,7 @@ const Hero: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
 
       <h1 className="text-[2.5rem] leading-[1.08] sm:text-6xl md:text-7xl font-bold tracking-tight mb-6">
         Turn your photos into a{' '}
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500">cinematic recap</span>
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600">cinematic recap</span>
       </h1>
 
       <p className="text-base sm:text-xl text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed mb-9">
@@ -125,7 +125,7 @@ const EditorMock: React.FC = () => (
       </div>
 
       <div className="flex-1 relative flex items-center justify-center bg-[var(--color-bg-page)] p-4 sm:p-6">
-        <div className="relative w-full max-w-md aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-600 shadow-xl">
+        <div className="relative w-full max-w-md aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 shadow-xl">
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center">
               <Play size={20} weight="fill" className="text-white ml-0.5" />
@@ -263,7 +263,7 @@ const SpeedShowcase: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
     </div>
 
     <div className="relative">
-      <div className="absolute -inset-6 bg-gradient-to-br from-blue-500/15 to-violet-500/10 blur-2xl rounded-full" />
+      <div className="absolute -inset-6 bg-gradient-to-br from-blue-500/15 to-blue-600/10 blur-2xl rounded-full" />
       <div className="relative grid grid-cols-2 gap-4 max-w-sm mx-auto lg:max-w-none">
         {[
           { ratio: 'aspect-[9/16]', g: 'from-rose-400 to-orange-500', label: '9:16 · Reels' },

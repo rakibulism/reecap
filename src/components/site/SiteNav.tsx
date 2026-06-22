@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { FilmStrip, GithubLogo, ArrowRight, List, X } from 'phosphor-react';
+import { GithubLogo, ArrowRight, List, X } from 'phosphor-react';
 import Button from '../ui/Button';
+import BrandMark from '../ui/BrandMark';
 import InstallButton from '../ui/InstallButton';
 import ThemeToggle from '../ui/ThemeToggle';
 import NotificationBell from './NotificationBell';
@@ -32,9 +33,7 @@ const SiteNav: React.FC = () => {
     <header className="fixed top-0 inset-x-0 z-50 bg-[var(--color-bg-page)]/70 backdrop-blur-xl after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-[var(--color-border-default)]/60 after:to-transparent" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 shrink-0" onClick={() => setMenu(false)}>
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
-            <FilmStrip size={20} weight="fill" className="text-white" />
-          </div>
+          <BrandMark size={36} rounded="rounded-xl" />
           <span className="text-lg font-bold tracking-tight">Reecap</span>
         </Link>
 

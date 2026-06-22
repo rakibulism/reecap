@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FilmStrip, Monitor, ArrowLeft } from 'phosphor-react';
+import { Monitor, ArrowLeft } from 'phosphor-react';
+import BrandMark from '../ui/BrandMark';
 
 /** The editor's panels + timeline need room a phone can't offer. On small
  *  screens we show a friendly gate with a "continue anyway" escape hatch. */
@@ -18,9 +19,7 @@ const EditorMobileGate: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-[5000] bg-[var(--color-bg-page)] flex flex-col items-center justify-center text-center px-7" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25 mb-7">
-        <FilmStrip size={32} weight="fill" className="text-white" />
-      </div>
+      <BrandMark size={64} rounded="rounded-2xl" className="mb-7" />
 
       <div className="flex items-center gap-2 text-[var(--color-primary)] mb-3">
         <Monitor size={18} weight="fill" />

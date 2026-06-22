@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FilmStrip, GithubLogo, TwitterLogo } from 'phosphor-react';
+import { GithubLogo, TwitterLogo } from 'phosphor-react';
+import BrandMark from '../ui/BrandMark';
 
 const REPO_URL = 'https://github.com/rakibulism/reecap';
 
@@ -10,9 +11,7 @@ const SiteFooter: React.FC = () => (
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-10">
         <div className="col-span-2 sm:col-span-1">
           <Link to="/" className="flex items-center gap-2.5 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-              <FilmStrip size={16} weight="fill" className="text-white" />
-            </div>
+            <BrandMark size={32} rounded="rounded-lg" />
             <span className="font-bold">Reecap</span>
           </Link>
           <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">Your week, in motion.</p>

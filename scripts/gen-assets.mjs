@@ -7,8 +7,11 @@ import { dirname, join } from 'node:path';
 
 const pub = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
 
+// Brand color #FF3D03, with a slightly darker stop for depth on the app tile.
+const BRAND = '#FF3D03';
+const BRAND_DARK = '#E63100';
 const GRAD = `<linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-  <stop offset="0%" stop-color="#3B82F6"/><stop offset="100%" stop-color="#4F46E5"/>
+  <stop offset="0%" stop-color="${BRAND}"/><stop offset="100%" stop-color="${BRAND_DARK}"/>
 </linearGradient>`;
 
 // Filmstrip + play mark. `rounded` adds the app-tile corner radius.
@@ -34,7 +37,7 @@ const maskable = `<svg width="512" height="512" viewBox="0 0 512 512" xmlns="htt
   <rect width="512" height="512" fill="url(#g)"/>
   <g transform="translate(106 106) scale(0.585)">
     <rect x="96" y="150" width="320" height="212" rx="34" fill="#ffffff"/>
-    <path d="M214 202 L214 310 L312 256 Z" fill="#3B82F6"/>
+    <path d="M214 202 L214 310 L312 256 Z" fill="#FF3D03"/>
   </g>
 </svg>`;
 
@@ -45,8 +48,8 @@ const OG = `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://
       <stop offset="0%" stop-color="#0c1224"/><stop offset="100%" stop-color="#080810"/>
     </linearGradient>
     <radialGradient id="glow" cx="22%" cy="8%" r="60%">
-      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#FF3D03" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#FF3D03" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="c1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fb7185"/><stop offset="1" stop-color="#f97316"/></linearGradient>
     <linearGradient id="c2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
@@ -66,13 +69,13 @@ const OG = `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://
   <!-- logo + wordmark -->
   <g transform="translate(80 70)">
     <rect width="64" height="64" rx="16" fill="url(#g)"/>
-    <g transform="scale(0.125)"><rect x="96" y="150" width="320" height="212" rx="34" fill="#fff"/><path d="M214 202 L214 310 L312 256 Z" fill="#3B82F6"/></g>
+    <g transform="scale(0.125)"><rect x="96" y="150" width="320" height="212" rx="34" fill="#fff"/><path d="M214 202 L214 310 L312 256 Z" fill="#FF3D03"/></g>
     <text x="82" y="44" font-size="34" font-weight="700" fill="#ffffff">Reecap</text>
   </g>
 
   <!-- headline -->
   <text x="80" y="300" font-size="68" font-weight="800" fill="#ffffff">Turn your photos into</text>
-  <text x="80" y="380" font-size="68" font-weight="800" fill="#7aa2ff">a cinematic recap</text>
+  <text x="80" y="380" font-size="68" font-weight="800" fill="#FF8A5C">a cinematic recap</text>
 
   <!-- subtext -->
   <text x="80" y="448" font-size="27" font-weight="400" fill="#9aa3b8">Free, browser-based video recap editor — transitions,</text>

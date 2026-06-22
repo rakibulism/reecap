@@ -13,7 +13,7 @@
   --color-text-muted: #8C8C8C;
   --color-text-inverse: #FFFFFF;
   --color-interactive: #0A0A0A;
-  --color-primary: #3B82F6;
+  --color-primary: #FF3D03;
 
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -45,5 +45,5 @@
   --color-text-muted: #555555;
   --color-text-inverse: #0A0A0A;
   --color-interactive: #EDEDED;
-  --color-primary: #3B82F6;
+  --color-primary: #FF3D03;
 }
