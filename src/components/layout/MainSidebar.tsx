@@ -6,8 +6,9 @@ import {
   Crown, 
   Users, 
   Gift, 
-  MusicNotes, 
+  MusicNotes,
   House,
+  MagicWand,
   SignOut,
   CaretRight
 } from 'phosphor-react';
@@ -86,6 +87,7 @@ const MainSidebar: React.FC = () => {
         <div className="flex-1 overflow-y-auto p-3 space-y-6">
           <nav className="space-y-1">
             <NavItem icon={House} label="Video Editor" id="editor" />
+            <NavItem icon={MagicWand} label="Motion Design" id="motion" badge="New" />
             <NavItem icon={Users} label="Community" id="community" />
           </nav>
 

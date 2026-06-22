@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, system-ui, sans-serif;
+      color: var(--figma-color-text, #1a1a1a);
+      background: var(--figma-color-bg, #fff);
+      padding: 14px;
+    }
+    h1 { font-size: 13px; margin: 0 0 2px; }
+    p.sub { font-size: 11px; color: var(--figma-color-text-secondary, #888); margin: 0 0 12px; }
+    .preview {
+      width: 100%; height: 190px; border-radius: 8px;
+      border: 1px solid var(--figma-color-border, #e5e5e5);
+      background:
+        repeating-conic-gradient(#0000000d 0% 25%, transparent 0% 50%) 50% / 16px 16px,
+        var(--figma-color-bg-secondary, #f5f5f5);
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .meta { font-size: 11px; color: var(--figma-color-text-secondary, #888); margin: 8px 0 12px; min-height: 14px; }
+    button {
+      width: 100%; height: 36px; border: none; border-radius: 6px;
+      font-size: 12px; font-weight: 600; cursor: pointer; margin-bottom: 8px;
+    }
+    .primary { background: #FF3D03; color: #fff; }
+    .primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .ghost { background: transparent; color: var(--figma-color-text, #1a1a1a);
+      border: 1px solid var(--figma-color-border, #e5e5e5); }
+    .status { font-size: 11px; text-align: center; min-height: 16px; margin-top: 4px; }
+    .status.ok { color: #16a34a; }
+    .status.err { color: #dc2626; }
+    .empty { font-size: 11px; color: var(--figma-color-text-secondary, #888); text-align: center; padding: 0 14px; }
+  </style>
+</head>
+<body>
+  <h1>Reecap Motion</h1>
+  <p class="sub">Send a frame to the Reecap Motion Design tool.</p>
+
+  <div class="preview" id="preview">
+    <span class="empty" id="emptyMsg">Select a frame…</span>
+    <img id="img" style="display:none" />
+  </div>
+  <div class="meta" id="meta"></div>
+
+  <button class="primary" id="copyBtn" disabled>Copy to Reecap</button>
+  <button class="ghost" id="downloadBtn" disabled>Download PNG</button>
+  <div class="status" id="status"></div>
+
+  <script>
+    var payload = null;
+    var img = document.getElementById('img');
+    var emptyMsg = document.getElementById('emptyMsg');
+    var meta = document.getElementById('meta');
+    var copyBtn = document.getElementById('copyBtn');
+    var downloadBtn = document.getElementById('downloadBtn');
+    var statusEl = document.getElementById('status');
+
+    function setStatus(text, kind) {
+      statusEl.textContent = text || '';
+      statusEl.className = 'status' + (kind ? ' ' + kind : '');
+    }
+
+    function bytesToBase64(bytes) {
+      var binary = '';
+      var chunk = 0x8000;
+      for (var i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode.apply(null, bytes.slice(i, i + chunk));
+      }
+      return btoa(binary);
+    }
+
+    onmessage = function (event) {
+      var msg = event.data.pluginMessage;
+      if (!msg) return;
+
+      if (msg.type === 'empty') {
+        payload = null;
+        img.style.display = 'none';
+        emptyMsg.style.display = 'block';
+        emptyMsg.textContent = msg.message;
+        meta.textContent = '';
+        copyBtn.disabled = true;
+        downloadBtn.disabled = true;
+        setStatus('');
+        return;
+      }
+
+      if (msg.type === 'export') {
+        var dataUrl = 'data:image/png;base64,' + bytesToBase64(msg.bytes);
+        payload = {
+          __reecap: 'motion-frame',
+          version: 1,
+          width: msg.width,
+          height: msg.height,
+          name: msg.name,
+          image: dataUrl
+        };
+        img.src = dataUrl;
+        img.style.display = 'block';
+        emptyMsg.style.display = 'none';
+        meta.textContent = msg.name + ' · ' + msg.width + ' × ' + msg.height;
+        copyBtn.disabled = false;
+        downloadBtn.disabled = false;
+        setStatus('');
+      }
+    };
+
+    copyBtn.onclick = async function () {
+      if (!payload) return;
+      var text = JSON.stringify(payload);
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus('Copied! Paste into Reecap with ⌘V / Ctrl+V', 'ok');
+      } catch (e) {
+        // Fallback: select a hidden textarea and execCommand('copy').
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          setStatus('Copied! Paste into Reecap with ⌘V / Ctrl+V', 'ok');
+        } catch (e2) {
+          setStatus('Could not copy — try Download PNG instead.', 'err');
+        }
+        document.body.removeChild(ta);
+      }
+    };
+
+    downloadBtn.onclick = function () {
+      if (!payload) return;
+      var a = document.createElement('a');
+      a.href = payload.image;
+      a.download = (payload.name || 'reecap-frame') + '.png';
+      a.click();
+      setStatus('Downloaded. Drag the PNG into Reecap.', 'ok');
+    };
+  </script>
+</body>
+</html>
