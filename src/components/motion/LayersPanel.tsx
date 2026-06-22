@@ -282,7 +282,7 @@ const LayersPanel: React.FC = () => {
     try {
       const text = await navigator.clipboard.readText();
       const payload = JSON.parse(text) as ReecapMotionPayload;
-      if (payload?.__reecap === 'motion-frame' && payload.image) {
+      if (payload?.__reecap === 'motion-frame' && (payload.image || payload.layers?.length)) {
         importPayload(payload);
         return;
       }

@@ -90,13 +90,42 @@ export interface MotionDoc {
   layers: MotionLayer[];
 }
 
+// One node in a Figma frame export (payload v2). Geometry is in composition
+// units, relative to the frame origin. `kind` decides how the app reconstructs
+// it; anything not natively representable arrives as kind 'image' with `src`.
+export interface PayloadLayer {
+  id: string;                 // Figma node id (remapped to a fresh id on import)
+  parentId: string | null;    // Figma node id of the enclosing group, or null
+  name: string;
+  kind: LayerType;            // 'text' | 'rectangle' | 'ellipse' | 'image' | 'group'
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  rotation: number;
+  opacity: number;
+  // text
+  text?: string;
+  fontSize?: number;
+  fontWeight?: number;
+  color?: string;
+  align?: TextAlign;
+  // shape
+  fill?: string;
+  cornerRadius?: number;
+  // image (rasterized leaf)
+  src?: string;               // data URL (PNG)
+}
+
 // Clipboard payload produced by the companion Figma plugin and reconstructed by
-// the in-app paste handler. Kept intentionally small and versioned.
+// the in-app paste handler. v1 carried only a flat `image`; v2 adds an editable
+// `layers` tree (the `image` is kept as a fallback).
 export interface ReecapMotionPayload {
   __reecap: 'motion-frame';
   version: number;
   width: number;
   height: number;
   name?: string;
-  image: string;        // data URL (PNG)
+  image: string;        // data URL (PNG) — full-frame fallback
+  layers?: PayloadLayer[];
 }
