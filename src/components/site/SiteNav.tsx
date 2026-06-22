@@ -11,6 +11,7 @@ const REPO_URL = 'https://github.com/rakibulism/reecap';
 
 const NAV = [
   { to: '/', label: 'Home', end: true },
+  { to: '/pricing', label: 'Pricing' },
   { to: '/docs', label: 'Docs' },
   { to: '/help', label: 'Help' },
   { to: '/updates', label: 'Updates' },

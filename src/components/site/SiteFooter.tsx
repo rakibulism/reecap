@@ -19,6 +19,7 @@ const SiteFooter: React.FC = () => (
 
         <FooterCol title="Product" links={[
           { label: 'Open editor', to: '/app' },
+          { label: 'Pricing', to: '/pricing' },
           { label: 'Updates', to: '/updates' },
           { label: 'Docs', to: '/docs' },
         ]} />

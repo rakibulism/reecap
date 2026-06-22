@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useReecapStore } from '../../store/reecapStore';
 import {
   Export,
   Keyboard,
-  List
+  List,
+  FileImage,
+  FileCode,
+  CaretDown,
 } from 'phosphor-react';
 import Button from '../ui/Button';
 import BrandMark from '../ui/BrandMark';
 import SegmentedControl from '../ui/SegmentedControl';
 import Tooltip from '../ui/Tooltip';
 import { useExport } from '../../hooks/useExport';
+import { useDesignStore } from '../../store/designStore';
+import { exportDesign } from '../../lib/designExport';
 
 const Topbar: React.FC = () => {
   const {
@@ -18,10 +23,23 @@ const Topbar: React.FC = () => {
     toggleSidebar, activeView, setActiveView
   } = useReecapStore();
   const { startExport } = useExport();
+  const [designMenu, setDesignMenu] = useState(false);
+  const [designBusy, setDesignBusy] = useState(false);
 
   const isMotion = activeView === 'motion';
   const isDesign = activeView === 'design';
   const isVideo = activeView === 'editor';
+
+  const runDesignExport = async (format: 'png' | 'svg') => {
+    setDesignMenu(false);
+    setDesignBusy(true);
+    try {
+      const { doc } = useDesignStore.getState();
+      await exportDesign(format, doc.nodes, doc.background);
+    } finally {
+      setDesignBusy(false);
+    }
+  };
 
   const aspectRatioOptions = [
     { label: '16:9', value: '16:9' },
@@ -97,8 +115,35 @@ const Topbar: React.FC = () => {
           <Button variant="ghost" size="sm" onClick={() => setShowShortcuts(true)} icon={<Keyboard size={18} />} />
         </Tooltip>
 
-        {!isVideo ? (
-          <Tooltip content={`${isMotion ? 'Motion' : 'Design'} export is coming soon`} position="left">
+        {isDesign ? (
+          <div className="relative">
+            <Button
+              variant="primary"
+              size="md"
+              icon={<Export size={18} weight="bold" />}
+              onClick={() => setDesignMenu((v) => !v)}
+              disabled={designBusy}
+              className={`min-w-[110px] ${designBusy ? 'animate-pulse' : ''}`}
+            >
+              {designBusy ? 'Exporting…' : 'Export'}
+              <CaretDown size={13} weight="bold" className="ml-1 opacity-80" />
+            </Button>
+            {designMenu && (
+              <>
+                <div className="fixed inset-0 z-[60]" onClick={() => setDesignMenu(false)} />
+                <div className="absolute right-0 mt-1.5 w-44 z-[61] rounded-[var(--radius-md)] border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-md)] overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-150">
+                  <button onClick={() => runDesignExport('png')} className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]">
+                    <FileImage size={17} /> Export PNG
+                  </button>
+                  <button onClick={() => runDesignExport('svg')} className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]">
+                    <FileCode size={17} /> Export SVG
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ) : isMotion ? (
+          <Tooltip content="Motion export is coming soon" position="left">
             <Button variant="primary" size="md" icon={<Export size={18} weight="bold" />} disabled className="min-w-[100px]">
               Export
             </Button>

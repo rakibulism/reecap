@@ -1,9 +1,9 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   ArrowRight, Sparkle, FilmStrip, TextT, Gauge, MusicNotes, Export,
   Sliders, ShieldCheck, Image as ImageIcon, DownloadSimple, Play,
-  GithubLogo, Check, Stack, MagicWand, FigmaLogo, Cube,
+  GithubLogo, Check, Stack, MagicWand, FigmaLogo, Cube, PenNib, UsersThree,
 } from 'phosphor-react';
 import Button from '../components/ui/Button';
 import SiteLayout from '../components/site/SiteLayout';
@@ -16,10 +16,10 @@ const Landing: React.FC = () => {
   const openApp = () => navigate('/app');
 
   useSeo({
-    title: 'Reecap — Cinematic photo recaps & a Motion Design studio',
-    description: 'Reecap is a free, browser-based studio with two tools: turn photos into a shareable MP4, and animate your Figma designs layer by layer in the new Motion Design tool. No upload, no account.',
+    title: 'Reecap — Photo recaps, Motion Design, a Design tool & a Creators community',
+    description: 'Reecap is a free, browser-based creative studio: turn photos into a shareable MP4, animate designs in the Motion tool, build on an infinite-canvas Design tool with Dev mode, and share in the Creators community. No upload, no account.',
     path: '/',
-    keywords: ['photo to video', 'recap video maker', 'slideshow maker', 'free online video editor', 'browser video editor', 'motion design tool', 'animate figma designs', 'jitter alternative'],
+    keywords: ['photo to video', 'recap video maker', 'slideshow maker', 'free online video editor', 'browser video editor', 'motion design tool', 'animate figma designs', 'jitter alternative', 'free design tool', 'figma alternative', 'infinite canvas design', 'creators community'],
     jsonLd: [
       {
         '@context': 'https://schema.org',
@@ -28,7 +28,7 @@ const Landing: React.FC = () => {
         applicationCategory: 'MultimediaApplication',
         operatingSystem: 'Web',
         url: SITE_URL,
-        description: 'A free, browser-based studio with a photo-to-video recap editor and a layer-by-layer Motion Design tool that animates Figma designs. Runs 100% client-side.',
+        description: 'A free, browser-based creative studio: a photo-to-video recap editor, a layer-by-layer Motion Design tool, an infinite-canvas Design tool with a Dev mode, and a Creators community. Runs 100% client-side.',
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
       },
       {
@@ -70,7 +70,7 @@ const Hero: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
       <button onClick={onOpen}
         className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/30 text-[12px] sm:text-[13px] font-semibold text-[var(--color-primary)] mb-7 hover:bg-[var(--color-primary)]/15 transition-colors">
         <MagicWand size={14} weight="fill" />
-        New · Motion Design tool — animate your Figma designs
+        New · A Design tool & Creators community
         <ArrowRight size={13} weight="bold" />
       </button>
 
@@ -80,8 +80,9 @@ const Hero: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
       </h1>
 
       <p className="text-base sm:text-xl text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed mb-9">
-        One browser-based studio, two tools: turn photos into a cinematic MP4 recap, and animate
-        your Figma designs layer by layer in the new Motion Design tool. No upload, no account.
+        One browser-based studio for everything: turn photos into a cinematic MP4 recap, animate designs
+        in the Motion tool, build on an infinite-canvas Design tool, and share it in the Creators
+        community. No upload, no account.
       </p>
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
@@ -178,8 +179,8 @@ const TrustStrip: React.FC = () => (
       {[
         { icon: <ShieldCheck size={18} weight="fill" />, label: 'No upload' },
         { icon: <MagicWand size={18} weight="fill" />, label: 'Motion Design' },
-        { icon: <FigmaLogo size={18} weight="fill" />, label: 'Figma import' },
-        { icon: <DownloadSimple size={18} weight="fill" />, label: '1080p MP4' },
+        { icon: <PenNib size={18} weight="fill" />, label: 'Design tool' },
+        { icon: <UsersThree size={18} weight="fill" />, label: 'Creators community' },
       ].map((b) => (
         <div key={b.label} className="flex items-center justify-center gap-2 text-[12px] sm:text-[13px] font-medium text-[var(--color-text-secondary)]">
           <span className="text-[var(--color-primary)]">{b.icon}</span>
@@ -192,39 +193,29 @@ const TrustStrip: React.FC = () => (
 
 /* ----------------------------------------------------------- Two tools --- */
 
+const TOOLS = [
+  { icon: <FilmStrip size={22} weight="duotone" />, eyebrow: 'Video Editor', title: 'Photos → cinematic recap', body: 'Drop in photos, set transitions, captions, music and timing on a real timeline, then export a 1080p MP4 — every animation baked in.', tint: 'bg-blue-500/10 text-blue-500' },
+  { icon: <MagicWand size={22} weight="duotone" />, eyebrow: 'Motion Design', title: 'Animate designs, layer by layer', body: 'Paste a frame from Figma, then bring text, shapes and groups to life with keyframe-free presets and a scrubbable timeline.', tint: 'bg-violet-500/10 text-violet-500', tag: 'New' },
+  { icon: <PenNib size={22} weight="duotone" />, eyebrow: 'Design tool', title: 'An infinite design canvas', body: 'Frames, shapes, pen, pencil, text and text-on-path on an infinite canvas — with a Dev mode that hands you copy-ready CSS or SVG.', tint: 'bg-amber-500/10 text-amber-600', tag: 'New' },
+  { icon: <UsersThree size={22} weight="duotone" />, eyebrow: 'Creators community', title: 'Share & follow creators', body: 'Post your photos, animations and designs, follow other creators, and engage with reactions, comments, shares and reposts.', tint: 'bg-rose-500/10 text-rose-500', tag: 'New' },
+];
+
 const TwoTools: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
   <section className="max-w-5xl mx-auto px-5 sm:px-6 py-16 sm:py-20">
-    <SectionHeading eyebrow="Two tools, one studio" title="Pick the right canvas for the job" />
-    <div className="grid md:grid-cols-2 gap-5 mt-12 sm:mt-14">
-      <div className="p-6 sm:p-7 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-border-default)]">
-        <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-5">
-          <FilmStrip size={24} weight="duotone" />
-        </div>
-        <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Video Editor</p>
-        <h3 className="text-xl font-bold mb-2">Photos → cinematic recap</h3>
-        <p className="text-[var(--color-text-secondary)] leading-relaxed text-[15px]">
-          Drop in photos, set transitions, captions, music and timing on a real timeline, then export
-          a 1080p MP4 — every animation baked in.
-        </p>
-      </div>
-      <button
-        onClick={onOpen}
-        className="text-left p-6 sm:p-7 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-primary)]/40 ring-1 ring-[var(--color-primary)]/10 hover:ring-[var(--color-primary)]/30 transition-all relative"
-      >
-        <span className="absolute top-5 right-5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-[var(--color-primary)]/15 text-[var(--color-primary)]">New</span>
-        <div className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center mb-5">
-          <MagicWand size={24} weight="duotone" />
-        </div>
-        <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Motion Design</p>
-        <h3 className="text-xl font-bold mb-2">Animate designs, layer by layer</h3>
-        <p className="text-[var(--color-text-secondary)] leading-relaxed text-[15px]">
-          Paste a frame from Figma, then bring text, shapes and groups to life with keyframe-free
-          presets and a scrubbable timeline.
-        </p>
-        <span className="inline-flex items-center gap-1.5 mt-4 text-[14px] font-semibold text-[var(--color-primary)]">
-          Try Motion Design <ArrowRight size={15} weight="bold" />
-        </span>
-      </button>
+    <SectionHeading eyebrow="One studio, many ways to create" title="Everything you need to make and share" />
+    <div className="grid sm:grid-cols-2 gap-5 mt-12 sm:mt-14">
+      {TOOLS.map((t) => (
+        <button key={t.eyebrow} onClick={onOpen} className="text-left p-6 sm:p-7 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] hover:border-[var(--color-primary)]/40 transition-colors relative group">
+          {t.tag && <span className="absolute top-5 right-5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-[var(--color-primary)]/15 text-[var(--color-primary)]">{t.tag}</span>}
+          <div className={`w-12 h-12 rounded-xl ${t.tint} flex items-center justify-center mb-5`}>{t.icon}</div>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">{t.eyebrow}</p>
+          <h3 className="text-xl font-bold mb-2">{t.title}</h3>
+          <p className="text-[var(--color-text-secondary)] leading-relaxed text-[15px]">{t.body}</p>
+          <span className="inline-flex items-center gap-1.5 mt-4 text-[14px] font-semibold text-[var(--color-primary)] opacity-0 group-hover:opacity-100 transition-opacity">
+            Open <ArrowRight size={15} weight="bold" />
+          </span>
+        </button>
+      ))}
     </div>
   </section>
 );
@@ -444,6 +435,11 @@ const FinalCTA: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
           Open the editor
           <ArrowRight size={18} weight="bold" />
         </button>
+        <p className="mt-5">
+          <Link to="/pricing" className="text-blue-100 hover:text-white text-sm font-medium underline underline-offset-4 transition-colors">
+            See plans &amp; pricing →
+          </Link>
+        </p>
       </div>
     </div>
   </section>

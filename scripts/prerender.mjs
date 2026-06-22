@@ -101,7 +101,7 @@ write('blog', page({
 }));
 
 // --- sitemap.xml -----------------------------------------------------------
-const staticRoutes = ['/', '/docs', '/updates', '/blog'];
+const staticRoutes = ['/', '/pricing', '/docs', '/updates', '/blog'];
 const urls = [
   ...staticRoutes.map((r) => ({ loc: SITE + r, lastmod: '2026-06-21' })),
   ...posts.map((p) => ({ loc: `${SITE}/blog/${p.slug}`, lastmod: p.updated })),
@@ -115,10 +115,11 @@ writeFileSync(join(dist, 'sitemap.xml'), sitemap);
 // --- llms.txt --------------------------------------------------------------
 const llms =
   `# Reecap\n` +
-  `> Reecap is a free, open-source, browser-based editor that turns your photos into a cinematic video recap (MP4). It runs 100% client-side — no upload, no account.\n\n` +
+  `> Reecap is a free, open-source, browser-based creative studio: a photo-to-video recap editor (MP4), a layer-by-layer Motion Design tool, an infinite-canvas Design tool with a Dev mode, and a Creators community. It runs 100% client-side — no upload, no account.\n\n` +
   `## Key pages\n` +
   `- [Home](${SITE}/): Product overview and features.\n` +
   `- [Editor](${SITE}/app): The web app where you build and export recaps.\n` +
+  `- [Pricing](${SITE}/pricing): Free and Pro plans.\n` +
   `- [Docs](${SITE}/docs): How to use Reecap.\n` +
   `- [Updates](${SITE}/updates): Changelog.\n` +
   `- [Blog](${SITE}/blog): Guides and tutorials.\n\n` +

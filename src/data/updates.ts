@@ -12,6 +12,46 @@ export interface Update {
 // Newest first.
 export const UPDATES: Update[] = [
   {
+    id: 'creators-community',
+    date: '2026-06-23',
+    version: 'v1.12.0',
+    tag: 'release',
+    title: 'Introducing the Creators community',
+    summary: 'A social home for everyone building with Reecap. Follow creators, post your photos, animations and designs, and engage with reactions, comments, shares and reposts. The templates + audio hub now lives under an Assets tab.',
+  },
+  {
+    id: 'design-export',
+    date: '2026-06-23',
+    version: 'v1.12.0',
+    tag: 'feature',
+    title: 'Export your designs as PNG or SVG',
+    summary: 'The Design tool now exports the whole canvas to a crisp 2× PNG or a clean, scalable SVG — straight from the Export button.',
+  },
+  {
+    id: 'design-tool-launch',
+    date: '2026-06-23',
+    version: 'v1.11.0',
+    tag: 'release',
+    title: 'The Design tool — an infinite canvas',
+    summary: 'A third studio mode joins Video and Motion: a Figma-style vector editor with frames, shapes, pen, pencil, text and text-on-path on an infinite, pannable canvas — plus a nested Dev tool that turns any layer into copy-ready CSS or SVG.',
+  },
+  {
+    id: 'motion-live-duration',
+    date: '2026-06-23',
+    version: 'v1.10.0',
+    tag: 'improvement',
+    title: 'Motion timeline grows as you drag',
+    summary: 'Drag a clip past the composition end and the timeline now stretches live to fit it — no more bumping the duration by hand first.',
+  },
+  {
+    id: 'shortcuts-and-flows',
+    date: '2026-06-23',
+    version: 'v1.9.0',
+    tag: 'improvement',
+    title: 'Full shortcuts list, Premium & Invite flows',
+    summary: 'Every keyboard shortcut is now documented in one modal, Motion gained duplicate/delete keys and auto-fit duration, and the Subscribe Premium and Invite & Earn Audio flows are fully interactive.',
+  },
+  {
     id: 'motion-figma-import',
     date: '2026-06-23',
     version: 'v1.6',
