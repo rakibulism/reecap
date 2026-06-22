@@ -29,6 +29,25 @@ const SECTIONS: Section[] = [
     ],
   },
   {
+    title: 'Design',
+    items: [
+      { keys: 'V', desc: 'Select tool' },
+      { keys: 'H  ·  Space', desc: 'Hand / pan canvas' },
+      { keys: 'F', desc: 'Frame tool' },
+      { keys: 'R', desc: 'Rectangle' },
+      { keys: 'O', desc: 'Ellipse' },
+      { keys: 'L  /  A', desc: 'Line / Arrow' },
+      { keys: 'P', desc: 'Pen' },
+      { keys: 'T', desc: 'Text' },
+      { keys: 'Cmd + D', desc: 'Duplicate' },
+      { keys: 'Del  /  ⌫', desc: 'Delete' },
+      { keys: ']  /  Cmd + ]', desc: 'Bring forward / to front' },
+      { keys: '[  /  Cmd + [', desc: 'Send backward / to back' },
+      { keys: 'Cmd + +  /  Cmd + −', desc: 'Zoom in / out' },
+      { keys: 'Cmd + 0', desc: 'Reset view' },
+    ],
+  },
+  {
     title: 'Motion Design',
     items: [
       { keys: 'Cmd + D', desc: 'Duplicate layer' },

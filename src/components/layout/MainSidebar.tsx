@@ -9,6 +9,8 @@ import {
   Gift,
   House,
   MagicWand,
+  PenNib,
+  Code,
   GithubLogo,
   TwitterLogo,
   BookOpen,
@@ -22,6 +24,7 @@ import ThemeToggle from '../ui/ThemeToggle';
 import LoginModal from '../ui/LoginModal';
 import PremiumModal from '../ui/PremiumModal';
 import InviteModal from '../ui/InviteModal';
+import { useDesignStore } from '../../store/designStore';
 
 const REPO_URL = 'https://github.com/rakibulism/reecap';
 const X_URL = 'https://x.com/rakibulism';
@@ -151,7 +154,20 @@ const MainSidebar: React.FC = () => {
         <div className="flex-1 overflow-y-auto p-3 space-y-6 custom-scrollbar">
           <nav className="space-y-1">
             <NavItem icon={House} label="Video Editor" id="editor" />
-            <NavItem icon={MagicWand} label="Motion Design" id="motion" badge="New" />
+            <NavItem icon={MagicWand} label="Motion Design" id="motion" />
+            <NavItem icon={PenNib} label="Design" id="design" badge="New" />
+            {/* Dev tool lives inside the Design tool */}
+            <button
+              onClick={() => {
+                setActiveView('design');
+                if (!useDesignStore.getState().devMode) useDesignStore.getState().toggleDevMode();
+                toggleSidebar();
+              }}
+              className="w-full flex items-center gap-3 pl-11 pr-4 py-2.5 rounded-[var(--radius-md)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all"
+            >
+              <Code size={16} className="shrink-0" />
+              <span className="text-[13px] font-medium truncate">Dev tool</span>
+            </button>
             <NavItem icon={Users} label="Community" id="community" />
           </nav>
 
