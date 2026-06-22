@@ -18,26 +18,44 @@ The plugin now appears under **Plugins → Development → Reecap Motion**.
    change the selection.
 3. Click **Copy to Reecap**.
 4. In Reecap, switch to the **Motion** tool (header toggle or sidebar) and press
-   **⌘V / Ctrl+V** on the canvas — or click **Add Layer → Figma**. The frame drops in as an
-   image layer sized to the composition.
+   **⌘V / Ctrl+V** on the canvas — or click **Add Layer → Figma**. The frame's layers are
+   reconstructed: text and shapes stay editable, groups stay grouped, and the composition
+   is sized to the frame.
 
 `Download PNG` is a fallback: save the image and drag it onto the Reecap canvas.
 
 ## How it works
 
-The plugin exports the selection with `node.exportAsync({ format: 'PNG', constraint: { type: 'SCALE', value: 2 } })`
-and writes a small JSON payload to the clipboard:
+The plugin walks the selected frame and emits an **editable layer tree** (payload v2),
+copied to the clipboard as JSON:
 
 ```json
-{ "__reecap": "motion-frame", "version": 1, "width": 1440, "height": 1024, "name": "Home", "image": "data:image/png;base64,…" }
+{
+  "__reecap": "motion-frame", "version": 2,
+  "width": 1440, "height": 1024, "name": "Home",
+  "image": "data:image/png;base64,…",
+  "layers": [ { "id": "…", "parentId": null, "kind": "text", "x": 40, "y": 64, "text": "Hello", … } ]
+}
 ```
 
+Each node is classified:
+
+- **Text** → editable text layer (content, size, weight, color, alignment).
+- **Rectangle / Ellipse** with a solid fill → editable shape (fill, corner radius).
+- **Frame / Group / Component / Instance / Section** → a **group** (children nested under it).
+- **Anything else** — vectors, icons, images, gradients, effects, mixed fills — is
+  **rasterized** to a PNG image layer so it still looks right.
+
+The full-frame PNG is also included as `image` (a fallback for older clients).
+
 Reecap's paste handler (`src/components/motion/MotionDesigner.tsx`) recognizes the
-`__reecap` marker and reconstructs the layer (`importPayload` in
-`src/store/motionStore.ts`).
+`__reecap` marker and `importPayload` (`src/store/motionStore.ts`) rebuilds the tree.
 
-## Roadmap
+### Fidelity limits
 
-Currently the frame is sent as a single flattened image. A future version can export each
-top-level child as its own positioned layer for true layer-by-layer import. No build step
-is required today — `code.js` and `ui.html` are plain JS/HTML.
+- **Fonts** fall back to a system font in Reecap — size, weight, color, alignment, and
+  the text content are preserved, but the exact typeface is not embedded.
+- **Vectors, effects, gradients, and image fills** are rasterized (not vector-editable).
+- **Auto-layout** is flattened to absolute positions.
+
+No build step is required — `code.js` and `ui.html` are plain JS/HTML.

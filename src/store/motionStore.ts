@@ -183,14 +183,57 @@ export const useMotionStore = create<MotionStore>((set) => ({
 
   importPayload: (payload) =>
     set((state) => {
-      // Resize the composition to match the imported frame's aspect, then drop
-      // the frame in as a full-bleed image layer. (Phase 2 will reconstruct a
-      // layer tree when payload.layers is present.)
       const doc: MotionDoc = {
         ...state.doc,
         width: payload.width || state.doc.width,
         height: payload.height || state.doc.height,
       };
+
+      // v2 — reconstruct the editable layer tree.
+      if (payload.layers && payload.layers.length) {
+        const idMap = new Map(payload.layers.map((pl) => [pl.id, uid()]));
+        const layers: MotionLayer[] = payload.layers.map((pl) => {
+          const anim = defaultAnimation(doc.duration);
+          if (pl.kind === 'group') {
+            anim.inPreset = 'none';
+            anim.outPreset = 'none';
+          }
+          const layer: MotionLayer = {
+            id: idMap.get(pl.id)!,
+            type: pl.kind,
+            name: pl.name || 'Layer',
+            x: Math.round(pl.x),
+            y: Math.round(pl.y),
+            width: Math.max(1, Math.round(pl.w)),
+            height: Math.max(1, Math.round(pl.h)),
+            rotation: pl.rotation || 0,
+            opacity: pl.opacity ?? 1,
+            fill: pl.fill || '#3B82F6',
+            cornerRadius: pl.cornerRadius || 0,
+            parentId: pl.parentId ? idMap.get(pl.parentId) ?? null : null,
+            visible: true,
+            locked: false,
+            animation: anim,
+          };
+          if (pl.kind === 'text') {
+            layer.text = pl.text ?? '';
+            layer.fontSize = pl.fontSize ?? 48;
+            layer.fontFamily = 'Inter, system-ui, sans-serif';
+            layer.fontWeight = pl.fontWeight ?? 400;
+            layer.color = pl.color ?? '#FFFFFF';
+            layer.align = pl.align ?? 'left';
+          }
+          if (pl.kind === 'image') layer.src = pl.src;
+          return layer;
+        });
+        return {
+          doc: { ...doc, layers: [...doc.layers, ...layers] },
+          selectedId: null,
+          selectedIds: layers.map((l) => l.id),
+        };
+      }
+
+      // v1 — drop the frame in as a single full-bleed image layer.
       const layer = makeLayer('image', doc, {
         src: payload.image,
         name: payload.name || 'Figma Frame',

@@ -91,19 +91,28 @@
       }
 
       if (msg.type === 'export') {
-        var dataUrl = 'data:image/png;base64,' + bytesToBase64(msg.bytes);
+        var dataUrl = 'data:image/png;base64,' + bytesToBase64(msg.image);
+        // Convert each rasterized leaf's bytes into a data URL; keep editable
+        // layers (text/shape/group) as-is.
+        var layers = (msg.layers || []).map(function (l) {
+          var out = {};
+          for (var k in l) if (k !== 'imageBytes') out[k] = l[k];
+          if (l.imageBytes) out.src = 'data:image/png;base64,' + bytesToBase64(l.imageBytes);
+          return out;
+        });
         payload = {
           __reecap: 'motion-frame',
-          version: 1,
+          version: 2,
           width: msg.width,
           height: msg.height,
           name: msg.name,
-          image: dataUrl
+          image: dataUrl,
+          layers: layers
         };
         img.src = dataUrl;
         img.style.display = 'block';
         emptyMsg.style.display = 'none';
-        meta.textContent = msg.name + ' · ' + msg.width + ' × ' + msg.height;
+        meta.textContent = msg.name + ' · ' + msg.width + ' × ' + msg.height + ' · ' + layers.length + ' layers';
         copyBtn.disabled = false;
         downloadBtn.disabled = false;
         setStatus('');

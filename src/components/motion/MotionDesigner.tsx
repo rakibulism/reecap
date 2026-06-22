@@ -101,7 +101,7 @@ const MotionDesigner: React.FC = () => {
       if (!text) return;
       try {
         const payload = JSON.parse(text) as ReecapMotionPayload;
-        if (payload?.__reecap === 'motion-frame' && payload.image) {
+        if (payload?.__reecap === 'motion-frame' && (payload.image || payload.layers?.length)) {
           e.preventDefault();
           importPayload(payload);
           return;
