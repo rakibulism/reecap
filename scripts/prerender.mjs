@@ -1,7 +1,7 @@
 // Post-build prerender: bakes each blog post into static HTML (so AI crawlers
 // and search engines see the content without running JS), and generates
 // sitemap.xml + llms.txt. Runs after `vite build`. No dependencies.
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -9,14 +9,18 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
 const SITE = 'https://reecap.vercel.app';
 
-const posts = JSON.parse(readFileSync(join(root, 'src/data/blog-posts.json'), 'utf8'));
+const dataDir = join(root, 'src/data');
+const posts = readdirSync(dataDir)
+  .filter((f) => /^blog-posts.*\.json$/.test(f))
+  .flatMap((f) => JSON.parse(readFileSync(join(dataDir, f), 'utf8')))
+  .sort((a, b) => (b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug)));
 const template = readFileSync(join(dist, 'index.html'), 'utf8');
 
 const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const escAttr = (s = '') => esc(s).replace(/"/g, '&quot;');
 
 // --- head + #prerender injection -------------------------------------------
-function page({ title, description, canonical, type = 'website', jsonLd, bodyHtml }) {
+function page({ title, description, canonical, type = 'website', jsonLd, bodyHtml, image }) {
   let html = template;
   html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(title)}</title>`);
   html = html.replace(/(<meta name="description" content=")[^"]*(")/, `$1${escAttr(description)}$2`);
@@ -27,6 +31,10 @@ function page({ title, description, canonical, type = 'website', jsonLd, bodyHtm
   html = html.replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${escAttr(title)}$2`);
   html = html.replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${escAttr(description)}$2`);
   html = html.replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${escAttr(canonical)}$2`);
+  if (image) {
+    html = html.replace(/(<meta property="og:image" content=")[^"]*(")/, `$1${escAttr(image)}$2`);
+    html = html.replace(/(<meta name="twitter:image" content=")[^"]*(")/, `$1${escAttr(image)}$2`);
+  }
   if (jsonLd) {
     const ld = `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`;
     html = html.replace('</head>', `${ld}</head>`);
@@ -54,16 +62,19 @@ for (const p of posts) {
     })
     .join('');
   const faqBlocks = p.faq.map((f) => `<div><h3>${esc(f.q)}</h3><p>${esc(f.a)}</p></div>`).join('');
+  const cover = `${SITE}/blog/covers/${p.slug}.svg`;
   const bodyHtml =
     `<article><p>${esc(p.category)} · ${fmtDate(p.date)} · ${esc(p.readingTime)}</p>` +
-    `<h1>${esc(p.title)}</h1><p>By ${esc(p.author)}</p>${bodyBlocks}` +
+    `<h1>${esc(p.title)}</h1><p>By ${esc(p.author)}</p>` +
+    `<img src="/blog/covers/${p.slug}.svg" alt="${escAttr(p.title)}" width="1200" height="630" />` +
+    `${bodyBlocks}` +
     `<section><h2>Frequently asked questions</h2>${faqBlocks}</section>` +
     `<p><a href="/app">Open the Reecap editor</a></p></article>`;
 
   const jsonLd = [
     {
       '@context': 'https://schema.org', '@type': 'Article',
-      headline: p.title, description: p.description,
+      headline: p.title, description: p.description, image: cover,
       datePublished: p.date, dateModified: p.updated,
       author: { '@type': 'Person', name: p.author },
       publisher: { '@type': 'Organization', name: 'Reecap', url: SITE },
@@ -75,7 +86,7 @@ for (const p of posts) {
     },
   ];
 
-  write(`blog/${p.slug}`, page({ title: `${p.title} | Reecap`, description: p.description, canonical: url, type: 'article', jsonLd, bodyHtml }));
+  write(`blog/${p.slug}`, page({ title: `${p.title} | Reecap`, description: p.description, canonical: url, type: 'article', jsonLd, bodyHtml, image: cover }));
 }
 
 // --- blog index ------------------------------------------------------------

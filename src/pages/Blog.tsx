@@ -46,7 +46,14 @@ const Blog: React.FC = () => {
               to={`/blog/${post.slug}`}
               className={`group rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] overflow-hidden hover:border-[var(--color-primary)]/40 transition-colors ${i === 0 ? 'sm:col-span-2' : ''}`}
             >
-              <div className={`bg-gradient-to-br ${post.cover} ${i === 0 ? 'h-44 sm:h-56' : 'h-36'}`} />
+              <img
+                src={`/blog/covers/${post.slug}.svg`}
+                alt={post.title}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                width={1200}
+                height={630}
+                className={`w-full object-cover bg-gradient-to-br ${post.cover} ${i === 0 ? 'h-44 sm:h-56' : 'h-36'}`}
+              />
               <div className="p-5 sm:p-6">
                 <div className="flex items-center gap-2.5 text-[12px] mb-2">
                   <span className="font-bold uppercase tracking-wide text-[var(--color-primary)] text-[11px]">{post.category}</span>
