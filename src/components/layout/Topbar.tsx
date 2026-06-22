@@ -20,6 +20,8 @@ const Topbar: React.FC = () => {
   const { startExport } = useExport();
 
   const isMotion = activeView === 'motion';
+  const isDesign = activeView === 'design';
+  const isVideo = activeView === 'editor';
 
   const aspectRatioOptions = [
     { label: '16:9', value: '16:9' },
@@ -43,22 +45,23 @@ const Topbar: React.FC = () => {
         <span className="text-[16px] font-bold text-[var(--color-text-primary)] tracking-tight">
           Reecap
         </span>
-        {/* Tool mode switch: Video editor ↔ Motion design */}
+        {/* Tool mode switch: Video editor ↔ Motion design ↔ Design */}
         <div className="border-l border-[var(--color-border-default)] pl-3 ml-1">
           <SegmentedControl
             options={[
               { label: 'Video', value: 'editor' },
               { label: 'Motion', value: 'motion' },
+              { label: 'Design', value: 'design' },
             ]}
-            value={activeView === 'motion' ? 'motion' : 'editor'}
+            value={isMotion ? 'motion' : isDesign ? 'design' : 'editor'}
             onChange={(v) => setActiveView(v as any)}
-            className="w-[150px]"
+            className="w-[210px]"
           />
         </div>
       </div>
 
       <div className="flex-1 flex justify-center">
-        {!isMotion && (
+        {isVideo && (
           <SegmentedControl
             options={aspectRatioOptions}
             value={settings.aspectRatio}
@@ -69,7 +72,7 @@ const Topbar: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-3">
-        {!isMotion && (
+        {isVideo && (
           <>
             <div className="flex items-center bg-[var(--color-bg-panel)] border border-[var(--color-border-default)] rounded-[var(--radius-sm)] p-1">
               {(['1x', '2x'] as const).map((q) => (
@@ -94,8 +97,8 @@ const Topbar: React.FC = () => {
           <Button variant="ghost" size="sm" onClick={() => setShowShortcuts(true)} icon={<Keyboard size={18} />} />
         </Tooltip>
 
-        {isMotion ? (
-          <Tooltip content="Motion export is coming soon" position="left">
+        {!isVideo ? (
+          <Tooltip content={`${isMotion ? 'Motion' : 'Design'} export is coming soon`} position="left">
             <Button variant="primary" size="md" icon={<Export size={18} weight="bold" />} disabled className="min-w-[100px]">
               Export
             </Button>

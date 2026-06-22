@@ -14,6 +14,7 @@ import ShortcutsModal from '../components/ui/ShortcutsModal';
 import EditorMobileGate from '../components/layout/EditorMobileGate';
 import MobileEditor from '../components/layout/MobileEditor';
 import MotionDesigner from '../components/motion/MotionDesigner';
+import DesignStudio from '../components/design/DesignStudio';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { slideDuration } from '../lib/utils';
 
@@ -67,15 +68,16 @@ function Editor() {
       <MainSidebar />
 
       {isMobile ? (
-        activeView === 'motion' ? (
+        activeView === 'motion' || activeView === 'design' ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center px-8 gap-4">
             <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--color-primary)]">
-              Motion Design
+              {activeView === 'design' ? 'Design' : 'Motion Design'}
             </span>
             <h1 className="text-xl font-bold tracking-tight">Best on a bigger screen</h1>
             <p className="text-[var(--color-text-secondary)] leading-relaxed max-w-sm">
-              The Motion Design tool needs a wider canvas, layers panel and timeline. Open Reecap on a
-              desktop to animate your designs layer by layer.
+              {activeView === 'design'
+                ? 'The Design tool is an infinite canvas with a toolbar, layers and inspector. Open Reecap on a desktop to design freely.'
+                : 'The Motion Design tool needs a wider canvas, layers panel and timeline. Open Reecap on a desktop to animate your designs layer by layer.'}
             </p>
             <button
               onClick={() => setActiveView('editor')}
@@ -108,6 +110,8 @@ function Editor() {
             </>
           ) : activeView === 'motion' ? (
             <MotionDesigner />
+          ) : activeView === 'design' ? (
+            <DesignStudio />
           ) : (
             <CommunityHub />
           )}
