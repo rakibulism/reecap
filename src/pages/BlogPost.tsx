@@ -66,7 +66,13 @@ const BlogPost: React.FC = () => {
           <ArrowLeft size={16} /> Back to blog
         </Link>
 
-        <div className={`h-44 sm:h-60 rounded-2xl bg-gradient-to-br ${post.cover} mb-8`} />
+        <img
+          src={`/blog/covers/${post.slug}.svg`}
+          alt={post.title}
+          width={1200}
+          height={630}
+          className={`w-full h-44 sm:h-60 object-cover rounded-2xl bg-gradient-to-br ${post.cover} mb-8`}
+        />
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-[var(--color-text-muted)] mb-4">
           <span className="font-semibold text-[var(--color-primary)] uppercase tracking-wide text-[11px]">{post.category}</span>
