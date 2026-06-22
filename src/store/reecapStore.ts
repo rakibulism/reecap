@@ -43,6 +43,8 @@ interface ReecapStore {
   addInvite: () => void;
   login: (plan: 'pro' | 'free') => void;
   logout: () => void;
+  subscribePremium: () => void;
+  cancelPremium: () => void;
 }
 
 const AVATARS = {
@@ -153,4 +155,14 @@ export const useReecapStore = create<ReecapStore>((set) => ({
       isPremium: plan === 'pro',
     }),
   logout: () => set({ user: null, isPremium: false }),
+  subscribePremium: () =>
+    set((state) => ({
+      isPremium: true,
+      user: state.user ? { ...state.user, plan: 'pro' } : state.user,
+    })),
+  cancelPremium: () =>
+    set((state) => ({
+      isPremium: false,
+      user: state.user ? { ...state.user, plan: 'free' } : state.user,
+    })),
 }));
