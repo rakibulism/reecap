@@ -10,6 +10,7 @@ import {
   MagnifyingGlassMinus,
   ArrowsOutLineHorizontal,
   DotsSixVertical,
+  MagicWand,
 } from 'phosphor-react';
 import type { MotionLayer } from '../../types/motion';
 
@@ -34,6 +35,7 @@ const MotionTimeline: React.FC = () => {
     setTime,
     setPlaying,
     setDuration,
+    autoFitDuration,
     selectLayer,
     selectMany,
     setLayerSpan,
@@ -295,6 +297,14 @@ const MotionTimeline: React.FC = () => {
             className="w-6 h-6 rounded-[var(--radius-sm)] border border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] flex items-center justify-center"
           >
             <Plus size={12} />
+          </button>
+          <button
+            onClick={autoFitDuration}
+            disabled={doc.layers.every((l) => l.type === 'group')}
+            title="Auto: fit duration to the longest layer"
+            className="ml-1 h-6 px-2 rounded-[var(--radius-sm)] border border-[var(--color-border-default)] text-[11px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+          >
+            <MagicWand size={12} weight="fill" /> Auto
           </button>
         </div>
       </div>
