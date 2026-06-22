@@ -7,7 +7,6 @@ import {
   Crown,
   Users,
   Gift,
-  MusicNotes,
   House,
   MagicWand,
   GithubLogo,
@@ -21,6 +20,7 @@ import Button from '../ui/Button';
 import InstallButton from '../ui/InstallButton';
 import ThemeToggle from '../ui/ThemeToggle';
 import LoginModal from '../ui/LoginModal';
+import PremiumModal from '../ui/PremiumModal';
 
 const REPO_URL = 'https://github.com/rakibulism/reecap';
 const X_URL = 'https://x.com/rakibulism';
@@ -38,6 +38,7 @@ const MainSidebar: React.FC = () => {
   } = useReecapStore();
   const navigate = useNavigate();
   const [loginOpen, setLoginOpen] = useState(false);
+  const [premiumOpen, setPremiumOpen] = useState(false);
 
   if (!isSidebarOpen) return null;
 
@@ -162,7 +163,12 @@ const MainSidebar: React.FC = () => {
               ) : (
                 <NavItem icon={User} label="Login / Register" onClick={() => setLoginOpen(true)} />
               )}
-              <NavItem icon={Crown} label="Subscribe Premium" badge={isPremium ? 'Active' : ''} />
+              <NavItem
+                icon={Crown}
+                label={isPremium ? 'Manage Premium' : 'Subscribe Premium'}
+                badge={isPremium ? 'Active' : ''}
+                onClick={() => setPremiumOpen(true)}
+              />
             </div>
           </div>
 
@@ -194,15 +200,21 @@ const MainSidebar: React.FC = () => {
 
         <div className="p-4 border-t border-[var(--color-border-default)] bg-[var(--color-bg-panel)]/50">
           <InstallButton variant="solid" className="w-full justify-center mb-4" />
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-[var(--radius-md)] p-3 mb-4">
-            <div className="flex items-center gap-2 mb-1 text-blue-600 dark:text-blue-400">
-              <MusicNotes size={16} weight="bold" />
-              <span className="text-[12px] font-bold">Pro Audio</span>
-            </div>
-            <p className="text-[11px] text-[var(--color-text-secondary)] leading-relaxed">
-              Unlock 10,000+ premium tracks with Pro.
-            </p>
-          </div>
+          {!isPremium && (
+            <button
+              onClick={() => setPremiumOpen(true)}
+              className="w-full text-left bg-gradient-to-br from-amber-400/10 to-orange-500/10 border border-amber-500/25 rounded-[var(--radius-md)] p-3 mb-4 hover:border-amber-500/50 transition-colors group"
+            >
+              <div className="flex items-center gap-2 mb-1 text-amber-600 dark:text-amber-400">
+                <Crown size={16} weight="fill" />
+                <span className="text-[12px] font-bold">Upgrade to Pro</span>
+                <CaretRight size={12} className="ml-auto opacity-40 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+              <p className="text-[11px] text-[var(--color-text-secondary)] leading-relaxed">
+                Unlock 10,000+ tracks, 4K export, and more.
+              </p>
+            </button>
+          )}
           <Button
             variant="ghost"
             onClick={signOut}
@@ -215,6 +227,7 @@ const MainSidebar: React.FC = () => {
       </aside>
 
       <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
+      <PremiumModal isOpen={premiumOpen} onClose={() => setPremiumOpen(false)} />
     </div>
   );
 };
