@@ -4,7 +4,7 @@
 // `types/index.ts`: it describes a single composition of free-floating layers
 // that animate over a timeline, rather than a sequence of slides.
 
-export type LayerType = 'text' | 'rectangle' | 'ellipse' | 'image';
+export type LayerType = 'text' | 'rectangle' | 'ellipse' | 'image' | 'group';
 
 // Keyframe-free animation presets. Each layer picks an *In* preset (how it
 // enters) and an *Out* preset (how it leaves); the engine maps these to CSS.
@@ -34,9 +34,10 @@ export type TextAlign = 'left' | 'center' | 'right';
 export interface LayerAnimation {
   inPreset: AnimationPreset;
   outPreset: AnimationPreset;
-  start: number;        // seconds — when the In animation begins
+  start: number;        // seconds — clip in-point; the In animation begins here
+  end: number;          // seconds — clip out-point; the Out animation ends here
   inDuration: number;   // seconds — length of the In animation
-  outDuration: number;  // seconds — length of the Out animation (ends at comp duration)
+  outDuration: number;  // seconds — length of the Out animation (ends at `end`)
   easing: EasingPreset;
   intensity: number;    // 0–1 — scales travel distance / scale / rotation amount
 }
@@ -68,6 +69,12 @@ export interface MotionLayer {
 
   // Image source (type === 'image')
   src?: string;
+
+  // Group membership — a layer with `parentId` set belongs to that group layer.
+  // Coordinates remain absolute in composition space; groups are containers for
+  // selection / move-together / animate-together, not a nested coordinate system.
+  parentId?: string | null;
+  collapsed?: boolean;  // group rows can be collapsed in the layers panel
 
   visible: boolean;
   locked: boolean;

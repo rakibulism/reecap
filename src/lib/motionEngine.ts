@@ -174,29 +174,32 @@ export function computeLayerStyle(
   const a: LayerAnimation = layer.animation;
   const ease = easings[a.easing] ?? easings.ease;
 
+  // Clip lifespan: [start, end]. `end` falls back to the composition duration
+  // for layers authored before clip-ends existed.
   const inStart = a.start;
   const inEnd = a.start + a.inDuration;
-  const outEnd = docDuration;
-  const outStart = Math.max(inEnd, docDuration - a.outDuration);
+  const outEnd = typeof a.end === 'number' ? a.end : docDuration;
+  const outStart = Math.max(inEnd, outEnd - a.outDuration);
 
   let offset: OffsetState;
   let hidden = false;
 
   if (time < inStart) {
-    // Not yet entered — hold the entry offset (and treat as hidden so it does
-    // not steal clicks before its time).
+    // Before the clip starts — not on stage yet.
     offset = presetOffset(a.inPreset, a.intensity);
-    hidden = a.inPreset !== 'none';
+    hidden = true;
+  } else if (time > outEnd) {
+    // After the clip ends — off stage.
+    offset = presetOffset(a.outPreset, a.intensity);
+    hidden = true;
   } else if (time < inEnd && a.inDuration > 0) {
     const p = ease((time - inStart) / a.inDuration);
     offset = lerpOffset(presetOffset(a.inPreset, a.intensity), IDENTITY, p);
   } else if (time < outStart || a.outPreset === 'none' || a.outDuration <= 0) {
     offset = { ...IDENTITY };
-  } else if (time < outEnd) {
+  } else {
     const p = ease((time - outStart) / a.outDuration);
     offset = lerpOffset(IDENTITY, presetOffset(a.outPreset, a.intensity), p);
-  } else {
-    offset = presetOffset(a.outPreset, a.intensity);
   }
 
   const transformParts: string[] = [];
@@ -212,15 +215,56 @@ export function computeLayerStyle(
   };
 }
 
-// Sensible default animation for newly-created layers.
-export function defaultAnimation(): LayerAnimation {
+// Sensible default animation for newly-created layers. The clip spans the whole
+// composition by default (start 0 → end = duration).
+export function defaultAnimation(duration = 4): LayerAnimation {
   return {
     inPreset: 'fade',
     outPreset: 'none',
     start: 0,
+    end: duration,
     inDuration: 0.6,
     outDuration: 0.6,
     easing: 'ease-out',
     intensity: 0.6,
+  };
+}
+
+/**
+ * Resolve a layer's style including the composed effect of its ancestor groups,
+ * so animating (or moving) a group animates its whole subtree. Group offsets
+ * multiply opacity and concatenate transforms; group `hidden` hides descendants.
+ */
+export function computeLayerStyleWithAncestors(
+  layer: MotionLayer,
+  layersById: Map<string, MotionLayer>,
+  time: number,
+  docDuration: number,
+): ComputedStyle {
+  const self = computeLayerStyle(layer, time, docDuration);
+  let opacity = self.opacity;
+  let hidden = self.hidden;
+  const transforms = self.transform ? [self.transform] : [];
+  const filters = self.filter !== 'none' ? [self.filter] : [];
+
+  let parentId = layer.parentId;
+  const guard = new Set<string>();
+  while (parentId && !guard.has(parentId)) {
+    guard.add(parentId);
+    const parent = layersById.get(parentId);
+    if (!parent) break;
+    const ps = computeLayerStyle(parent, time, docDuration);
+    opacity *= ps.opacity;
+    if (ps.hidden) hidden = true;
+    if (ps.transform) transforms.unshift(ps.transform);
+    if (ps.filter !== 'none') filters.push(ps.filter);
+    parentId = parent.parentId;
+  }
+
+  return {
+    opacity,
+    transform: transforms.join(' '),
+    filter: filters.length ? filters.join(' ') : 'none',
+    hidden,
   };
 }

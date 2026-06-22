@@ -1,6 +1,6 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useMotionStore } from '../../store/motionStore';
-import { computeLayerStyle } from '../../lib/motionEngine';
+import { computeLayerStyleWithAncestors, type ComputedStyle } from '../../lib/motionEngine';
 import type { MotionLayer } from '../../types/motion';
 
 // Corner handles used for resizing the selected layer.
@@ -13,20 +13,16 @@ const HANDLES = [
 
 const MIN_SIZE = 16; // design units
 
-const LayerView: React.FC<{ layer: MotionLayer; time: number; duration: number }> = ({
-  layer,
-  time,
-  duration,
-}) => {
-  const s = computeLayerStyle(layer, time, duration);
+const LayerView: React.FC<{ layer: MotionLayer; style: ComputedStyle }> = ({ layer, style }) => {
+  if (layer.type === 'group') return null; // groups paint nothing; children do
   const inner: React.CSSProperties = {
     width: '100%',
     height: '100%',
-    opacity: s.opacity,
-    transform: s.transform || undefined,
-    filter: s.filter !== 'none' ? s.filter : undefined,
+    opacity: style.opacity,
+    transform: style.transform || undefined,
+    filter: style.filter !== 'none' ? style.filter : undefined,
     transformOrigin: 'center center',
-    visibility: s.hidden ? 'hidden' : 'visible',
+    visibility: style.hidden ? 'hidden' : 'visible',
   };
 
   if (layer.type === 'text') {
@@ -59,11 +55,7 @@ const LayerView: React.FC<{ layer: MotionLayer; time: number; duration: number }
         src={layer.src}
         alt={layer.name}
         draggable={false}
-        style={{
-          ...inner,
-          objectFit: 'contain',
-          borderRadius: layer.cornerRadius,
-        }}
+        style={{ ...inner, objectFit: 'contain', borderRadius: layer.cornerRadius }}
       />
     );
   }
@@ -81,9 +73,15 @@ const LayerView: React.FC<{ layer: MotionLayer; time: number; duration: number }
 };
 
 const MotionCanvas: React.FC = () => {
-  const { doc, time, selectedId, selectLayer, updateLayer, isPlaying } = useMotionStore();
+  const { doc, time, selectedIds, selectLayer, updateLayer, setLayerPositions, isPlaying } =
+    useMotionStore();
   const stageRef = useRef<HTMLDivElement>(null);
   const [fit, setFit] = useState<{ w: number; h: number; scale: number } | null>(null);
+
+  const layersById = useMemo(
+    () => new Map(doc.layers.map((l) => [l.id, l])),
+    [doc.layers],
+  );
 
   // Fit the composition into the available stage (contain), mirroring Canvas.tsx.
   useLayoutEffect(() => {
@@ -111,21 +109,47 @@ const MotionCanvas: React.FC = () => {
 
   const scale = fit?.scale ?? 1;
 
-  // Drag a layer's resting position (design units). Visual animation lives on an
-  // inner element, so moving here repositions the box regardless of playback.
+  // Drag the resting position of a layer (and, for groups / multi-selections,
+  // every layer that should move with it). Visual animation lives on an inner
+  // element, so moving here repositions the box regardless of playback.
   const startMove = (e: React.PointerEvent, layer: MotionLayer) => {
     if (layer.locked) return;
     e.stopPropagation();
-    selectLayer(layer.id);
+
+    if (e.shiftKey) {
+      selectLayer(layer.id, true);
+      return;
+    }
+    if (!selectedIds.includes(layer.id)) selectLayer(layer.id);
+
+    // Which ids move together: the whole multi-selection if this layer is part
+    // of it, otherwise just this layer — each expanded to its descendants.
+    const seedIds =
+      selectedIds.includes(layer.id) && selectedIds.length > 1 ? selectedIds : [layer.id];
+    const moveIds = new Set<string>();
+    for (const seed of seedIds) {
+      moveIds.add(seed);
+      let added = true;
+      while (added) {
+        added = false;
+        for (const l of doc.layers) {
+          if (l.parentId && moveIds.has(l.parentId) && !moveIds.has(l.id)) {
+            moveIds.add(l.id);
+            added = true;
+          }
+        }
+      }
+    }
+    const orig = doc.layers
+      .filter((l) => moveIds.has(l.id))
+      .map((l) => ({ id: l.id, x: l.x, y: l.y }));
+
     const startX = e.clientX;
     const startY = e.clientY;
-    const origX = layer.x;
-    const origY = layer.y;
     const move = (ev: PointerEvent) => {
-      updateLayer(layer.id, {
-        x: Math.round(origX + (ev.clientX - startX) / scale),
-        y: Math.round(origY + (ev.clientY - startY) / scale),
-      });
+      const dx = (ev.clientX - startX) / scale;
+      const dy = (ev.clientY - startY) / scale;
+      setLayerPositions(orig.map((o) => ({ id: o.id, x: Math.round(o.x + dx), y: Math.round(o.y + dy) })));
     };
     const up = () => {
       window.removeEventListener('pointermove', move);
@@ -180,6 +204,8 @@ const MotionCanvas: React.FC = () => {
     window.addEventListener('pointerup', up);
   };
 
+  const onlyOneSelected = selectedIds.length === 1;
+
   return (
     <main
       ref={stageRef}
@@ -197,16 +223,14 @@ const MotionCanvas: React.FC = () => {
         {/* Scaled "world" in design units */}
         <div
           className="absolute top-0 left-0"
-          style={{
-            width: doc.width,
-            height: doc.height,
-            transform: `scale(${scale})`,
-            transformOrigin: 'top left',
-          }}
+          style={{ width: doc.width, height: doc.height, transform: `scale(${scale})`, transformOrigin: 'top left' }}
         >
           {doc.layers.map((layer) => {
             if (!layer.visible) return null;
-            const isSelected = layer.id === selectedId && !isPlaying;
+            const isGroup = layer.type === 'group';
+            const isSelected = selectedIds.includes(layer.id) && !isPlaying;
+            const style = computeLayerStyleWithAncestors(layer, layersById, time, doc.duration);
+
             return (
               <div
                 key={layer.id}
@@ -218,12 +242,16 @@ const MotionCanvas: React.FC = () => {
                   width: layer.width,
                   height: layer.height,
                   cursor: layer.locked ? 'default' : 'move',
-                  outline: isSelected ? `${2 / scale}px solid var(--color-primary)` : 'none',
+                  // Unselected groups are click-through so children stay reachable.
+                  pointerEvents: isGroup && !isSelected ? 'none' : 'auto',
+                  outline: isSelected
+                    ? `${(isGroup ? 1.5 : 2) / scale}px ${isGroup ? 'dashed' : 'solid'} var(--color-primary)`
+                    : 'none',
                 }}
               >
-                <LayerView layer={layer} time={time} duration={doc.duration} />
+                <LayerView layer={layer} style={style} />
 
-                {isSelected &&
+                {isSelected && onlyOneSelected && !isGroup &&
                   HANDLES.map((handle) => (
                     <div
                       key={handle.id}

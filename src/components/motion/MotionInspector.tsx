@@ -121,7 +121,12 @@ const MotionInspector: React.FC = () => {
       </Section>
 
       <Section title="Appearance">
-        {layer.type === 'text' ? (
+        {layer.type === 'group' ? (
+          <p className="text-[11px] text-[var(--color-text-muted)] italic leading-relaxed">
+            Group — move and animate all of its layers together. Edit a child layer to change its
+            own appearance.
+          </p>
+        ) : layer.type === 'text' ? (
           <>
             <Field label="Text">
               <textarea

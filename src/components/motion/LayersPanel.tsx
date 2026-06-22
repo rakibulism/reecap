@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useMotionStore } from '../../store/motionStore';
 import {
   DndContext,
@@ -21,6 +21,7 @@ import {
   Circle,
   Image as ImageIcon,
   FigmaLogo,
+  FolderSimple,
   Eye,
   EyeSlash,
   Lock,
@@ -28,6 +29,14 @@ import {
   Trash,
   DotsSixVertical,
   Stack,
+  CaretRight,
+  CaretDown,
+  ArrowLineUp,
+  ArrowLineDown,
+  ArrowUp,
+  ArrowDown,
+  Copy,
+  FrameCorners,
 } from 'phosphor-react';
 import type { LayerType, MotionLayer, ReecapMotionPayload } from '../../types/motion';
 
@@ -36,9 +45,9 @@ const TYPE_ICON: Record<LayerType, React.ReactNode> = {
   rectangle: <Square size={14} />,
   ellipse: <Circle size={14} />,
   image: <ImageIcon size={14} />,
+  group: <FolderSimple size={14} weight="fill" />,
 };
 
-// Load a File/blob URL into an image layer at its natural size.
 async function imageLayerFromUrl(
   url: string,
   addImageLayer: (src: string, w: number, h: number, name?: string) => void,
@@ -50,40 +59,67 @@ async function imageLayerFromUrl(
   img.src = url;
 }
 
-const SortableLayer: React.FC<{ layer: MotionLayer }> = ({ layer }) => {
-  const { selectedId, selectLayer, updateLayer, removeLayer } = useMotionStore();
+interface RowMeta {
+  layer: MotionLayer;
+  depth: number;
+}
+
+const LayerRow: React.FC<{
+  layer: MotionLayer;
+  depth: number;
+  hasChildren: boolean;
+  onContextMenu: (e: React.MouseEvent, id: string) => void;
+}> = ({ layer, depth, hasChildren, onContextMenu }) => {
+  const { selectedIds, selectLayer, updateLayer, removeLayer } = useMotionStore();
   const [renaming, setRenaming] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: layer.id,
   });
-  const isSelected = layer.id === selectedId;
+  const isSelected = selectedIds.includes(layer.id);
+  const isGroup = layer.type === 'group';
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 10 : 1,
+    paddingLeft: 4 + depth * 14,
   };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      onClick={() => selectLayer(layer.id)}
-      className={`group flex items-center gap-1.5 pl-1 pr-2 h-9 rounded-[var(--radius-sm)] cursor-pointer transition-colors border
+      onClick={(e) => selectLayer(layer.id, e.shiftKey || e.metaKey || e.ctrlKey)}
+      onContextMenu={(e) => onContextMenu(e, layer.id)}
+      className={`group flex items-center gap-1.5 pr-2 h-9 rounded-[var(--radius-sm)] cursor-pointer transition-colors border
         ${isSelected
           ? 'bg-[var(--color-bg-hover)] border-[var(--color-primary)]/40'
           : 'border-transparent hover:bg-[var(--color-bg-hover)]'}`}
     >
-      <button
-        {...attributes}
-        {...listeners}
-        className="text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing shrink-0"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <DotsSixVertical size={14} />
-      </button>
+      {isGroup ? (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            updateLayer(layer.id, { collapsed: !layer.collapsed });
+          }}
+          className="text-[var(--color-text-muted)] shrink-0"
+        >
+          {layer.collapsed ? <CaretRight size={12} weight="bold" /> : <CaretDown size={12} weight="bold" />}
+        </button>
+      ) : (
+        <button
+          {...attributes}
+          {...listeners}
+          className="text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing shrink-0"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <DotsSixVertical size={14} />
+        </button>
+      )}
 
-      <span className="text-[var(--color-text-secondary)] shrink-0">{TYPE_ICON[layer.type]}</span>
+      <span className={`shrink-0 ${isGroup ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}>
+        {TYPE_ICON[layer.type]}
+      </span>
 
       {renaming ? (
         <input
@@ -105,10 +141,13 @@ const SortableLayer: React.FC<{ layer: MotionLayer }> = ({ layer }) => {
             e.stopPropagation();
             setRenaming(true);
           }}
-          className="flex-1 min-w-0 truncate text-[12px] font-medium text-[var(--color-text-primary)]"
+          className={`flex-1 min-w-0 truncate text-[12px] ${isGroup ? 'font-semibold' : 'font-medium'} text-[var(--color-text-primary)]`}
         >
           {layer.name}
         </span>
+      )}
+      {isGroup && !hasChildren && (
+        <span className="text-[9px] text-[var(--color-text-muted)] italic shrink-0">empty</span>
       )}
 
       <button
@@ -159,14 +198,67 @@ const AddButton: React.FC<{ icon: React.ReactNode; label: string; onClick: () =>
   </button>
 );
 
+const MenuItem: React.FC<{
+  icon?: React.ReactNode;
+  label: string;
+  shortcut?: string;
+  disabled?: boolean;
+  danger?: boolean;
+  onClick: () => void;
+}> = ({ icon, label, shortcut, disabled, danger, onClick }) => (
+  <button
+    disabled={disabled}
+    onClick={onClick}
+    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-[var(--radius-sm)] text-[12px] text-left transition-colors
+      ${disabled
+        ? 'opacity-40 cursor-not-allowed'
+        : danger
+          ? 'text-red-500 hover:bg-red-500/10'
+          : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'}`}
+  >
+    <span className="w-4 flex justify-center shrink-0">{icon}</span>
+    <span className="flex-1">{label}</span>
+    {shortcut && <span className="text-[10px] text-[var(--color-text-muted)] tabular-nums">{shortcut}</span>}
+  </button>
+);
+
 const LayersPanel: React.FC = () => {
-  const { doc, addLayer, addImageLayer, importPayload, reorderLayer } = useMotionStore();
+  const store = useMotionStore();
+  const { doc, selectedIds, addLayer, addImageLayer, importPayload, reorderLayer } = store;
   const fileRef = useRef<HTMLInputElement>(null);
+  const [menu, setMenu] = useState<{ x: number; y: number; id: string } | null>(null);
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
     useSensor(TouchSensor),
   );
+
+  // Build the visible tree rows: roots (no parent) top→bottom in reverse paint
+  // order, each group's children nested beneath it (unless collapsed).
+  const rows: RowMeta[] = useMemo(() => {
+    const childrenOf = new Map<string | null, MotionLayer[]>();
+    for (const l of doc.layers) {
+      const key = l.parentId ?? null;
+      if (!childrenOf.has(key)) childrenOf.set(key, []);
+      childrenOf.get(key)!.push(l);
+    }
+    const out: RowMeta[] = [];
+    const walk = (parentId: string | null, depth: number) => {
+      const kids = [...(childrenOf.get(parentId) ?? [])].reverse(); // top paint first
+      for (const layer of kids) {
+        out.push({ layer, depth });
+        if (layer.type === 'group' && !layer.collapsed) walk(layer.id, depth + 1);
+      }
+    };
+    walk(null, 0);
+    return out;
+  }, [doc.layers]);
+
+  const childCount = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const l of doc.layers) if (l.parentId) m.set(l.parentId, (m.get(l.parentId) ?? 0) + 1);
+    return m;
+  }, [doc.layers]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -202,8 +294,19 @@ const LayersPanel: React.FC = () => {
     );
   };
 
-  // Layers list is rendered top = topmost; doc.layers is bottom→top, so reverse.
-  const ordered = [...doc.layers].reverse();
+  const openMenu = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    if (!selectedIds.includes(id)) store.selectLayer(id);
+    setMenu({ x: e.clientX, y: e.clientY, id });
+  };
+
+  const menuLayer = menu ? doc.layers.find((l) => l.id === menu.id) : null;
+  const canGroup = selectedIds.length >= 2;
+
+  const run = (fn: () => void) => {
+    fn();
+    setMenu(null);
+  };
 
   return (
     <aside className="w-[240px] shrink-0 border-r border-[var(--color-border-default)] bg-[var(--color-bg-panel)] flex flex-col overflow-hidden">
@@ -231,11 +334,19 @@ const LayersPanel: React.FC = () => {
         />
       </div>
 
-      <div className="flex items-center gap-2 px-3 py-2 text-[var(--color-text-muted)]">
-        <Stack size={14} />
-        <h3 className="text-[11px] font-medium uppercase tracking-[0.08em]">
-          Layers ({doc.layers.length})
-        </h3>
+      <div className="flex items-center justify-between gap-2 px-3 py-2">
+        <div className="flex items-center gap-2 text-[var(--color-text-muted)]">
+          <Stack size={14} />
+          <h3 className="text-[11px] font-medium uppercase tracking-[0.08em]">Layers ({doc.layers.length})</h3>
+        </div>
+        <button
+          onClick={() => store.groupSelection()}
+          disabled={!canGroup}
+          title="Group selection (⌘G)"
+          className="flex items-center gap-1 text-[11px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          <FrameCorners size={14} /> Group
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-2 pb-3 custom-scrollbar">
@@ -245,16 +356,44 @@ const LayersPanel: React.FC = () => {
           </p>
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={ordered.map((l) => l.id)} strategy={verticalListSortingStrategy}>
+            <SortableContext items={rows.map((r) => r.layer.id)} strategy={verticalListSortingStrategy}>
               <div className="flex flex-col gap-0.5">
-                {ordered.map((layer) => (
-                  <SortableLayer key={layer.id} layer={layer} />
+                {rows.map(({ layer, depth }) => (
+                  <LayerRow
+                    key={layer.id}
+                    layer={layer}
+                    depth={depth}
+                    hasChildren={(childCount.get(layer.id) ?? 0) > 0}
+                    onContextMenu={openMenu}
+                  />
                 ))}
               </div>
             </SortableContext>
           </DndContext>
         )}
       </div>
+
+      {/* Right-click context menu */}
+      {menu && menuLayer && (
+        <>
+          <div className="fixed inset-0 z-[2999]" onClick={() => setMenu(null)} onContextMenu={(e) => { e.preventDefault(); setMenu(null); }} />
+          <div
+            className="fixed z-[3000] w-52 p-1 rounded-[var(--radius-md)] bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-md)]"
+            style={{ left: Math.min(menu.x, window.innerWidth - 220), top: Math.min(menu.y, window.innerHeight - 320) }}
+          >
+            <MenuItem icon={<ArrowLineUp size={14} />} label="Bring to Front" shortcut="⌘]" onClick={() => run(() => store.bringToFront(menu.id))} />
+            <MenuItem icon={<ArrowUp size={14} />} label="Bring Forward" shortcut="]" onClick={() => run(() => store.bringForward(menu.id))} />
+            <MenuItem icon={<ArrowDown size={14} />} label="Send Backward" shortcut="[" onClick={() => run(() => store.sendBackward(menu.id))} />
+            <MenuItem icon={<ArrowLineDown size={14} />} label="Send to Back" shortcut="⌘[" onClick={() => run(() => store.sendToBack(menu.id))} />
+            <div className="h-px bg-[var(--color-border-default)] my-1" />
+            <MenuItem icon={<FrameCorners size={14} />} label="Group Selection" shortcut="⌘G" disabled={!canGroup} onClick={() => run(() => store.groupSelection())} />
+            <MenuItem icon={<FolderSimple size={14} />} label="Ungroup" shortcut="⌘⇧G" disabled={menuLayer.type !== 'group'} onClick={() => run(() => store.ungroup(menu.id))} />
+            <div className="h-px bg-[var(--color-border-default)] my-1" />
+            <MenuItem icon={<Copy size={14} />} label="Duplicate" onClick={() => run(() => store.duplicateLayer(menu.id))} />
+            <MenuItem icon={<Trash size={14} />} label="Delete" danger onClick={() => run(() => store.removeLayer(menu.id))} />
+          </div>
+        </>
+      )}
     </aside>
   );
 };
