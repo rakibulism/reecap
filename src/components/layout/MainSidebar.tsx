@@ -6,12 +6,19 @@ import {
   Crown, 
   Users, 
   Gift, 
-  MusicNotes, 
+  MusicNotes,
   House,
+  MagicWand,
+  GithubLogo,
+  TwitterLogo,
   SignOut,
   CaretRight
 } from 'phosphor-react';
 import Button from '../ui/Button';
+import InstallButton from '../ui/InstallButton';
+
+const REPO_URL = 'https://github.com/rakibulism/reecap';
+const X_URL = 'https://x.com/rakibulism';
 
 const MainSidebar: React.FC = () => {
   const { 
@@ -63,6 +70,19 @@ const MainSidebar: React.FC = () => {
     </button>
   );
 
+  // External link styled to match NavItem (anchors can't reuse NavItem's <button>).
+  const LinkItem = ({ icon: Icon, label, href }: { icon: any; label: string; href: string }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="w-full flex items-center gap-3 px-4 py-3 rounded-[var(--radius-md)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all"
+    >
+      <Icon size={20} />
+      <span className="text-[14px] font-medium">{label}</span>
+    </a>
+  );
+
   return (
     <div className="fixed inset-0 z-[2000] flex">
       {/* Backdrop */}
@@ -86,6 +106,7 @@ const MainSidebar: React.FC = () => {
         <div className="flex-1 overflow-y-auto p-3 space-y-6">
           <nav className="space-y-1">
             <NavItem icon={House} label="Video Editor" id="editor" />
+            <NavItem icon={MagicWand} label="Motion Design" id="motion" badge="New" />
             <NavItem icon={Users} label="Community" id="community" />
           </nav>
 
@@ -105,15 +126,24 @@ const MainSidebar: React.FC = () => {
 
           <div className="space-y-4 px-2">
             <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Rewards</h4>
-            <NavItem 
-              icon={Gift} 
-              label="Invite & Earn Audio" 
+            <NavItem
+              icon={Gift}
+              label="Invite & Earn Audio"
               badge={`${inviteCount * 3}d`}
             />
+          </div>
+
+          <div className="space-y-4 px-2">
+            <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Connect</h4>
+            <div className="space-y-1">
+              <LinkItem icon={TwitterLogo} label="Follow on X" href={X_URL} />
+              <LinkItem icon={GithubLogo} label="GitHub" href={REPO_URL} />
+            </div>
           </div>
         </div>
 
         <div className="p-4 border-t border-[var(--color-border-default)] bg-[var(--color-bg-panel)]/50">
+          <InstallButton variant="solid" className="w-full justify-center mb-4" />
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-[var(--radius-md)] p-3 mb-4">
             <div className="flex items-center gap-2 mb-1 text-blue-600 dark:text-blue-400">
               <MusicNotes size={16} weight="bold" />
