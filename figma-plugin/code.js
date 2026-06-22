@@ -120,6 +120,8 @@ try {
 
       if (CONTAINER_TYPES.indexOf(node.type) !== -1 && 'children' in node) {
         base.kind = 'group';
+        base.fill = solidFill(node) || '';
+        base.cornerRadius = typeof node.cornerRadius === 'number' ? Math.round(node.cornerRadius) : 0;
         out.push(base);
         for (var i = 0; i < node.children.length; i++) {
           await walk(node.children[i], frameBox, node.id, out);
@@ -173,6 +175,7 @@ try {
         width: Math.round(node.width),
         height: Math.round(node.height),
         name: node.name,
+        background: solidFill(node) || '',
         image: Array.prototype.slice.call(frameBytes),
         layers: layers
       });

@@ -69,6 +69,7 @@
   <script>
     var APP_URL = 'https://reecap.vercel.app/app';
     var payload = null;
+    var previewUrl = '';
     var img = document.getElementById('img');
     var emptyMsg = document.getElementById('emptyMsg');
     var meta = document.getElementById('meta');
@@ -124,7 +125,7 @@
       }
 
       if (msg.type === 'export') {
-        var dataUrl = 'data:image/png;base64,' + bytesToBase64(msg.image);
+        previewUrl = 'data:image/png;base64,' + bytesToBase64(msg.image);
         var layers = (msg.layers || []).map(function (l) {
           var out = {};
           for (var k in l) if (k !== 'imageBytes') out[k] = l[k];
@@ -137,10 +138,13 @@
           width: msg.width,
           height: msg.height,
           name: msg.name,
-          image: dataUrl,
+          background: msg.background || '',
+          // When we have an editable layer tree the full-frame PNG is redundant —
+          // drop it from the clipboard payload to keep it small and pasteable.
+          image: layers.length ? '' : previewUrl,
           layers: layers
         };
-        img.src = dataUrl;
+        img.src = previewUrl;
         img.style.display = 'block';
         emptyMsg.style.display = 'none';
         meta.textContent = msg.name + ' · ' + msg.width + ' × ' + msg.height + ' · ' + layers.length + ' layers';
@@ -176,10 +180,10 @@
     };
 
     downloadBtn.onclick = function () {
-      if (!payload) return;
+      if (!previewUrl) return;
       var a = document.createElement('a');
-      a.href = payload.image;
-      a.download = (payload.name || 'reecap-frame') + '.png';
+      a.href = previewUrl;
+      a.download = ((payload && payload.name) || 'reecap-frame') + '.png';
       a.click();
       setStatus('Downloaded. Drag the PNG into Reecap.', 'ok');
     };

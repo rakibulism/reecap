@@ -39,7 +39,7 @@ function makeLayer(type: LayerType, doc: MotionDoc, patch: Partial<MotionLayer> 
     height,
     rotation: 0,
     opacity: 1,
-    fill: type === 'ellipse' ? '#FF3D03' : '#3B82F6',
+    fill: type === 'group' ? '' : type === 'ellipse' ? '#FF3D03' : '#3B82F6',
     cornerRadius: type === 'rectangle' ? 16 : 0,
     parentId: patch.parentId ?? null,
     visible: true,
@@ -191,13 +191,15 @@ export const useMotionStore = create<MotionStore>((set) => ({
 
       // v2 — reconstruct the editable layer tree.
       if (payload.layers && payload.layers.length) {
+        // The frame should land looking exactly like Figma — static and fully
+        // visible. Give every imported layer a no-animation clip so it shows at
+        // the playhead; the user adds animations afterwards.
+        if (payload.background) doc.background = payload.background;
         const idMap = new Map(payload.layers.map((pl) => [pl.id, uid()]));
         const layers: MotionLayer[] = payload.layers.map((pl) => {
           const anim = defaultAnimation(doc.duration);
-          if (pl.kind === 'group') {
-            anim.inPreset = 'none';
-            anim.outPreset = 'none';
-          }
+          anim.inPreset = 'none';
+          anim.outPreset = 'none';
           const layer: MotionLayer = {
             id: idMap.get(pl.id)!,
             type: pl.kind,
@@ -208,7 +210,9 @@ export const useMotionStore = create<MotionStore>((set) => ({
             height: Math.max(1, Math.round(pl.h)),
             rotation: pl.rotation || 0,
             opacity: pl.opacity ?? 1,
-            fill: pl.fill || '#3B82F6',
+            // Frames/groups carry their background fill (empty = transparent);
+            // shapes fall back to a default fill.
+            fill: pl.kind === 'group' ? (pl.fill || '') : (pl.fill || '#3B82F6'),
             cornerRadius: pl.cornerRadius || 0,
             parentId: pl.parentId ? idMap.get(pl.parentId) ?? null : null,
             visible: true,

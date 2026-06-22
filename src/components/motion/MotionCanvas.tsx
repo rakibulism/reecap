@@ -14,7 +14,26 @@ const HANDLES = [
 const MIN_SIZE = 16; // design units
 
 const LayerView: React.FC<{ layer: MotionLayer; style: ComputedStyle }> = ({ layer, style }) => {
-  if (layer.type === 'group') return null; // groups paint nothing; children do
+  // A group only paints when it has a background fill (a Figma frame); otherwise
+  // it's a transparent container and its children paint themselves.
+  if (layer.type === 'group') {
+    if (!layer.fill) return null;
+    return (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          opacity: style.opacity,
+          transform: style.transform || undefined,
+          filter: style.filter !== 'none' ? style.filter : undefined,
+          transformOrigin: 'center center',
+          visibility: style.hidden ? 'hidden' : 'visible',
+          background: layer.fill,
+          borderRadius: layer.cornerRadius,
+        }}
+      />
+    );
+  }
   const inner: React.CSSProperties = {
     width: '100%',
     height: '100%',
