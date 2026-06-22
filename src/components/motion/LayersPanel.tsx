@@ -389,8 +389,8 @@ const LayersPanel: React.FC = () => {
             <MenuItem icon={<FrameCorners size={14} />} label="Group Selection" shortcut="⌘G" disabled={!canGroup} onClick={() => run(() => store.groupSelection())} />
             <MenuItem icon={<FolderSimple size={14} />} label="Ungroup" shortcut="⌘⇧G" disabled={menuLayer.type !== 'group'} onClick={() => run(() => store.ungroup(menu.id))} />
             <div className="h-px bg-[var(--color-border-default)] my-1" />
-            <MenuItem icon={<Copy size={14} />} label="Duplicate" onClick={() => run(() => store.duplicateLayer(menu.id))} />
-            <MenuItem icon={<Trash size={14} />} label="Delete" danger onClick={() => run(() => store.removeLayer(menu.id))} />
+            <MenuItem icon={<Copy size={14} />} label="Duplicate" shortcut="⌘D" onClick={() => run(() => store.duplicateLayer(menu.id))} />
+            <MenuItem icon={<Trash size={14} />} label="Delete" shortcut="⌫" danger onClick={() => run(() => store.removeLayer(menu.id))} />
           </div>
         </>
       )}
