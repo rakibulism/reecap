@@ -12,6 +12,14 @@ export interface Update {
 // Newest first.
 export const UPDATES: Update[] = [
   {
+    id: 'screen-recorder',
+    date: '2026-06-24',
+    version: 'v1.14.0',
+    tag: 'release',
+    title: 'Screen recorder with click-to-zoom',
+    summary: 'A new Recorder tool: capture your screen and every click smoothly zooms into that spot in the final video — Screen-Studio style. Record in-app, or install the Reecap Recorder Chrome extension to capture click-zoom on any website you visit. Tune zoom level and timing, then export.',
+  },
+  {
     id: 'creators-community',
     date: '2026-06-23',
     version: 'v1.12.0',

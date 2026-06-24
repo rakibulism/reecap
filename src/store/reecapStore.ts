@@ -13,7 +13,7 @@ interface ReecapStore {
   exportProgress: number;
   playbackProgress: number;
   audio: { url: string; name: string } | null;
-  activeView: 'editor' | 'community' | 'motion' | 'design';
+  activeView: 'editor' | 'community' | 'motion' | 'design' | 'recorder';
   activePanel: 'none' | 'assets' | 'music';
   isSidebarOpen: boolean;
   isPremium: boolean;
@@ -36,7 +36,7 @@ interface ReecapStore {
   setShowShortcuts: (show: boolean) => void;
   setAudio: (audio: { url: string; name: string } | null) => void;
   toggleSidebar: () => void;
-  setActiveView: (view: 'editor' | 'community' | 'motion' | 'design') => void;
+  setActiveView: (view: 'editor' | 'community' | 'motion' | 'design' | 'recorder') => void;
   setActivePanel: (panel: 'none' | 'assets' | 'music') => void;
   setSidebarOpen: (v: boolean) => void;
   setPremium: (v: boolean) => void;
