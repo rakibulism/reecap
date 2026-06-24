@@ -12,6 +12,14 @@ export interface Update {
 // Newest first.
 export const UPDATES: Update[] = [
   {
+    id: 'recorder-screen-cam-voice',
+    date: '2026-06-24',
+    version: 'v1.17.0',
+    tag: 'feature',
+    title: 'Record your whole screen — with webcam & voice',
+    summary: 'The Reecap Recorder extension now records your entire screen, so the recording keeps going as you move between tabs, windows and apps. A floating control bar (pause / resume / stop) and your webcam bubble follow you onto every page, and you can capture your microphone and tab/system audio. Click-to-zoom and MP4/WebM export still apply.',
+  },
+  {
     id: 'recorder-extension-flow',
     date: '2026-06-24',
     version: 'v1.16.0',
