@@ -15,6 +15,7 @@ import EditorMobileGate from '../components/layout/EditorMobileGate';
 import MobileEditor from '../components/layout/MobileEditor';
 import MotionDesigner from '../components/motion/MotionDesigner';
 import DesignStudio from '../components/design/DesignStudio';
+import RecorderStudio from '../components/recorder/RecorderStudio';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { slideDuration } from '../lib/utils';
 
@@ -68,15 +69,17 @@ function Editor() {
       <MainSidebar />
 
       {isMobile ? (
-        activeView === 'motion' || activeView === 'design' ? (
+        activeView === 'motion' || activeView === 'design' || activeView === 'recorder' ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center px-8 gap-4">
             <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--color-primary)]">
-              {activeView === 'design' ? 'Design' : 'Motion Design'}
+              {activeView === 'design' ? 'Design' : activeView === 'recorder' ? 'Screen Recorder' : 'Motion Design'}
             </span>
             <h1 className="text-xl font-bold tracking-tight">Best on a bigger screen</h1>
             <p className="text-[var(--color-text-secondary)] leading-relaxed max-w-sm">
               {activeView === 'design'
                 ? 'The Design tool is an infinite canvas with a toolbar, layers and inspector. Open Reecap on a desktop to design freely.'
+                : activeView === 'recorder'
+                ? 'The screen recorder captures your screen with auto-zoom on every click. Open Reecap on a desktop to record.'
                 : 'The Motion Design tool needs a wider canvas, layers panel and timeline. Open Reecap on a desktop to animate your designs layer by layer.'}
             </p>
             <button
@@ -112,6 +115,8 @@ function Editor() {
             <MotionDesigner />
           ) : activeView === 'design' ? (
             <DesignStudio />
+          ) : activeView === 'recorder' ? (
+            <RecorderStudio />
           ) : (
             <Community />
           )}

@@ -28,6 +28,7 @@ const Topbar: React.FC = () => {
 
   const isMotion = activeView === 'motion';
   const isDesign = activeView === 'design';
+  const isRecorder = activeView === 'recorder';
   const isVideo = activeView === 'editor';
 
   const runDesignExport = async (format: 'png' | 'svg') => {
@@ -70,10 +71,11 @@ const Topbar: React.FC = () => {
               { label: 'Video', value: 'editor' },
               { label: 'Motion', value: 'motion' },
               { label: 'Design', value: 'design' },
+              { label: 'Record', value: 'recorder' },
             ]}
-            value={isMotion ? 'motion' : isDesign ? 'design' : 'editor'}
+            value={isMotion ? 'motion' : isDesign ? 'design' : isRecorder ? 'recorder' : 'editor'}
             onChange={(v) => setActiveView(v as any)}
-            className="w-[210px]"
+            className="w-[280px]"
           />
         </div>
       </div>
@@ -148,7 +150,7 @@ const Topbar: React.FC = () => {
               Export
             </Button>
           </Tooltip>
-        ) : (
+        ) : isRecorder ? null : (
           <Button
             variant="primary"
             size="md"

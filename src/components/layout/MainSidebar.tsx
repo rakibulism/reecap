@@ -11,6 +11,7 @@ import {
   MagicWand,
   PenNib,
   Code,
+  Record,
   GithubLogo,
   TwitterLogo,
   BookOpen,
@@ -168,6 +169,7 @@ const MainSidebar: React.FC = () => {
               <Code size={16} className="shrink-0" />
               <span className="text-[13px] font-medium truncate">Dev tool</span>
             </button>
+            <NavItem icon={Record} label="Screen Recorder" id="recorder" badge="New" />
             <NavItem icon={Users} label="Community" id="community" badge="New" />
           </nav>
 
