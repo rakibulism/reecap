@@ -23,31 +23,33 @@
       input:checked + .sw { background: #ef4444; }
       .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .15s; }
       input:checked + .sw::after { left: 19px; }
-      .start { width: 100%; height: 48px; border: 0; border-radius: 12px; background: #ef4444; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; }
-      .start:hover { background: #dc2626; }
+      .btn { width: 100%; height: 48px; border: 0; border-radius: 12px; background: #ef4444; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+      .btn:hover { background: #dc2626; }
       .note { font-size: 11px; color: #71717a; text-align: center; margin: 12px 0 0; line-height: 1.5; }
-      #recording { display: none; text-align: center; }
-      #recording .dot { width: 12px; height: 12px; border-radius: 50%; background: #ef4444; display: inline-block; animation: p 1.2s infinite; }
+      #stage2 { display: none; text-align: center; }
+      #stage2 .dot { width: 12px; height: 12px; border-radius: 50%; background: #ef4444; display: inline-block; animation: p 1.2s infinite; }
       @keyframes p { 0%,100%{opacity:1} 50%{opacity:.3} }
+      #fallback { margin-top: 16px; }
     </style>
   </head>
   <body>
-    <div class="card" id="setup">
+    <div class="card" id="stage1">
       <p class="kicker">Reecap Recorder</p>
       <h1>Set up your recording</h1>
-      <p class="sub">Records your whole screen. Controls and your webcam float on every page. Each click becomes a zoom in Reecap.</p>
+      <p class="sub">A floating window with your webcam and controls will hover above every page. Records your whole screen; each click becomes a zoom in Reecap.</p>
 
-      <label class="opt"><span class="ic">🎥</span><span class="lbl"><b>Webcam bubble</b><span>A circular camera overlay, in the video</span></span><input type="checkbox" id="cam" checked /><span class="sw"></span></label>
+      <label class="opt"><span class="ic">🎥</span><span class="lbl"><b>Webcam bubble</b><span>Shown in the floating window &amp; the video</span></span><input type="checkbox" id="cam" checked /><span class="sw"></span></label>
       <label class="opt"><span class="ic">🎙️</span><span class="lbl"><b>Microphone</b><span>Record your voice</span></span><input type="checkbox" id="mic" checked /><span class="sw"></span></label>
       <label class="opt"><span class="ic">🔊</span><span class="lbl"><b>Tab / system audio</b><span>Sound from the page or your computer</span></span><input type="checkbox" id="sys" checked /><span class="sw"></span></label>
 
-      <button class="start" id="start">Choose screen &amp; start</button>
-      <p class="note">You'll pick what to share next. Keep this tab open while recording — it can stay in the background.</p>
+      <button class="btn" id="open">Open floating controls</button>
+      <p class="note">Keep this tab open while recording — it can sit in the background.</p>
     </div>
 
-    <div class="card" id="recording">
-      <h1><span class="dot"></span> Recording…</h1>
-      <p class="sub" style="margin-top:10px">Use the floating bar on your page to pause or stop. You can leave this tab in the background.</p>
+    <div class="card" id="stage2">
+      <h1><span class="dot"></span> Recording in a floating window</h1>
+      <p class="sub" style="margin-top:10px">Use the picture-in-picture window to pause or stop, from any page. Leave this tab open in the background.</p>
+      <div id="fallback"></div>
     </div>
 
     <script src="setup.js"></script>

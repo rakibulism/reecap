@@ -1,15 +1,14 @@
 // Reecap Recorder — service worker (coordinator).
 //
-// Whole-screen recording: the setup page owns getDisplayMedia + the mic stream
-// and runs MediaRecorder (it stays open in the background while you record).
-// This worker tracks recording state, broadcasts it to every tab so the
-// floating controls + webcam bubble appear wherever you go, relays
-// pause/resume/stop to the controller, accumulates click marks, and hands the
-// finished clip to the Reecap web app.
+// The setup page owns the screen/mic/camera streams, the MediaRecorder, and the
+// floating picture-in-picture control window. This worker just: tracks the
+// recording window in time so click marks line up (excluding paused spans),
+// keeps the clicks reported by content scripts, and hands the finished clip to
+// the Reecap web app.
 
 const REECAP_URL = 'https://reecap.vercel.app/app?recorder=1';
 
-let rec = null; // { controllerTabId, originalTabId, start, pausedTotal, pauseStart, clicks, camera }
+let rec = null; // { originalTabId, start, pausedTotal, pauseStart, clicks }
 let pending = null; // { dataUrl, clicks } awaiting the Reecap page "ready"
 
 chrome.action.onClicked.addListener(async () => {
@@ -18,7 +17,7 @@ chrome.action.onClicked.addListener(async () => {
     return;
   }
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  await chrome.storage.session.set({ setup: { originalTabId: tab?.id ?? null, title: tab?.title || '', favIconUrl: tab?.favIconUrl || '' } });
+  await chrome.storage.session.set({ setup: { originalTabId: tab?.id ?? null, title: tab?.title || '' } });
   chrome.tabs.create({ url: chrome.runtime.getURL('setup.html') });
 });
 
@@ -28,40 +27,27 @@ function elapsed() {
   return Date.now() - rec.start - rec.pausedTotal - pausedNow;
 }
 
-function broadcast(msg) {
-  chrome.tabs.query({}, (tabs) => tabs.forEach((t) => t.id && chrome.tabs.sendMessage(t.id, msg).catch(() => {})));
-}
-
 chrome.runtime.onMessage.addListener((m, sender, send) => {
   switch (m.type) {
     case 'recording-started':
-      rec = { controllerTabId: sender.tab?.id ?? null, originalTabId: m.originalTabId, start: Date.now(), pausedTotal: 0, pauseStart: 0, clicks: [], camera: !!m.camera };
+      rec = { originalTabId: m.originalTabId, start: Date.now(), pausedTotal: 0, pauseStart: 0, clicks: [] };
       chrome.action.setBadgeText({ text: 'REC' });
       chrome.action.setBadgeBackgroundColor({ color: '#ef4444' });
-      broadcast({ type: 'rec-show', camera: rec.camera, paused: false });
       if (rec.originalTabId) chrome.tabs.update(rec.originalTabId, { active: true }).catch(() => {});
       send({ ok: true });
       break;
-    case 'rec-status':
-      send(rec ? { active: true, camera: rec.camera, paused: !!rec.pauseStart } : { active: false });
-      break;
     case 'rec-pause':
-      if (rec && !rec.pauseStart) {
-        rec.pauseStart = Date.now();
-        chrome.tabs.sendMessage(rec.controllerTabId, { type: 'ctrl-pause' }).catch(() => {});
-        broadcast({ type: 'rec-paused', paused: true });
-      }
+      if (rec && !rec.pauseStart) rec.pauseStart = Date.now();
       break;
     case 'rec-resume':
-      if (rec && rec.pauseStart) {
-        rec.pausedTotal += Date.now() - rec.pauseStart;
-        rec.pauseStart = 0;
-        chrome.tabs.sendMessage(rec.controllerTabId, { type: 'ctrl-resume' }).catch(() => {});
-        broadcast({ type: 'rec-paused', paused: false });
-      }
+      if (rec && rec.pauseStart) { rec.pausedTotal += Date.now() - rec.pauseStart; rec.pauseStart = 0; }
       break;
-    case 'rec-stop':
-      if (rec) chrome.tabs.sendMessage(rec.controllerTabId, { type: 'ctrl-stop' }).catch(() => {});
+    case 'rec-restart':
+      if (rec) { rec.start = Date.now(); rec.pausedTotal = 0; rec.pauseStart = 0; rec.clicks = []; }
+      break;
+    case 'rec-cancel':
+      rec = null;
+      chrome.action.setBadgeText({ text: '' });
       break;
     case 'page-click':
       if (rec && !rec.pauseStart) rec.clicks.push({ t: elapsed() / 1000, x: m.x, y: m.y });
@@ -79,7 +65,6 @@ chrome.runtime.onMessage.addListener((m, sender, send) => {
 function finish(dataUrl) {
   pending = { dataUrl, clicks: rec ? rec.clicks : [] };
   chrome.action.setBadgeText({ text: '' });
-  broadcast({ type: 'rec-hide' });
   rec = null;
   chrome.tabs.create({ url: REECAP_URL });
 }

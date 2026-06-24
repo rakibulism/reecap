@@ -12,6 +12,14 @@ export interface Update {
 // Newest first.
 export const UPDATES: Update[] = [
   {
+    id: 'recorder-pip-controls',
+    date: '2026-06-24',
+    version: 'v1.18.0',
+    tag: 'improvement',
+    title: 'Floating picture-in-picture recording controls',
+    summary: 'The Reecap Recorder extension now puts your webcam and the recording controls (discard · restart · pause · stop + timer) in a picture-in-picture window that floats above every tab and app — like Vimeo. Pause or stop from anywhere, no matter which page you’re on.',
+  },
+  {
     id: 'recorder-screen-cam-voice',
     date: '2026-06-24',
     version: 'v1.17.0',
