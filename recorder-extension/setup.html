@@ -8,51 +8,48 @@
       * { box-sizing: border-box; }
       body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0b0b0f; color: #fafafa; padding: 24px; }
-      .card { width: 100%; max-width: 460px; background: #18181b; border: 1px solid #27272a; border-radius: 20px; overflow: hidden; }
-      .head { padding: 20px 22px 14px; }
+      .card { width: 100%; max-width: 440px; background: #18181b; border: 1px solid #27272a; border-radius: 20px; padding: 24px; }
       .kicker { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #ef4444; margin: 0 0 6px; }
-      h1 { font-size: 20px; margin: 0 0 6px; }
-      p.sub { font-size: 13px; color: #a1a1aa; margin: 0; line-height: 1.5; }
-      .preview { margin: 6px 22px 0; border-radius: 12px; overflow: hidden; border: 1px solid #27272a; background: #09090b; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; }
-      .preview img { width: 100%; height: 100%; object-fit: cover; }
-      .preview .empty { font-size: 12px; color: #71717a; }
-      .target { display: flex; align-items: center; gap: 10px; padding: 14px 22px; }
-      .target img { width: 18px; height: 18px; border-radius: 4px; }
-      .target .ttl { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      ul { margin: 0 22px 4px; padding: 0; list-style: none; }
-      li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #a1a1aa; padding: 4px 0; }
-      li b { color: #fafafa; font-weight: 600; }
-      .check { color: #22c55e; font-weight: 800; }
-      .actions { display: flex; gap: 10px; padding: 16px 22px 22px; }
-      button { flex: 1; height: 46px; border: 0; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; }
-      .start { background: #ef4444; color: #fff; }
+      h1 { font-size: 22px; margin: 0 0 6px; }
+      p.sub { font-size: 13px; color: #a1a1aa; margin: 0 0 18px; line-height: 1.5; }
+      .opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid #27272a; border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
+      .opt:hover { border-color: #3f3f46; }
+      .opt .ic { width: 20px; text-align: center; font-size: 16px; }
+      .opt .lbl { flex: 1; }
+      .opt .lbl b { display: block; font-size: 14px; }
+      .opt .lbl span { font-size: 12px; color: #a1a1aa; }
+      .sw { width: 40px; height: 24px; border-radius: 999px; background: #3f3f46; position: relative; transition: background .15s; flex: 0 0 auto; }
+      input { display: none; }
+      input:checked + .sw { background: #ef4444; }
+      .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .15s; }
+      input:checked + .sw::after { left: 19px; }
+      .start { width: 100%; height: 48px; border: 0; border-radius: 12px; background: #ef4444; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; }
       .start:hover { background: #dc2626; }
-      .cancel { flex: 0 0 auto; padding: 0 18px; background: transparent; color: #a1a1aa; border: 1px solid #3f3f46; }
-      .cancel:hover { color: #fafafa; }
+      .note { font-size: 11px; color: #71717a; text-align: center; margin: 12px 0 0; line-height: 1.5; }
+      #recording { display: none; text-align: center; }
+      #recording .dot { width: 12px; height: 12px; border-radius: 50%; background: #ef4444; display: inline-block; animation: p 1.2s infinite; }
+      @keyframes p { 0%,100%{opacity:1} 50%{opacity:.3} }
     </style>
   </head>
   <body>
-    <div class="card">
-      <div class="head">
-        <p class="kicker">Reecap Recorder</p>
-        <h1>Ready to record</h1>
-        <p class="sub">We'll record the tab below. Every click becomes a smooth zoom in Reecap.</p>
-      </div>
-      <div class="preview"><img id="thumb" alt="" style="display:none" /><span class="empty" id="empty">Preview unavailable for this page</span></div>
-      <div class="target">
-        <img id="fav" alt="" style="display:none" />
-        <span class="ttl" id="title">This tab</span>
-      </div>
-      <ul>
-        <li><span class="check">✓</span> Records <b>this tab only</b></li>
-        <li><span class="check">✓</span> <b>No microphone</b>, <b>no camera</b></li>
-        <li><span class="check">✓</span> Auto click-to-zoom, paused/stopped from a bar on the page</li>
-      </ul>
-      <div class="actions">
-        <button class="cancel" id="cancel">Cancel</button>
-        <button class="start" id="start">Start recording</button>
-      </div>
+    <div class="card" id="setup">
+      <p class="kicker">Reecap Recorder</p>
+      <h1>Set up your recording</h1>
+      <p class="sub">Records your whole screen. Controls and your webcam float on every page. Each click becomes a zoom in Reecap.</p>
+
+      <label class="opt"><span class="ic">🎥</span><span class="lbl"><b>Webcam bubble</b><span>A circular camera overlay, in the video</span></span><input type="checkbox" id="cam" checked /><span class="sw"></span></label>
+      <label class="opt"><span class="ic">🎙️</span><span class="lbl"><b>Microphone</b><span>Record your voice</span></span><input type="checkbox" id="mic" checked /><span class="sw"></span></label>
+      <label class="opt"><span class="ic">🔊</span><span class="lbl"><b>Tab / system audio</b><span>Sound from the page or your computer</span></span><input type="checkbox" id="sys" checked /><span class="sw"></span></label>
+
+      <button class="start" id="start">Choose screen &amp; start</button>
+      <p class="note">You'll pick what to share next. Keep this tab open while recording — it can stay in the background.</p>
     </div>
+
+    <div class="card" id="recording">
+      <h1><span class="dot"></span> Recording…</h1>
+      <p class="sub" style="margin-top:10px">Use the floating bar on your page to pause or stop. You can leave this tab in the background.</p>
+    </div>
+
     <script src="setup.js"></script>
   </body>
 </html>

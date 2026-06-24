@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Reecap Recorder",
-  "version": "1.1.0",
-  "description": "Record any browser tab with automatic click-to-zoom. No microphone, no camera. Edit and export in Reecap.",
-  "permissions": ["tabCapture", "offscreen", "tabs", "storage", "activeTab"],
+  "version": "2.0.0",
+  "description": "Record your whole screen with webcam, voice and automatic click-to-zoom. Controls float on every page. Edit and export in Reecap.",
+  "permissions": ["tabs", "storage", "activeTab"],
   "host_permissions": ["<all_urls>"],
   "background": { "service_worker": "background.js" },
   "action": { "default_title": "Reecap Recorder — click to set up a recording" },
@@ -11,6 +11,6 @@
     { "matches": ["<all_urls>"], "js": ["content.js"], "run_at": "document_idle", "all_frames": false }
   ],
   "web_accessible_resources": [
-    { "resources": ["setup.html"], "matches": ["<all_urls>"] }
+    { "resources": ["setup.html", "camera.html"], "matches": ["<all_urls>"] }
   ]
 }
