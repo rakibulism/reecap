@@ -12,6 +12,14 @@ export interface Update {
 // Newest first.
 export const UPDATES: Update[] = [
   {
+    id: 'recorder-mp4',
+    date: '2026-06-24',
+    version: 'v1.15.0',
+    tag: 'feature',
+    title: 'Export recordings as MP4',
+    summary: 'The screen recorder now exports a hardware-encoded H.264 MP4 (alongside WebM), with the click-zoom baked in frame by frame via WebCodecs — ready to share anywhere.',
+  },
+  {
     id: 'screen-recorder',
     date: '2026-06-24',
     version: 'v1.14.0',
