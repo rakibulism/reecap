@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Record, Stop, Play, Pause, DownloadSimple, ArrowCounterClockwise, Cursor,
-  Monitor, PuzzlePiece, Trash, Eye, EyeSlash, MagnifyingGlassPlus, Sparkle,
+  Monitor, PuzzlePiece, Trash, Eye, EyeSlash, MagnifyingGlassPlus, Sparkle, UploadSimple,
 } from 'phosphor-react';
 import { useRecorderStore } from '../../store/recorderStore';
 import { zoomAt, drawZoomedFrame } from '../../lib/recorderZoom';
@@ -118,11 +118,26 @@ const RecorderStudio: React.FC = () => {
       setRecording(false);
     };
     window.addEventListener('message', onMsg);
-    // Tell the extension's content script we're mounted and listening, so it
-    // delivers a just-finished recording (handshake avoids a load-timing race).
+    // Announce we're mounted and listening, so the extension delivers a
+    // just-finished recording (handshake avoids a load-timing race). The
+    // extension opens this tab, so it's our `opener`; the recording Blob is
+    // posted straight across that window link (no size-limited messaging).
+    try { window.opener?.postMessage({ __reecap: 'recorder-ready' }, '*'); } catch { /* no opener */ }
     window.postMessage({ __reecap: 'recorder-ready' }, window.location.origin);
     return () => window.removeEventListener('message', onMsg);
   }, [setClip, setClicks, setRecording]);
+
+  // Load a recording file the user picks (manual fallback if the auto-handoff
+  // didn't land — e.g. they kept the downloaded webm).
+  const importRef = useRef<HTMLInputElement>(null);
+  const onImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    const meta = await probe(url);
+    setClicks([]);
+    setClip({ src: url, duration: meta.duration, width: meta.width, height: meta.height });
+  };
 
   const [buildingDemo, setBuildingDemo] = useState(false);
   const tryDemo = async () => {
@@ -211,6 +226,10 @@ const RecorderStudio: React.FC = () => {
             <Sparkle size={18} weight="fill" /> {buildingDemo ? 'Building demo…' : 'Try a demo'}
           </button>
         </div>
+        <button onClick={() => importRef.current?.click()} className="mt-4 text-[13px] font-semibold text-[var(--color-primary)] hover:underline flex items-center gap-1.5">
+          <UploadSimple size={15} /> Import a recording (.webm / .mp4)
+        </button>
+        <input ref={importRef} type="file" accept="video/*" className="hidden" onChange={onImportFile} />
         <div className="mt-8 max-w-md flex items-start gap-2.5 text-[12px] text-[var(--color-text-muted)] leading-relaxed">
           <PuzzlePiece size={16} className="shrink-0 mt-0.5" />
           <span>In-app recording captures clicks on this tab. Install the <b>Reecap Recorder</b> Chrome extension to capture click-zoom on <i>any</i> website you visit.</span>

@@ -12,6 +12,14 @@ export interface Update {
 // Newest first.
 export const UPDATES: Update[] = [
   {
+    id: 'recorder-handoff-fix',
+    date: '2026-06-24',
+    version: 'v1.18.1',
+    tag: 'fix',
+    title: 'Fixed: long recordings going missing after Stop',
+    summary: 'Recordings are now handed to the editor as a direct file instead of an oversized encoded message (which silently failed for long clips), every recording is also auto-downloaded as a safety net, and the Screen Recorder gained an “Import a recording” option so you can always load a saved .webm or .mp4.',
+  },
+  {
     id: 'recorder-pip-controls',
     date: '2026-06-24',
     version: 'v1.18.0',
