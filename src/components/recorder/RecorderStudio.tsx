@@ -118,6 +118,9 @@ const RecorderStudio: React.FC = () => {
       setRecording(false);
     };
     window.addEventListener('message', onMsg);
+    // Tell the extension's content script we're mounted and listening, so it
+    // delivers a just-finished recording (handshake avoids a load-timing race).
+    window.postMessage({ __reecap: 'recorder-ready' }, window.location.origin);
     return () => window.removeEventListener('message', onMsg);
   }, [setClip, setClicks, setRecording]);
 

@@ -32,6 +32,14 @@ function Editor() {
   useKeyboardShortcuts();
   useAudioSync();
 
+  // Deep-link: the Recorder Chrome extension opens /app?recorder=1 after a
+  // capture, so jump straight to the Screen Recorder (where the handoff lands).
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('recorder') === '1') {
+      setActiveView('recorder');
+    }
+  }, [setActiveView]);
+
   useEffect(() => {
     let requestId: number;
     let lastTime: number;

@@ -12,6 +12,14 @@ export interface Update {
 // Newest first.
 export const UPDATES: Update[] = [
   {
+    id: 'recorder-extension-flow',
+    date: '2026-06-24',
+    version: 'v1.16.0',
+    tag: 'improvement',
+    title: 'A smoother recording flow & on-page controls',
+    summary: 'The Reecap Recorder extension now opens a setup page to review what you’re recording, drops you back on your tab with a floating Pause / Resume / Stop bar, and reliably hands the finished clip to the Screen Recorder. Capture stays tab-only — never microphone or camera.',
+  },
+  {
     id: 'recorder-mp4',
     date: '2026-06-24',
     version: 'v1.15.0',
