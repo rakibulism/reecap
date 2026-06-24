@@ -1,8 +1,8 @@
 // Reecap Recorder — offscreen document.
 //
-// Service workers can't use MediaRecorder, so the actual tab capture happens
-// here. We turn the tabCapture stream into a webm Blob and return it to the
-// background worker as a data URL (Blobs don't survive runtime messaging).
+// Service workers can't use MediaRecorder, so tab capture happens here. The
+// stream is tab-only with audio OFF — no microphone, no camera. The finished
+// webm is returned to the worker as a data URL (Blobs don't survive messaging).
 
 let recorder = null;
 let chunks = [];
@@ -30,6 +30,10 @@ chrome.runtime.onMessage.addListener(async (msg) => {
       chrome.runtime.sendMessage({ type: 'offscreen-data', dataUrl });
     };
     recorder.start();
+  } else if (msg.type === 'pause') {
+    if (recorder && recorder.state === 'recording') recorder.pause();
+  } else if (msg.type === 'resume') {
+    if (recorder && recorder.state === 'paused') recorder.resume();
   } else if (msg.type === 'stop') {
     if (recorder && recorder.state !== 'inactive') recorder.stop();
   }
