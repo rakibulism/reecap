@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   ArrowRight, Sparkle, FilmStrip, TextT, Gauge, MusicNotes, Export,
   Sliders, ShieldCheck, Image as ImageIcon, DownloadSimple, Play,
-  GithubLogo, Check, Stack, MagicWand, FigmaLogo, Cube, PenNib, UsersThree,
+  GithubLogo, Check, Stack, MagicWand, FigmaLogo, Cube, PenNib, UsersThree, Record,
 } from 'phosphor-react';
 import Button from '../components/ui/Button';
 import SiteLayout from '../components/site/SiteLayout';
@@ -16,10 +16,10 @@ const Landing: React.FC = () => {
   const openApp = () => navigate('/app');
 
   useSeo({
-    title: 'Reecap — Photo recaps, Motion Design, a Design tool & a Creators community',
-    description: 'Reecap is a free, browser-based creative studio: turn photos into a shareable MP4, animate designs in the Motion tool, build on an infinite-canvas Design tool with Dev mode, and share in the Creators community. No upload, no account.',
+    title: 'Reecap — Photo recaps, Motion, Design, Screen recording & a Creators community',
+    description: 'Reecap is a free, browser-based creative studio: turn photos into a shareable MP4, animate designs in the Motion tool, build on an infinite-canvas Design tool, record your screen with automatic click-to-zoom, and share in the Creators community. No upload, no account.',
     path: '/',
-    keywords: ['photo to video', 'recap video maker', 'slideshow maker', 'free online video editor', 'browser video editor', 'motion design tool', 'animate figma designs', 'jitter alternative', 'free design tool', 'figma alternative', 'infinite canvas design', 'creators community'],
+    keywords: ['photo to video', 'recap video maker', 'slideshow maker', 'free online video editor', 'browser video editor', 'motion design tool', 'animate figma designs', 'jitter alternative', 'free design tool', 'figma alternative', 'infinite canvas design', 'creators community', 'screen recorder', 'screen recording with zoom', 'click to zoom screen recorder', 'screen studio alternative', 'free screen recorder'],
     jsonLd: [
       {
         '@context': 'https://schema.org',
@@ -70,7 +70,7 @@ const Hero: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
       <button onClick={onOpen}
         className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/30 text-[12px] sm:text-[13px] font-semibold text-[var(--color-primary)] mb-7 hover:bg-[var(--color-primary)]/15 transition-colors">
         <MagicWand size={14} weight="fill" />
-        New · A Design tool & Creators community
+        New · Screen recording with click-to-zoom
         <ArrowRight size={13} weight="bold" />
       </button>
 
@@ -81,8 +81,8 @@ const Hero: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
 
       <p className="text-base sm:text-xl text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed mb-9">
         One browser-based studio for everything: turn photos into a cinematic MP4 recap, animate designs
-        in the Motion tool, build on an infinite-canvas Design tool, and share it in the Creators
-        community. No upload, no account.
+        in the Motion tool, build on an infinite-canvas Design tool, record your screen with automatic
+        click-to-zoom, and share it in the Creators community. No upload, no account.
       </p>
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
@@ -177,10 +177,10 @@ const TrustStrip: React.FC = () => (
   <section className="border-y border-[var(--color-border-default)] bg-[var(--color-bg-panel)]/40">
     <div className="max-w-5xl mx-auto px-5 sm:px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
       {[
-        { icon: <ShieldCheck size={18} weight="fill" />, label: 'No upload' },
         { icon: <MagicWand size={18} weight="fill" />, label: 'Motion Design' },
         { icon: <PenNib size={18} weight="fill" />, label: 'Design tool' },
-        { icon: <UsersThree size={18} weight="fill" />, label: 'Creators community' },
+        { icon: <Record size={18} weight="fill" />, label: 'Screen recorder' },
+        { icon: <ShieldCheck size={18} weight="fill" />, label: 'No upload' },
       ].map((b) => (
         <div key={b.label} className="flex items-center justify-center gap-2 text-[12px] sm:text-[13px] font-medium text-[var(--color-text-secondary)]">
           <span className="text-[var(--color-primary)]">{b.icon}</span>
@@ -197,13 +197,14 @@ const TOOLS = [
   { icon: <FilmStrip size={22} weight="duotone" />, eyebrow: 'Video Editor', title: 'Photos → cinematic recap', body: 'Drop in photos, set transitions, captions, music and timing on a real timeline, then export a 1080p MP4 — every animation baked in.', tint: 'bg-blue-500/10 text-blue-500' },
   { icon: <MagicWand size={22} weight="duotone" />, eyebrow: 'Motion Design', title: 'Animate designs, layer by layer', body: 'Paste a frame from Figma, then bring text, shapes and groups to life with keyframe-free presets and a scrubbable timeline.', tint: 'bg-violet-500/10 text-violet-500', tag: 'New' },
   { icon: <PenNib size={22} weight="duotone" />, eyebrow: 'Design tool', title: 'An infinite design canvas', body: 'Frames, shapes, pen, pencil, text and text-on-path on an infinite canvas — with a Dev mode that hands you copy-ready CSS or SVG.', tint: 'bg-amber-500/10 text-amber-600', tag: 'New' },
+  { icon: <Record size={22} weight="duotone" />, eyebrow: 'Screen recorder', title: 'Record with auto click-zoom', body: 'Capture your screen and every click smoothly zooms into that spot — Screen-Studio style. Tune the zoom, then export MP4 or WebM.', tint: 'bg-red-500/10 text-red-500', tag: 'New' },
   { icon: <UsersThree size={22} weight="duotone" />, eyebrow: 'Creators community', title: 'Share & follow creators', body: 'Post your photos, animations and designs, follow other creators, and engage with reactions, comments, shares and reposts.', tint: 'bg-rose-500/10 text-rose-500', tag: 'New' },
 ];
 
 const TwoTools: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
   <section className="max-w-5xl mx-auto px-5 sm:px-6 py-16 sm:py-20">
     <SectionHeading eyebrow="One studio, many ways to create" title="Everything you need to make and share" />
-    <div className="grid sm:grid-cols-2 gap-5 mt-12 sm:mt-14">
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12 sm:mt-14">
       {TOOLS.map((t) => (
         <button key={t.eyebrow} onClick={onOpen} className="text-left p-6 sm:p-7 rounded-2xl bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] hover:border-[var(--color-primary)]/40 transition-colors relative group">
           {t.tag && <span className="absolute top-5 right-5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded bg-[var(--color-primary)]/15 text-[var(--color-primary)]">{t.tag}</span>}

@@ -12,7 +12,14 @@ function probe(src: string): Promise<{ duration: number; width: number; height: 
     const v = document.createElement('video');
     v.preload = 'metadata';
     v.muted = true;
-    v.onloadedmetadata = () => resolve({ duration: isFinite(v.duration) ? v.duration : 0, width: v.videoWidth || 1280, height: v.videoHeight || 720 });
+    const finish = () => resolve({ duration: isFinite(v.duration) ? v.duration : 0, width: v.videoWidth || 1280, height: v.videoHeight || 720 });
+    v.onloadedmetadata = () => {
+      // MediaRecorder webm blobs report duration: Infinity until forced.
+      if (!isFinite(v.duration) || v.duration === 0) {
+        v.ontimeupdate = () => { if (isFinite(v.duration) && v.duration > 0) { v.ontimeupdate = null; v.currentTime = 0; finish(); } };
+        v.currentTime = 1e101;
+      } else finish();
+    };
     v.onerror = () => resolve({ duration: 0, width: 1280, height: 720 });
     v.src = src;
   });
@@ -128,7 +135,7 @@ const RecorderStudio: React.FC = () => {
   };
 
   // ---- export: bake the zoom into a webm -----------------------------------
-  const exportVideo = async () => {
+  const exportWebm = async () => {
     if (!clip) return;
     const v = document.createElement('video');
     v.src = clip.src; v.muted = true; v.playsInline = true;
@@ -163,6 +170,21 @@ const RecorderStudio: React.FC = () => {
       alert('Export failed — try recording your own screen.');
     } finally {
       cancelAnimationFrame(raf);
+      setExporting(null);
+    }
+  };
+
+  // MP4 via WebCodecs (seek-based, deterministic).
+  const exportMp4Handler = async () => {
+    if (!clip) return;
+    setExporting(0);
+    try {
+      const { exportMp4 } = await import('../../lib/recorderExport');
+      await exportMp4(clip, clicks, zoom, setExporting);
+    } catch (err) {
+      console.error(err);
+      alert('MP4 export isn’t supported in this browser — try WebM, or record your own screen.');
+    } finally {
       setExporting(null);
     }
   };
@@ -286,10 +308,21 @@ const RecorderStudio: React.FC = () => {
         </div>
 
         <div className="p-4">
-          <button onClick={exportVideo} disabled={exporting !== null} className="w-full h-11 rounded-[var(--radius-md)] bg-[var(--color-primary)] text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-60 hover:opacity-90 transition-opacity">
-            <DownloadSimple size={18} weight="bold" /> {exporting !== null ? `Exporting ${exporting}%` : 'Export video'}
-          </button>
-          {clip!.demo && <p className="mt-2 text-[11px] text-[var(--color-text-muted)] text-center">Demo clip — record your own screen to export.</p>}
+          {exporting !== null ? (
+            <button disabled className="w-full h-11 rounded-[var(--radius-md)] bg-[var(--color-primary)] text-white font-semibold flex items-center justify-center gap-2 opacity-70">
+              <DownloadSimple size={18} weight="bold" /> Exporting {exporting}%
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button onClick={exportMp4Handler} className="flex-1 h-11 rounded-[var(--radius-md)] bg-[var(--color-primary)] text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                <DownloadSimple size={18} weight="bold" /> Export MP4
+              </button>
+              <button onClick={exportWebm} title="Export WebM" className="h-11 px-4 rounded-[var(--radius-md)] border border-[var(--color-border-default)] font-semibold text-[13px] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] transition-colors">
+                WebM
+              </button>
+            </div>
+          )}
+          <p className="mt-2 text-[11px] text-[var(--color-text-muted)] text-center">MP4 (H.264) · WebM · zoom baked in</p>
         </div>
       </div>
     </div>
