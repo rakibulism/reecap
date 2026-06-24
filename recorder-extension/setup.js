@@ -6,21 +6,27 @@
 // created in the PiP window's context so they keep running smoothly while the
 // setup tab sits in the background.
 //
-// Activation note: getDisplayMedia and requestWindow each need a user gesture,
-// so we use two clicks — "Open floating controls" opens the PiP (+ webcam/mic),
-// then "Start recording" inside the PiP triggers the screen picker.
+// HANDOFF: on Stop we (1) always download the .webm so the recording is never
+// lost, and (2) open Reecap and post the Blob straight across the window link
+// (structured clone — no size-limited messaging, which fails for long clips).
+
+const REECAP_URL = 'https://reecap.vercel.app/app?recorder=1';
+const REECAP_ORIGIN = 'https://reecap.vercel.app';
 
 let originalTabId = null;
 let hostWin = null; // the PiP window (or this window as a fallback)
 let isPip = false;
 let cameraStream = null, micStream = null, screenStream = null, audioCtx = null;
 let recorder = null, chunks = [];
-let mode = 'preview'; // 'preview' | 'recording'
+let mode = 'preview';
 let start = 0, pausedTotal = 0, pauseStart = 0, paused = false;
 let timer = 0;
-let pendingAction = null; // what onstop should do: 'stop' | 'discard' | 'restart'
+let pendingAction = null; // 'stop' | 'discard' | 'restart'
 let closing = false;
 let refs = {};
+
+// handoff state
+let handoffWin = null, handoffData = null, handoffReady = false, handoffDone = false;
 
 (async () => {
   const { setup } = await chrome.storage.session.get('setup');
@@ -45,14 +51,18 @@ async function openControls() {
   if (isPip) doc.body.style.cssText = 'margin:0;background:#0b0b0f;overflow:hidden;';
   buildUI(doc, container);
 
-  // wire controls
   refs.startBtn.onclick = startRec;
   refs.pauseBtn.onclick = togglePause;
   refs.restartBtn.onclick = () => { pendingAction = 'restart'; recorder && recorder.stop(); };
   refs.delBtn.onclick = () => { pendingAction = 'discard'; recorder ? recorder.stop() : cancelAll(); };
-  refs.stopBtn.onclick = () => { pendingAction = 'stop'; recorder && recorder.stop(); };
+  refs.stopBtn.onclick = () => {
+    pendingAction = 'stop';
+    // Open Reecap now (while we have the click's user activation) so we can
+    // post the recording straight to it.
+    try { handoffWin = hostWin.open(REECAP_URL, '_blank'); } catch { handoffWin = null; }
+    recorder && recorder.stop();
+  };
 
-  // webcam preview + mic (no gesture needed; prompts once for the extension)
   if (cam) {
     try { cameraStream = await hostWin.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 480, height: 480 }, audio: false }); refs.video.srcObject = cameraStream; }
     catch { refs.video.style.display = 'none'; }
@@ -64,13 +74,18 @@ async function openControls() {
   document.getElementById('stage1').style.display = 'none';
   document.getElementById('stage2').style.display = 'block';
 
+  // The Reecap recorder view posts this once it's mounted → deliver the clip.
+  hostWin.addEventListener('message', (e) => {
+    if (e && e.data && e.data.__reecap === 'recorder-ready') { handoffReady = true; tryHandoff(); }
+  });
+
   if (isPip) hostWin.addEventListener('pagehide', () => { if (closing) return; pendingAction = mode === 'recording' ? 'stop' : 'discard'; recorder ? recorder.stop() : cancelAll(); });
 }
 
 async function startRec() {
   let screen;
   try { screen = await hostWin.navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: want('sys') }); }
-  catch { return; } // picker cancelled
+  catch { return; }
   screenStream = screen;
 
   const sysA = screen.getAudioTracks();
@@ -100,7 +115,7 @@ function beginRecorder(stream) {
   chunks = [];
   recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
   recorder.onstop = onRecStop;
-  recorder.start();
+  recorder.start(1000); // timeslice so long recordings flush chunks steadily
 }
 
 function togglePause() {
@@ -111,12 +126,11 @@ function togglePause() {
 
 function tick() {
   if (paused) return;
-  const ms = Date.now() - start - pausedTotal;
-  const s = Math.floor(ms / 1000);
+  const s = Math.floor((Date.now() - start - pausedTotal) / 1000);
   refs.time.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
-async function onRecStop() {
+function onRecStop() {
   const action = pendingAction; pendingAction = null;
   if (action === 'restart') {
     chrome.runtime.sendMessage({ type: 'rec-restart' });
@@ -125,14 +139,30 @@ async function onRecStop() {
     return;
   }
   if (action === 'discard') { chrome.runtime.sendMessage({ type: 'rec-cancel' }); cancelAll(); return; }
-  // stop → hand the clip to Reecap
+
+  // stop → save + hand off
   const blob = new hostWin.Blob(chunks, { type: 'video/webm' });
-  const dataUrl = await new Promise((res) => { const fr = new hostWin.FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(blob); });
-  chrome.runtime.sendMessage({ type: 'recording-stopped', dataUrl });
-  cancelAll();
+  try {
+    const a = hostWin.document.createElement('a');
+    a.href = hostWin.URL.createObjectURL(blob);
+    a.download = `reecap-recording-${Date.now()}.webm`;
+    a.click();
+  } catch { /* download blocked */ }
+
+  chrome.runtime.sendMessage({ type: 'get-clicks' }, (clicks) => { handoffData = { blob, clicks: clicks || [] }; tryHandoff(); });
+  if (!handoffWin) chrome.tabs.create({ url: REECAP_URL }); // e.g. share ended → import the saved file
+  hostWin.setTimeout(cancelAll, 12000); // file is already saved; stop waiting after a while
+}
+
+function tryHandoff() {
+  if (!handoffWin || !handoffData || !handoffReady || handoffDone) return;
+  handoffDone = true;
+  try { handoffWin.postMessage({ __reecap: 'screen-recording', video: handoffData.blob, clicks: handoffData.clicks }, REECAP_ORIGIN); } catch { /* posted to wrong origin */ }
+  hostWin.setTimeout(cancelAll, 1500);
 }
 
 function cancelAll() {
+  if (closing) return;
   closing = true;
   if (timer) hostWin.clearInterval(timer);
   [cameraStream, micStream, screenStream].forEach((s) => s && s.getTracks().forEach((t) => t.stop()));

@@ -1,15 +1,12 @@
 // Reecap Recorder — service worker (coordinator).
 //
 // The setup page owns the screen/mic/camera streams, the MediaRecorder, and the
-// floating picture-in-picture control window. This worker just: tracks the
-// recording window in time so click marks line up (excluding paused spans),
-// keeps the clicks reported by content scripts, and hands the finished clip to
-// the Reecap web app.
-
-const REECAP_URL = 'https://reecap.vercel.app/app?recorder=1';
+// floating picture-in-picture control window — and it hands the finished clip
+// straight to Reecap over the opened-window link. This worker just tracks the
+// recording window in time so click marks line up (excluding paused spans) and
+// returns the accumulated clicks on Stop.
 
 let rec = null; // { originalTabId, start, pausedTotal, pauseStart, clicks }
-let pending = null; // { dataUrl, clicks } awaiting the Reecap page "ready"
 
 chrome.action.onClicked.addListener(async () => {
   if (rec) { // already recording → focus the tab you started from
@@ -52,25 +49,11 @@ chrome.runtime.onMessage.addListener((m, sender, send) => {
     case 'page-click':
       if (rec && !rec.pauseStart) rec.clicks.push({ t: elapsed() / 1000, x: m.x, y: m.y });
       break;
-    case 'recording-stopped':
-      finish(m.dataUrl);
-      break;
-    case 'reecap-ready':
-      flush(sender.tab?.id);
+    case 'get-clicks': // controller asks for the click track on Stop
+      send(rec ? rec.clicks : []);
+      rec = null;
+      chrome.action.setBadgeText({ text: '' });
       break;
   }
   return true;
 });
-
-function finish(dataUrl) {
-  pending = { dataUrl, clicks: rec ? rec.clicks : [] };
-  chrome.action.setBadgeText({ text: '' });
-  rec = null;
-  chrome.tabs.create({ url: REECAP_URL });
-}
-
-function flush(tabId) {
-  if (!pending || tabId == null) return;
-  chrome.tabs.sendMessage(tabId, { type: 'reecap-import', dataUrl: pending.dataUrl, clicks: pending.clicks }).catch(() => {});
-  pending = null;
-}
