@@ -18,11 +18,16 @@ export function useDraftResume() {
     done.current = true;
 
     const s = useReecapStore.getState();
-    if (s.photos.length === 0 && !s.currentDraftId.video) {
+    // A "New project" from Home suppresses resume once, so the editor opens fresh.
+    if (s.skipResume.video) {
+      s.setSkipResume('video', false);
+    } else if (s.photos.length === 0 && !s.currentDraftId.video) {
       resumeLatest('video').then((id) => { if (id) setCurrentDraftId('video', id); }).catch(() => {});
     }
     const m = useMotionStore.getState();
-    if (m.doc.layers.length === 0 && !s.currentDraftId.motion) {
+    if (s.skipResume.motion) {
+      s.setSkipResume('motion', false);
+    } else if (m.doc.layers.length === 0 && !s.currentDraftId.motion) {
       resumeLatest('motion').then((id) => { if (id) setCurrentDraftId('motion', id); }).catch(() => {});
     }
   }, [isPremium, setCurrentDraftId]);
