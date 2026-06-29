@@ -31,8 +31,11 @@ interface ReecapStore {
   draftsOpen: boolean;
   controlPanelOpen: boolean; // right settings panel in the video editor
   // Which saved draft the editor is currently working on, per tool. Edits
-  // autosave back into it; null = a fresh project (autosaves to "Last session").
+  // autosave back into it; null = a fresh project (a new draft is created).
   currentDraftId: { video: string | null; motion: string | null };
+  // When set, the editor skips auto-resuming a draft for that tool once (used
+  // when starting a brand-new project from the Home dashboard).
+  skipResume: { video: boolean; motion: boolean };
   inviteCount: number;
   user: { plan: 'pro' | 'free'; name: string; avatar: string } | null;
 
@@ -48,6 +51,7 @@ interface ReecapStore {
   setDraftsOpen: (v: boolean) => void;
   toggleControlPanel: () => void;
   setCurrentDraftId: (tool: 'video' | 'motion', id: string | null) => void;
+  setSkipResume: (tool: 'video' | 'motion', v: boolean) => void;
   removePhoto: (id: string) => void;
   reorderPhotos: (startIndex: number, endIndex: number) => void;
   setActiveIndex: (index: number) => void;
@@ -158,6 +162,7 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   draftsOpen: false,
   controlPanelOpen: true,
   currentDraftId: { video: null, motion: null },
+  skipResume: { video: false, motion: false },
   inviteCount: 0,
   user: savedAuth.user,
 
@@ -187,6 +192,8 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   toggleControlPanel: () => set((s) => ({ controlPanelOpen: !s.controlPanelOpen })),
   setCurrentDraftId: (tool, id) =>
     set((state) => ({ currentDraftId: { ...state.currentDraftId, [tool]: id } })),
+  setSkipResume: (tool, v) =>
+    set((state) => ({ skipResume: { ...state.skipResume, [tool]: v } })),
 
   removePhoto: (id) =>
     set((state) => {

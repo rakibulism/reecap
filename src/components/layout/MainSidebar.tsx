@@ -8,6 +8,7 @@ import {
   Users,
   Gift,
   House,
+  SquaresFour,
   MagicWand,
   PenNib,
   Code,
@@ -161,6 +162,12 @@ const MainSidebar: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto p-3 space-y-6 custom-scrollbar">
           <nav className="space-y-1">
+            <NavItem
+              icon={SquaresFour}
+              label="Home"
+              onClick={() => { toggleSidebar(); navigate('/home'); }}
+            />
+
             {/* Studio — collapsible group of editing tools */}
             <button
               onClick={() => setStudioOpen((v) => !v)}
