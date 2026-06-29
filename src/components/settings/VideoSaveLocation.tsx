@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FolderOpen } from 'phosphor-react';
+import { FolderOpen, WarningCircle } from 'phosphor-react';
 import { useReecapStore } from '../../store/reecapStore';
 import {
   chooseSaveFolder,
@@ -17,6 +17,7 @@ import {
 const VideoSaveLocation: React.FC = () => {
   const { videoSaveMode, setVideoSaveMode } = useReecapStore();
   const [folderName, setFolderName] = useState<string | null>(null);
+  const [folderError, setFolderError] = useState<string | null>(null);
 
   useEffect(() => {
     getSaveDir().then((dir) => setFolderName(dir ? dir.name : null)).catch(() => {});
@@ -28,13 +29,28 @@ const VideoSaveLocation: React.FC = () => {
     { value: 'folder', label: 'A folder I choose', hint: 'Save straight into one folder', disabled: !dirPickerSupported },
   ];
 
+  const pickFolder = async () => {
+    setFolderError(null);
+    const res = await chooseSaveFolder();
+    if (res.ok) {
+      setFolderName(res.name);
+      setVideoSaveMode('folder');
+    } else if (res.reason === 'blocked') {
+      setFolderError(
+        "That folder can't be used — your browser blocks system-protected folders. Pick a regular folder (e.g. a new subfolder inside Movies or Documents), not your home folder, Desktop, or a drive root.",
+      );
+    }
+  };
+
   const choose = async (mode: VideoSaveMode) => {
     if (mode === 'folder') {
-      // Pick a folder first (needs the click gesture); only switch if confirmed.
-      const name = folderName && videoSaveMode === 'folder' ? folderName : await chooseSaveFolder();
-      if (!name) return;
-      setFolderName(name);
+      // Already have a folder and re-selecting "folder" → just keep it. Otherwise
+      // open the picker (needs the click gesture) and only switch if confirmed.
+      if (folderName && videoSaveMode === 'folder') return;
+      await pickFolder();
+      return;
     }
+    setFolderError(null);
     setVideoSaveMode(mode);
   };
 
@@ -76,12 +92,25 @@ const VideoSaveLocation: React.FC = () => {
             {folderName ? `Saving to: ${folderName}` : 'No folder chosen'}
           </span>
           <button
-            onClick={() => choose('folder')}
+            onClick={pickFolder}
             className="shrink-0 font-semibold text-[var(--color-interactive)] hover:underline"
           >
             Change
           </button>
         </div>
+      )}
+
+      {folderError && (
+        <div className="flex items-start gap-2 mt-3 p-3 rounded-[var(--radius-md)] border border-red-500/30 bg-red-500/5 text-[12px] text-[var(--color-text-secondary)] leading-relaxed">
+          <WarningCircle size={16} weight="fill" className="text-red-500 shrink-0 mt-px" />
+          <span>{folderError}</span>
+        </div>
+      )}
+
+      {dirPickerSupported && (
+        <p className="mt-3 text-[12px] text-[var(--color-text-muted)] leading-relaxed">
+          Tip: choose a normal folder you own — system folders (your home folder, Desktop, or a drive root) are blocked by the browser.
+        </p>
       )}
 
       {!fsAccessSupported && (

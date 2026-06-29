@@ -65,16 +65,28 @@ async function ensureWritePermission(
   return false;
 }
 
-// Let the user pick (or change) the default save folder. Returns its name, or
-// null if they cancelled. Must run inside a user gesture.
-export async function chooseSaveFolder(): Promise<string | null> {
+export type FolderPickResult =
+  | { ok: true; name: string }
+  | { ok: false; reason: 'cancelled' | 'blocked' };
+
+// Let the user pick (or change) the default save folder. Must run inside a user
+// gesture. The browser refuses system-protected folders (home, Desktop, drive
+// roots, etc.) — that surfaces here as 'blocked' so the UI can guide the user.
+export async function chooseSaveFolder(): Promise<FolderPickResult> {
   try {
-    const dir = await (window as any).showDirectoryPicker({ mode: 'readwrite', id: 'reecap-videos' });
-    if (!(await ensureWritePermission(dir, true))) return null;
+    const dir = await (window as any).showDirectoryPicker({
+      mode: 'readwrite',
+      id: 'reecap-videos',
+      startIn: 'videos', // a writable, non-system default to start from
+    });
+    if (!(await ensureWritePermission(dir, true))) return { ok: false, reason: 'cancelled' };
     await setSaveDir(dir);
-    return dir.name;
-  } catch {
-    return null; // cancelled or blocked
+    return { ok: true, name: dir.name };
+  } catch (err) {
+    // AbortError = the user dismissed the picker; anything else (e.g. a
+    // SecurityError on a protected folder) is a folder we can't use.
+    const name = (err as { name?: string } | null)?.name;
+    return { ok: false, reason: name === 'AbortError' ? 'cancelled' : 'blocked' };
   }
 }
 
