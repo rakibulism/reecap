@@ -29,6 +29,9 @@ interface ReecapStore {
   isPremium: boolean;
   premiumPromptOpen: boolean;
   draftsOpen: boolean;
+  // Which saved draft the editor is currently working on, per tool. Edits
+  // autosave back into it; null = a fresh project (autosaves to "Last session").
+  currentDraftId: { video: string | null; motion: string | null };
   inviteCount: number;
   user: { plan: 'pro' | 'free'; name: string; avatar: string } | null;
 
@@ -42,6 +45,7 @@ interface ReecapStore {
     audio: { url: string; name: string } | null;
   }) => void;
   setDraftsOpen: (v: boolean) => void;
+  setCurrentDraftId: (tool: 'video' | 'motion', id: string | null) => void;
   removePhoto: (id: string) => void;
   reorderPhotos: (startIndex: number, endIndex: number) => void;
   setActiveIndex: (index: number) => void;
@@ -150,6 +154,7 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   isPremium: savedAuth.isPremium,
   premiumPromptOpen: false,
   draftsOpen: false,
+  currentDraftId: { video: null, motion: null },
   inviteCount: 0,
   user: savedAuth.user,
 
@@ -176,6 +181,8 @@ export const useReecapStore = create<ReecapStore>((set) => ({
     }),
 
   setDraftsOpen: (v) => set({ draftsOpen: v }),
+  setCurrentDraftId: (tool, id) =>
+    set((state) => ({ currentDraftId: { ...state.currentDraftId, [tool]: id } })),
 
   removePhoto: (id) =>
     set((state) => {

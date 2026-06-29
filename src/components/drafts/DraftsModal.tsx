@@ -28,7 +28,7 @@ function ago(ts: number): string {
 }
 
 const DraftsModal: React.FC = () => {
-  const { draftsOpen, setDraftsOpen, activeView, setActiveView } = useReecapStore();
+  const { draftsOpen, setDraftsOpen, activeView, setActiveView, currentDraftId, setCurrentDraftId } = useReecapStore();
   const [drafts, setDrafts] = useState<DraftMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [saveName, setSaveName] = useState('');
@@ -54,7 +54,9 @@ const DraftsModal: React.FC = () => {
     if (!currentTool || busy) return;
     setBusy(true);
     try {
-      await saveNamedDraft(currentTool, saveName || `${TOOL_META[currentTool].label} draft`);
+      const meta = await saveNamedDraft(currentTool, saveName || `${TOOL_META[currentTool].label} draft`);
+      // Keep editing this newly-saved draft — further edits autosave into it.
+      setCurrentDraftId(currentTool, meta.id);
       setSaveName('');
       refresh();
     } finally {
@@ -64,7 +66,11 @@ const DraftsModal: React.FC = () => {
 
   const doOpen = async (id: string) => {
     const tool = await openDraft(id);
-    if (tool) setActiveView(tool === 'video' ? 'editor' : 'motion');
+    if (tool) {
+      // From now on, edits in this tool autosave back into the opened draft.
+      setCurrentDraftId(tool, id);
+      setActiveView(tool === 'video' ? 'editor' : 'motion');
+    }
     close();
   };
 
@@ -145,7 +151,12 @@ const DraftsModal: React.FC = () => {
                           className="w-full h-7 px-2 rounded-[var(--radius-sm)] bg-[var(--color-bg-panel)] border border-[var(--color-primary)] text-[13px] focus:outline-none"
                         />
                       ) : (
-                        <div className="text-[13px] font-semibold truncate">{d.name}</div>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-[13px] font-semibold truncate">{d.name}</span>
+                          {currentDraftId[d.tool] === d.id && (
+                            <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-[var(--color-primary)]/15 text-[var(--color-primary)]">Editing</span>
+                          )}
+                        </div>
                       )}
                       <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-[var(--color-text-muted)]">
                         <TIcon size={11} /> {TOOL_META[d.tool].label}

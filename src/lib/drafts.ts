@@ -222,6 +222,23 @@ export async function updateAutosave(tool: DraftTool): Promise<void> {
   await idbPut(rec);
 }
 
+/**
+ * Autosave the current project into the draft the user has open, if any —
+ * preserving that draft's name and kind — so edits to an opened draft are kept
+ * in it. With no draft open, falls back to the tool's "Last session" slot.
+ */
+export async function autosaveInto(tool: DraftTool, draftId: string | null): Promise<void> {
+  if (draftId) {
+    const existing = await idbGet(draftId);
+    if (existing && existing.tool === tool) {
+      const rec = await buildRecord(tool, existing.id, existing.name, existing.kind);
+      await idbPut(rec);
+      return;
+    }
+  }
+  await updateAutosave(tool);
+}
+
 export async function getAutosave(tool: DraftTool): Promise<DraftMeta | null> {
   const rec = await idbGet(autoId(tool));
   return rec ? toMeta(rec) : null;
