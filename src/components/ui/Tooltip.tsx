@@ -48,9 +48,13 @@ const Tooltip: React.FC<TooltipProps> = ({
     >
       {children}
       {isVisible && (
-        <div className={`absolute ${positionClasses[position]} px-2 py-1 bg-[var(--color-interactive)] text-[var(--color-text-inverse)] text-[11px] font-medium rounded-[var(--radius-sm)] whitespace-nowrap shadow-[var(--shadow-sm)] z-[2000] animate-in fade-in zoom-in-95 duration-150 pointer-events-none`}>
-          {content}
-          <div className={`absolute border-[4px] border-transparent ${arrowClasses[position]}`} />
+        // Positioning (incl. the centering translate) lives on this wrapper so
+        // the inner box's zoom animation can't override the transform.
+        <div className={`absolute ${positionClasses[position]} z-[2000] pointer-events-none`}>
+          <div className="relative px-2 py-1 bg-[var(--color-interactive)] text-[var(--color-text-inverse)] text-[11px] font-medium rounded-[var(--radius-sm)] whitespace-nowrap shadow-[var(--shadow-sm)] animate-in fade-in zoom-in-95 duration-150">
+            {content}
+            <div className={`absolute border-[4px] border-transparent ${arrowClasses[position]}`} />
+          </div>
         </div>
       )}
     </div>

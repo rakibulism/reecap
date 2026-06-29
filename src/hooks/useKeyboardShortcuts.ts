@@ -59,6 +59,16 @@ export function useKeyboardShortcuts() {
         setTheme(themes[(currentIndex + 1) % themes.length]);
       }
 
+      // Alt + N: New video project (clears the editor, skips auto-resume)
+      if (e.altKey && !isMod && e.code === 'KeyN') {
+        e.preventDefault();
+        const st = useReecapStore.getState();
+        st.loadVideoProject({ photos: [], settings: st.settings, projectName: '', playbackSpeed: 1, audio: null });
+        st.setCurrentDraftId('video', null);
+        st.setSkipResume('video', true);
+        st.setActiveView('editor');
+      }
+
       // Cmd + U: Upload (Trigger file picker)
       if (isMod && e.code === 'KeyU') {
         e.preventDefault();
