@@ -9,6 +9,7 @@ import Updates from './pages/Updates';
 import Pricing from './pages/Pricing';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
+import Settings from './pages/Settings';
 
 function App() {
   const { theme } = useReecapStore();
@@ -43,6 +44,7 @@ function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/app" element={<Editor />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
