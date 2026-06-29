@@ -7,6 +7,7 @@ import Canvas from '../components/layout/Canvas';
 import Timeline from '../components/layout/Timeline';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useAudioSync } from '../hooks/useAudioSync';
+import { useViewRouting } from '../hooks/useViewRouting';
 import MainSidebar from '../components/layout/MainSidebar';
 import Community from '../components/community/Community';
 import MediaShelf from '../components/layout/MediaShelf';
@@ -31,14 +32,10 @@ function Editor() {
 
   useKeyboardShortcuts();
   useAudioSync();
-
-  // Deep-link: the Recorder Chrome extension opens /app?recorder=1 after a
-  // capture, so jump straight to the Screen Recorder (where the handoff lands).
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get('recorder') === '1') {
-      setActiveView('recorder');
-    }
-  }, [setActiveView]);
+  // Bind the URL (/app, /app/motion, /app/design, /app/record, /app/community)
+  // to activeView, both directions. Also honours the legacy /app?recorder=1
+  // deep link the Recorder extension uses after a capture.
+  useViewRouting();
 
   useEffect(() => {
     let requestId: number;
