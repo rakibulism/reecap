@@ -74,10 +74,38 @@ function readNameParts(): NameParts {
   }
 }
 
+type User = { plan: 'pro' | 'free'; name: string; avatar: string };
+type Auth = { user: User | null; isPremium: boolean };
+
+const AUTH_KEY = 'reecap-auth';
+
+// Persist the signed-in user + plan so a reload keeps you logged in.
+function readAuth(): Auth {
+  try {
+    const raw = localStorage.getItem(AUTH_KEY);
+    if (!raw) return { user: null, isPremium: false };
+    const p = JSON.parse(raw);
+    return { user: p.user ?? null, isPremium: !!p.isPremium };
+  } catch {
+    return { user: null, isPremium: false };
+  }
+}
+
+function persistAuth(auth: Auth): Auth {
+  try {
+    localStorage.setItem(AUTH_KEY, JSON.stringify(auth));
+  } catch {
+    /* storage unavailable */
+  }
+  return auth;
+}
+
 const AVATARS = {
   pro: 'https://avatars.githubusercontent.com/u/74898633?v=4',
   free: 'https://scontent.fdac80-1.fna.fbcdn.net/v/t39.30808-6/709728364_1695604148259716_6570136783596587279_n.jpg?stp=cp6_dst-jpg_tt6&cstp=mx480x480&ctp=s480x480&_nc_cat=109&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeG6bm9maI_sHLNHEMqwso_OROPNSUvO6EZE481JS87oRjsFBX27DGRCe25QHGFUG_IQKqZB_XQM5cqhAilyq3dQ&_nc_ohc=7QBKdbfZqjUQ7kNvwEfkOwZ&_nc_oc=AdrstV-zHIGpNkBKkS-FrTyK_dQd1P-ZIIRkqW9-mJh97hC0ceUHFMnfgW04bPahLfA&_nc_zt=23&_nc_ht=scontent.fdac80-1.fna&_nc_gid=qENcDJV2SJ1pEEtd5HmN0w&_nc_ss=7b2a8&oh=00_Af-jvEvOmQID4hou56fMOM4Otjqvdr-HX2KoHbX3O9KLQA&oe=6A3F2B6A',
 } as const;
+
+const savedAuth = readAuth();
 
 export const useReecapStore = create<ReecapStore>((set) => ({
   photos: [],
@@ -110,10 +138,10 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   activeView: 'editor',
   activePanel: 'none',
   isSidebarOpen: false,
-  isPremium: false,
+  isPremium: savedAuth.isPremium,
   premiumPromptOpen: false,
   inviteCount: 0,
-  user: null,
+  user: savedAuth.user,
 
   addPhotos: (newPhotos) =>
     set((state) => ({
@@ -186,28 +214,34 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   setActiveView: (view) => set({ activeView: view }),
   setActivePanel: (panel) => set({ activePanel: panel }),
   setSidebarOpen: (v) => set({ isSidebarOpen: v }),
-  setPremium: (v) => set({ isPremium: v }),
+  setPremium: (v) => set((state) => persistAuth({ user: state.user, isPremium: v })),
   openPremiumPrompt: () => set({ premiumPromptOpen: true, isSidebarOpen: false }),
   closePremiumPrompt: () => set({ premiumPromptOpen: false }),
   addInvite: () => set((state) => ({ inviteCount: state.inviteCount + 1 })),
   login: (plan) =>
-    set({
-      user: {
-        plan,
-        name: plan === 'pro' ? 'Pro Member' : 'Free User',
-        avatar: AVATARS[plan],
-      },
-      isPremium: plan === 'pro',
-    }),
-  logout: () => set({ user: null, isPremium: false }),
+    set(
+      persistAuth({
+        user: {
+          plan,
+          name: plan === 'pro' ? 'Pro Member' : 'Free User',
+          avatar: AVATARS[plan],
+        },
+        isPremium: plan === 'pro',
+      }),
+    ),
+  logout: () => set(persistAuth({ user: null, isPremium: false })),
   subscribePremium: () =>
-    set((state) => ({
-      isPremium: true,
-      user: state.user ? { ...state.user, plan: 'pro' } : state.user,
-    })),
+    set((state) =>
+      persistAuth({
+        isPremium: true,
+        user: state.user ? { ...state.user, plan: 'pro' } : state.user,
+      }),
+    ),
   cancelPremium: () =>
-    set((state) => ({
-      isPremium: false,
-      user: state.user ? { ...state.user, plan: 'free' } : state.user,
-    })),
+    set((state) =>
+      persistAuth({
+        isPremium: false,
+        user: state.user ? { ...state.user, plan: 'free' } : state.user,
+      }),
+    ),
 }));
