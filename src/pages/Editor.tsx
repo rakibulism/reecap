@@ -19,6 +19,8 @@ import DesignStudio from '../components/design/DesignStudio';
 import RecorderStudio from '../components/recorder/RecorderStudio';
 import UpgradeGate from '../components/ui/UpgradeGate';
 import PremiumModal from '../components/ui/PremiumModal';
+import DraftsModal from '../components/drafts/DraftsModal';
+import { useDraftAutosave } from '../hooks/useDraftAutosave';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { slideDuration } from '../lib/utils';
 
@@ -35,6 +37,7 @@ function Editor() {
 
   useKeyboardShortcuts();
   useAudioSync();
+  useDraftAutosave();
   // Bind the URL (/app, /app/motion, /app/design, /app/record, /app/community)
   // to activeView, both directions. Also honours the legacy /app?recorder=1
   // deep link the Recorder extension uses after a capture.
@@ -137,6 +140,7 @@ function Editor() {
       />
 
       <PremiumModal isOpen={premiumPromptOpen} onClose={closePremiumPrompt} />
+      <DraftsModal />
 
       <EditorMobileGate />
     </div>

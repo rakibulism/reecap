@@ -28,11 +28,20 @@ interface ReecapStore {
   isSidebarOpen: boolean;
   isPremium: boolean;
   premiumPromptOpen: boolean;
+  draftsOpen: boolean;
   inviteCount: number;
   user: { plan: 'pro' | 'free'; name: string; avatar: string } | null;
 
   // Actions
   addPhotos: (newPhotos: Photo[]) => void;
+  loadVideoProject: (project: {
+    photos: Photo[];
+    settings: ReecapSettings;
+    projectName: string;
+    playbackSpeed: number;
+    audio: { url: string; name: string } | null;
+  }) => void;
+  setDraftsOpen: (v: boolean) => void;
   removePhoto: (id: string) => void;
   reorderPhotos: (startIndex: number, endIndex: number) => void;
   setActiveIndex: (index: number) => void;
@@ -140,6 +149,7 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   isSidebarOpen: false,
   isPremium: savedAuth.isPremium,
   premiumPromptOpen: false,
+  draftsOpen: false,
   inviteCount: 0,
   user: savedAuth.user,
 
@@ -147,6 +157,25 @@ export const useReecapStore = create<ReecapStore>((set) => ({
     set((state) => ({
       photos: [...state.photos, ...newPhotos].slice(0, 30),
     })),
+
+  loadVideoProject: (project) =>
+    set((state) => {
+      // Free the old session's object URLs before swapping in the draft's.
+      state.photos.forEach((p) => {
+        try { URL.revokeObjectURL(p.objectUrl); } catch { /* already gone */ }
+        if (p.thumbnailUrl) { try { URL.revokeObjectURL(p.thumbnailUrl); } catch { /* noop */ } }
+      });
+      return {
+        photos: project.photos,
+        settings: project.settings,
+        projectName: project.projectName,
+        playbackSpeed: project.playbackSpeed,
+        audio: project.audio,
+        activeIndex: 0,
+      };
+    }),
+
+  setDraftsOpen: (v) => set({ draftsOpen: v }),
 
   removePhoto: (id) =>
     set((state) => {
