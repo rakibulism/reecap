@@ -93,7 +93,12 @@ await Promise.all([
   png(mark(512), 192, 'icon-192.png'),
   png(maskable, 512, 'icon-maskable-512.png'),
   png(mark(512, false), 180, 'apple-touch-icon.png'),
-  sharp(Buffer.from(OG)).png().toFile(join(pub, 'og-image.png')),
+  // OG/social card as an opaque JPEG (no alpha channel — some crawlers, notably
+  // X/Twitter, drop transparent PNGs from link cards).
+  sharp(Buffer.from(OG))
+    .flatten({ background: '#0c1224' })
+    .jpeg({ quality: 90, chromaSubsampling: '4:4:4' })
+    .toFile(join(pub, 'og-image.jpg')),
 ]);
 
 writeFileSync(join(pub, 'favicon.svg'), mark(512).trim());
