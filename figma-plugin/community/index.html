@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+  <!-- Primary SEO -->
+  <title>Reecap Motion — Animate Figma Frames into Video & Motion Design</title>
+  <meta name="description" content="Reecap Motion is a free Figma plugin that turns a static frame into a layer-by-layer animation. Copy any frame, rebuild it as editable layers in Reecap, animate it, and export a real MP4 — no install, no account." />
+  <meta name="keywords" content="figma plugin, animate figma, figma to video, motion design, figma animation, frame to video, mp4 export, prototyping, reecap" />
+  <meta name="author" content="rakibulism" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#FF3D03" />
+  <link rel="canonical" href="https://reecap.vercel.app/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Reecap Motion" />
+  <meta property="og:title" content="Reecap Motion — Animate Figma Frames into Video" />
+  <meta property="og:description" content="Copy a Figma frame, rebuild it as editable layers in Reecap, animate it layer by layer, and export MP4. Free, in your browser." />
+  <!-- Absolute URL so crawlers resolve it; defaults to the live Reecap card. When self-hosting this folder, point these at <your-host>/cover.png -->
+  <meta property="og:image" content="https://reecap.vercel.app/og-image.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content="https://reecap.vercel.app/" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@rakibulism" />
+  <meta name="twitter:creator" content="@rakibulism" />
+  <meta name="twitter:title" content="Reecap Motion — Animate Figma Frames into Video" />
+  <meta name="twitter:description" content="Copy a Figma frame, rebuild it as editable layers in Reecap, animate it, and export MP4. Free, in your browser." />
+  <meta name="twitter:image" content="https://reecap.vercel.app/og-image.jpg" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="apple-touch-icon" href="icon-512.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Reecap Motion" />
+
+  <!-- Structured data for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Reecap Motion",
+    "applicationCategory": "DesignApplication",
+    "operatingSystem": "Figma",
+    "description": "A Figma plugin that copies a frame into the Reecap Motion Design tool to animate it layer by layer and export MP4.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "url": "https://reecap.vercel.app/",
+    "author": { "@type": "Person", "name": "rakibulism", "url": "https://x.com/rakibulism" }
+  }
+  </script>
+
+  <style>
+    :root { --o:#FF3D03; --o2:#FF8A5C; --bg:#0a0e1a; --panel:#12121a; --bd:#23232e; --tx:#fff; --mut:#9aa3b8; }
+    * { box-sizing:border-box; } html,body { margin:0; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif; color:var(--tx);
+      background:radial-gradient(1200px 600px at 80% -10%, rgba(255,61,3,.18), transparent 60%), linear-gradient(160deg,#0c1224,#080810);
+      min-height:100vh; line-height:1.5; -webkit-font-smoothing:antialiased; }
+    .wrap { max-width:980px; margin:0 auto; padding:32px 22px 80px; }
+    header.top { display:flex; align-items:center; gap:12px; }
+    header.top img { width:40px; height:40px; border-radius:9px; }
+    header.top b { font-size:18px; } header.top .pill { margin-left:auto; font-size:12px; font-weight:700; letter-spacing:.06em;
+      color:var(--o2); background:rgba(255,61,3,.12); padding:6px 12px; border-radius:999px; }
+    .hero { margin:54px 0 28px; text-align:center; }
+    .hero h1 { font-size:clamp(34px,6vw,60px); line-height:1.05; margin:0 0 14px; letter-spacing:-.02em; }
+    .hero h1 span { color:var(--o2); }
+    .hero p { font-size:clamp(16px,2.4vw,21px); color:var(--mut); max-width:680px; margin:0 auto 26px; }
+    .cta { display:inline-flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+    .btn { display:inline-flex; align-items:center; gap:8px; height:50px; padding:0 24px; border-radius:12px; font-weight:700;
+      font-size:15px; text-decoration:none; cursor:pointer; border:0; }
+    .btn.primary { background:var(--o); color:#fff; } .btn.ghost { background:transparent; color:var(--tx); border:1px solid var(--bd); }
+    .vid { margin:40px 0; border-radius:16px; overflow:hidden; border:1px solid var(--bd); box-shadow:0 30px 80px rgba(0,0,0,.5); background:#000; }
+    .vid video { width:100%; display:block; }
+    h2 { font-size:26px; margin:48px 0 18px; letter-spacing:-.01em; }
+    .steps { display:grid; gap:14px; }
+    .step { display:flex; gap:16px; padding:18px; border:1px solid var(--bd); border-radius:14px; background:rgba(255,255,255,.02); }
+    .step .n { flex:0 0 36px; height:36px; border-radius:10px; background:var(--o); color:#fff; font-weight:800;
+      display:flex; align-items:center; justify-content:center; }
+    .step b { display:block; margin-bottom:3px; } .step p { margin:0; color:var(--mut); font-size:14px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+    .card { border:1px solid var(--bd); border-radius:14px; padding:18px; background:rgba(255,255,255,.02); }
+    .card b { font-size:15px; } .card p { margin:6px 0 0; color:var(--mut); font-size:14px; }
+    .note { margin-top:18px; padding:16px 18px; border:1px solid rgba(34,197,94,.3); background:rgba(34,197,94,.06);
+      border-radius:14px; font-size:14px; color:#cfe9d6; }
+    footer { margin-top:60px; padding-top:26px; border-top:1px solid var(--bd); color:var(--mut); font-size:14px; text-align:center; }
+    footer a { color:var(--o2); text-decoration:none; font-weight:600; }
+    .kbd { font-family:ui-monospace,Menlo,monospace; background:#1b1b25; border:1px solid var(--bd); border-radius:5px; padding:1px 6px; font-size:.9em; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <img src="icon.png" alt="Reecap Motion icon" />
+      <b>Reecap Motion</b>
+      <span class="pill">FIGMA PLUGIN</span>
+    </header>
+
+    <section class="hero">
+      <h1>Animate your <span>Figma frames</span></h1>
+      <p>Reecap Motion copies any frame into the free Reecap Motion Design tool — its text, shapes and groups arrive as editable layers, ready to animate and export as a real MP4.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://reecap.vercel.app/app/motion" target="_blank" rel="noopener">Open Reecap Motion →</a>
+        <a class="btn ghost" href="https://reecap.vercel.app/docs" target="_blank" rel="noopener">Read the docs</a>
+      </div>
+    </section>
+
+    <div class="vid">
+      <video src="demo.mp4" controls playsinline muted loop poster="cover.png" preload="metadata"></video>
+    </div>
+
+    <h2>How to use it</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div><b>Select a frame in Figma</b><p>Any frame, component or group. The plugin shows a live 2× preview that updates as you change your selection.</p></div></div>
+      <div class="step"><div class="n">2</div><div><b>Click “Copy to Reecap”</b><p>Your selection is rebuilt as an editable layer tree and copied to your clipboard. (Or use “Download PNG” to drag the image in.)</p></div></div>
+      <div class="step"><div class="n">3</div><div><b>Open Reecap → Motion</b><p>Go to <a href="https://reecap.vercel.app/app/motion" style="color:var(--o2)">reecap.vercel.app/app/motion</a> and paste with <span class="kbd">⌘V</span> / <span class="kbd">Ctrl+V</span> — or Add Layer → Figma.</p></div></div>
+      <div class="step"><div class="n">4</div><div><b>Animate &amp; export</b><p>Give each layer an in/out animation preset with easing, scrub the timeline, and export a clean MP4.</p></div></div>
+    </div>
+
+    <h2>What comes across</h2>
+    <div class="grid">
+      <div class="card"><b>Text</b><p>Editable — content, size, weight, color and alignment are preserved.</p></div>
+      <div class="card"><b>Shapes</b><p>Rectangles &amp; ellipses arrive as editable shapes with fill and corner radius.</p></div>
+      <div class="card"><b>Groups</b><p>Frames, groups, components and sections stay grouped and nested.</p></div>
+      <div class="card"><b>Everything else</b><p>Vectors, icons, images, gradients and effects are rasterized so they still look right.</p></div>
+    </div>
+
+    <div class="note">🔒 <b>Private by design.</b> No backend, no network requests, no sign-in, and nothing stored — your selection is copied to your clipboard, that’s it.</div>
+
+    <footer>
+      Made by <b>rakibulism</b> · Follow on <a href="https://x.com/rakibulism" target="_blank" rel="noopener">X / Twitter</a><br />
+      Website: <a href="https://reecap.vercel.app" target="_blank" rel="noopener">reecap.vercel.app</a>
+    </footer>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function () {});
+      });
+    }
+  </script>
+</body>
+</html>

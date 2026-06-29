@@ -1,0 +1,15 @@
+{
+  "name": "Reecap Motion — Figma plugin",
+  "short_name": "Reecap Motion",
+  "description": "Animate your Figma frames — copy a frame into Reecap and animate it layer by layer, then export MP4.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c1224",
+  "theme_color": "#FF3D03",
+  "icons": [
+    { "src": "icon.png", "sizes": "128x128", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
