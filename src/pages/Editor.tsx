@@ -31,7 +31,7 @@ function Editor() {
     settings, playbackSpeed, setPlaybackProgress,
     showShortcuts, setShowShortcuts,
     activeView, setActiveView,
-    isPremium, premiumPromptOpen, closePremiumPrompt,
+    isPremium, premiumPromptOpen, closePremiumPrompt, controlPanelOpen,
   } = useReecapStore();
 
   const isMobile = useIsMobile();
@@ -119,7 +119,7 @@ function Editor() {
                   <Canvas />
                 </div>
 
-                <ControlPanel />
+                {controlPanelOpen && <ControlPanel />}
               </div>
 
               <Timeline />
