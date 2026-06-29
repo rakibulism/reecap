@@ -22,6 +22,7 @@ const SECTIONS: Section[] = [
   {
     title: 'Video Editor',
     items: [
+      { keys: 'Alt + N', desc: 'New video project' },
       { keys: '←  /  →', desc: 'Previous / Next photo' },
       { keys: 'Cmd + U', desc: 'Upload images' },
       { keys: 'Shift + E', desc: 'Export video' },

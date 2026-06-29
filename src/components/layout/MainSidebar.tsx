@@ -33,6 +33,27 @@ import { useDesignStore } from '../../store/designStore';
 const REPO_URL = 'https://github.com/rakibulism/reecap';
 const X_URL = 'https://x.com/rakibulism';
 
+// Sidebar section with a collapsible header (matches the "Studio" group).
+const CollapsibleSection: React.FC<{ title: string; defaultOpen?: boolean; children: React.ReactNode }> = ({
+  title,
+  defaultOpen = true,
+  children,
+}) => {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="space-y-1">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between gap-2 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
+      >
+        <span>{title}</span>
+        <CaretDown size={13} weight="bold" className={`transition-transform ${open ? '' : '-rotate-90'}`} />
+      </button>
+      {open && <div className="space-y-1">{children}</div>}
+    </div>
+  );
+};
+
 const MainSidebar: React.FC = () => {
   const {
     isSidebarOpen,
@@ -215,48 +236,38 @@ const MainSidebar: React.FC = () => {
 
           <div className="h-px bg-[var(--color-border-default)] mx-1" />
 
-          <div className="space-y-4">
-            <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider px-1">Account</h4>
-            <div className="space-y-1">
-              {user ? (
-                <NavItem icon={User} label="Switch account" onClick={() => setLoginOpen(true)} />
-              ) : (
-                <NavItem icon={User} label="Login / Register" onClick={() => setLoginOpen(true)} />
-              )}
-              <NavItem
-                icon={Crown}
-                label={isPremium ? 'Manage Premium' : 'Subscribe Premium'}
-                badge={isPremium ? 'Active' : ''}
-                onClick={openPremiumPrompt}
-              />
-            </div>
-          </div>
+          <CollapsibleSection title="Account">
+            {user ? (
+              <NavItem icon={User} label="Switch account" onClick={() => setLoginOpen(true)} />
+            ) : (
+              <NavItem icon={User} label="Login / Register" onClick={() => setLoginOpen(true)} />
+            )}
+            <NavItem
+              icon={Crown}
+              label={isPremium ? 'Manage Premium' : 'Subscribe Premium'}
+              badge={isPremium ? 'Active' : ''}
+              onClick={openPremiumPrompt}
+            />
+          </CollapsibleSection>
 
-          <div className="space-y-4">
-            <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider px-1">Rewards</h4>
+          <CollapsibleSection title="Rewards">
             <NavItem icon={Gift} label="Invite & Earn Audio" badge={`${inviteCount * 3}d`} onClick={() => setInviteOpen(true)} />
-          </div>
+          </CollapsibleSection>
 
-          <div className="space-y-3">
-            <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider px-1">Settings</h4>
-            <div className="space-y-1">
-              <NavItem
-                icon={Gear}
-                label="Settings"
-                onClick={() => { toggleSidebar(); navigate('/settings'); }}
-              />
-              <LinkItem icon={BookOpen} label="Documentation" href="/docs" external />
-              <LinkItem icon={Lifebuoy} label="Help & Support" href="/help" external />
-            </div>
-          </div>
+          <CollapsibleSection title="Settings">
+            <NavItem
+              icon={Gear}
+              label="Settings"
+              onClick={() => { toggleSidebar(); navigate('/settings'); }}
+            />
+            <LinkItem icon={BookOpen} label="Documentation" href="/docs" external />
+            <LinkItem icon={Lifebuoy} label="Help & Support" href="/help" external />
+          </CollapsibleSection>
 
-          <div className="space-y-4">
-            <h4 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider px-1">Connect</h4>
-            <div className="space-y-1">
-              <LinkItem icon={TwitterLogo} label="Follow on X" href={X_URL} />
-              <LinkItem icon={GithubLogo} label="GitHub" href={REPO_URL} />
-            </div>
-          </div>
+          <CollapsibleSection title="Connect">
+            <LinkItem icon={TwitterLogo} label="Follow on X" href={X_URL} />
+            <LinkItem icon={GithubLogo} label="GitHub" href={REPO_URL} />
+          </CollapsibleSection>
         </div>
 
         <div className="p-4 border-t border-[var(--color-border-default)] bg-[var(--color-bg-panel)]/50">
