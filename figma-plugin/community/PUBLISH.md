@@ -86,7 +86,7 @@ animation, motion design, figma to video, mp4 export, prototyping
 **2. Does your plugin/widget make any network requests with services you do not host?** *(checkbox — select all that apply)*
 - ✅ **(a)** My plugin/widget does not make any network requests.
 
-*Rationale: the plugin only reads the selection, writes JSON to the system clipboard, and (optionally) opens reecap.vercel.app in a new browser tab on user click — it issues no fetch/XHR requests itself.*
+*Rationale: the plugin only reads the selection and writes JSON to the system clipboard. On user click it may open an external link in a new browser tab (reecap.vercel.app, the GitHub repo, or the Figma Community listing) — but it issues no fetch/XHR requests itself.*
 
 **3. Does your plugin/widget use any user authentication?** *(radio)*
 - ✅ **(a)** No, my plugin/widget does not require or use any user authentication.

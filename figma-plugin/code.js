@@ -186,6 +186,14 @@ try {
       if (msg.type === 'export') doExport();
       else if (msg.type === 'refresh') reportSelection();
       else if (msg.type === 'close') figma.closePlugin();
+      else if (msg.type === 'welcome-check') {
+        // First-run check — persists per user via clientStorage.
+        figma.clientStorage.getAsync('welcomed').then(function (v) {
+          try { figma.ui.postMessage({ type: 'welcome', show: !v }); } catch (_) {}
+        }).catch(function () {});
+      } else if (msg.type === 'welcome-seen') {
+        figma.clientStorage.setAsync('welcomed', true).catch(function () {});
+      }
     } catch (e) {
       reportError('Message', e);
     }
