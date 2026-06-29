@@ -187,8 +187,13 @@ function hydrateVideo(v: VideoState) {
 }
 
 // ---- public API ------------------------------------------------------------
-const autoId = (tool: DraftTool) => `auto:${tool}`;
 const newId = () => `d_${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`;
+
+// Display name for an auto-created session draft.
+function sessionName(tool: DraftTool): string {
+  if (tool === 'video') return useReecapStore.getState().projectName.trim() || 'Untitled video';
+  return 'Untitled motion';
+}
 
 const toMeta = (r: DraftRecord): DraftMeta => ({
   id: r.id, tool: r.tool, name: r.name, kind: r.kind, updatedAt: r.updatedAt, thumbnail: r.thumbnail,
@@ -216,32 +221,34 @@ export async function saveNamedDraft(tool: DraftTool, name: string): Promise<Dra
   return toMeta(rec);
 }
 
-/** Roll the current project into the tool's autosave slot. */
-export async function updateAutosave(tool: DraftTool): Promise<void> {
-  const rec = await buildRecord(tool, autoId(tool), 'Last session', 'auto');
-  await idbPut(rec);
-}
-
 /**
- * Autosave the current project into the draft the user has open, if any —
- * preserving that draft's name and kind — so edits to an opened draft are kept
- * in it. With no draft open, falls back to the tool's "Last session" slot.
+ * Autosave the current project as a draft. If `draftId` points at an existing
+ * draft for this tool, update it in place (preserving its name + kind);
+ * otherwise create a brand-new per-session draft so each session is kept as its
+ * own draft (no single overwriting "last session" slot). Returns the draft id.
  */
-export async function autosaveInto(tool: DraftTool, draftId: string | null): Promise<void> {
+export async function autosaveSession(tool: DraftTool, draftId: string | null): Promise<string> {
   if (draftId) {
     const existing = await idbGet(draftId);
     if (existing && existing.tool === tool) {
-      const rec = await buildRecord(tool, existing.id, existing.name, existing.kind);
-      await idbPut(rec);
-      return;
+      await idbPut(await buildRecord(tool, existing.id, existing.name, existing.kind));
+      return existing.id;
     }
   }
-  await updateAutosave(tool);
+  const id = newId();
+  await idbPut(await buildRecord(tool, id, sessionName(tool), 'auto'));
+  return id;
 }
 
-export async function getAutosave(tool: DraftTool): Promise<DraftMeta | null> {
-  const rec = await idbGet(autoId(tool));
-  return rec ? toMeta(rec) : null;
+/** Load the most-recently-edited draft for a tool into its store. Returns its id, or null. */
+export async function resumeLatest(tool: DraftTool): Promise<string | null> {
+  const all = (await idbGetAll()).filter((d) => d.tool === tool).sort((a, b) => b.updatedAt - a.updatedAt);
+  const rec = all[0];
+  if (!rec) return null;
+  if (rec.tool === 'video' && rec.video) hydrateVideo(rec.video);
+  else if (rec.tool === 'motion' && rec.motion) useMotionStore.getState().loadDoc(rec.motion);
+  else return null;
+  return rec.id;
 }
 
 /** Load a draft into its tool's store. Returns the tool, or null if missing. */

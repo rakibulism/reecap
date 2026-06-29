@@ -21,6 +21,7 @@ import UpgradeGate from '../components/ui/UpgradeGate';
 import PremiumModal from '../components/ui/PremiumModal';
 import DraftsModal from '../components/drafts/DraftsModal';
 import { useDraftAutosave } from '../hooks/useDraftAutosave';
+import { useDraftResume } from '../hooks/useDraftResume';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { slideDuration } from '../lib/utils';
 
@@ -37,6 +38,7 @@ function Editor() {
 
   useKeyboardShortcuts();
   useAudioSync();
+  useDraftResume();
   useDraftAutosave();
   // Bind the URL (/app, /app/motion, /app/design, /app/record, /app/community)
   // to activeView, both directions. Also honours the legacy /app?recorder=1
