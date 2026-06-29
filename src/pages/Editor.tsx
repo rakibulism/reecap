@@ -17,6 +17,8 @@ import MobileEditor from '../components/layout/MobileEditor';
 import MotionDesigner from '../components/motion/MotionDesigner';
 import DesignStudio from '../components/design/DesignStudio';
 import RecorderStudio from '../components/recorder/RecorderStudio';
+import UpgradeGate from '../components/ui/UpgradeGate';
+import PremiumModal from '../components/ui/PremiumModal';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { slideDuration } from '../lib/utils';
 
@@ -26,6 +28,7 @@ function Editor() {
     settings, playbackSpeed, setPlaybackProgress,
     showShortcuts, setShowShortcuts,
     activeView, setActiveView,
+    isPremium, premiumPromptOpen, closePremiumPrompt,
   } = useReecapStore();
 
   const isMobile = useIsMobile();
@@ -119,9 +122,9 @@ function Editor() {
           ) : activeView === 'motion' ? (
             <MotionDesigner />
           ) : activeView === 'design' ? (
-            <DesignStudio />
+            isPremium ? <DesignStudio /> : <UpgradeGate tool="design" />
           ) : activeView === 'recorder' ? (
-            <RecorderStudio />
+            isPremium ? <RecorderStudio /> : <UpgradeGate tool="recorder" />
           ) : (
             <Community />
           )}
@@ -132,6 +135,8 @@ function Editor() {
         isOpen={showShortcuts}
         onClose={() => setShowShortcuts(false)}
       />
+
+      <PremiumModal isOpen={premiumPromptOpen} onClose={closePremiumPrompt} />
 
       <EditorMobileGate />
     </div>

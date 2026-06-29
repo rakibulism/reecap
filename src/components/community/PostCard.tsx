@@ -5,6 +5,7 @@ import {
 import { useCreatorsStore } from '../../store/creatorsStore';
 import type { Post, PostKind } from '../../types/creators';
 import { REACTIONS, REACTION_EMOJI, timeAgo, compact } from '../../lib/creatorsUtil';
+import { useCommunityGuard } from '../../hooks/useCommunityGuard';
 
 const KIND_BADGE: Record<PostKind, { icon: React.ReactNode; label: string; cls: string }> = {
   image: { icon: <ImageIcon size={12} weight="fill" />, label: 'Photo', cls: 'bg-sky-500/15 text-sky-500' },
@@ -14,6 +15,7 @@ const KIND_BADGE: Record<PostKind, { icon: React.ReactNode; label: string; cls: 
 
 const PostCard: React.FC<{ post: Post }> = ({ post }) => {
   const { creators, meId, react, addComment, share, repost, openProfile } = useCreatorsStore();
+  const { guard } = useCommunityGuard();
   const author = creators[post.authorId];
   const me = creators[meId];
   const [showReactions, setShowReactions] = useState(false);
@@ -37,13 +39,13 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
     setTimeout(() => setShared(false), 1600);
   };
 
-  const submitComment = () => {
+  const submitComment = guard(() => {
     const t = draft.trim();
     if (!t) return;
     addComment(post.id, t);
     setDraft('');
     setShowComments(true);
-  };
+  });
 
   return (
     <article className="bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-lg)] overflow-hidden">
@@ -102,7 +104,7 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
       <div className="grid grid-cols-4 gap-1 px-2 py-1.5 mt-1.5 border-t border-[var(--color-border-default)]">
         <div className="relative" onMouseLeave={() => setShowReactions(false)}>
           <button
-            onClick={() => react(post.id, post.myReaction ?? 'like')}
+            onClick={guard(() => react(post.id, post.myReaction ?? 'like'))}
             onMouseEnter={() => setShowReactions(true)}
             className={`w-full h-9 flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] text-[13px] font-semibold transition-colors
               ${post.myReaction ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'}`}
@@ -113,7 +115,7 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
           {showReactions && (
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 flex gap-0.5 px-1.5 py-1 rounded-full bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] shadow-[var(--shadow-md)] z-10">
               {REACTIONS.map((r) => (
-                <button key={r.key} onClick={() => { react(post.id, r.key); setShowReactions(false); }} title={r.label} className="w-8 h-8 text-[18px] rounded-full hover:bg-[var(--color-bg-hover)] hover:scale-125 transition-transform">{r.emoji}</button>
+                <button key={r.key} onClick={guard(() => { react(post.id, r.key); setShowReactions(false); })} title={r.label} className="w-8 h-8 text-[18px] rounded-full hover:bg-[var(--color-bg-hover)] hover:scale-125 transition-transform">{r.emoji}</button>
               ))}
             </div>
           )}
@@ -122,7 +124,7 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
         <button onClick={() => setShowComments((v) => !v)} className="h-9 flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] text-[13px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]">
           <ChatCircle size={17} /> <span className="hidden sm:inline">Comment</span>
         </button>
-        <button onClick={() => repost(post.id)} className={`h-9 flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] text-[13px] font-semibold transition-colors ${post.reposted ? 'text-emerald-500' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'}`}>
+        <button onClick={guard(() => repost(post.id))} className={`h-9 flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] text-[13px] font-semibold transition-colors ${post.reposted ? 'text-emerald-500' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]'}`}>
           <Repeat size={17} /> <span className="hidden sm:inline">{post.reposted ? 'Reposted' : 'Repost'}</span>
         </button>
         <button onClick={doShare} className="h-9 flex items-center justify-center gap-1.5 rounded-[var(--radius-sm)] text-[13px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)]">

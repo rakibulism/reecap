@@ -27,6 +27,7 @@ interface ReecapStore {
   activePanel: 'none' | 'assets' | 'music';
   isSidebarOpen: boolean;
   isPremium: boolean;
+  premiumPromptOpen: boolean;
   inviteCount: number;
   user: { plan: 'pro' | 'free'; name: string; avatar: string } | null;
 
@@ -53,6 +54,8 @@ interface ReecapStore {
   setActivePanel: (panel: 'none' | 'assets' | 'music') => void;
   setSidebarOpen: (v: boolean) => void;
   setPremium: (v: boolean) => void;
+  openPremiumPrompt: () => void;
+  closePremiumPrompt: () => void;
   addInvite: () => void;
   login: (plan: 'pro' | 'free') => void;
   logout: () => void;
@@ -108,6 +111,7 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   activePanel: 'none',
   isSidebarOpen: false,
   isPremium: false,
+  premiumPromptOpen: false,
   inviteCount: 0,
   user: null,
 
@@ -183,6 +187,8 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   setActivePanel: (panel) => set({ activePanel: panel }),
   setSidebarOpen: (v) => set({ isSidebarOpen: v }),
   setPremium: (v) => set({ isPremium: v }),
+  openPremiumPrompt: () => set({ premiumPromptOpen: true, isSidebarOpen: false }),
+  closePremiumPrompt: () => set({ premiumPromptOpen: false }),
   addInvite: () => set((state) => ({ inviteCount: state.inviteCount + 1 })),
   login: (plan) =>
     set({

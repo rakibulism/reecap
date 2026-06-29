@@ -1,4 +1,4 @@
-
+import { Lock } from 'phosphor-react';
 
 interface Option<T> {
   label: string;
@@ -10,6 +10,8 @@ interface SegmentedControlProps<T> {
   value: T;
   onChange: (value: T) => void;
   className?: string;
+  /** Values shown with a small lock (still clickable — e.g. Pro-gated tools). */
+  lockedValues?: T[];
 }
 
 const SegmentedControl = <T extends string | number>({
@@ -17,6 +19,7 @@ const SegmentedControl = <T extends string | number>({
   value,
   onChange,
   className = '',
+  lockedValues = [],
 }: SegmentedControlProps<T>) => {
   return (
     <div className={`flex p-1 bg-[var(--color-bg-panel)] rounded-[var(--radius-sm)] flex-1 ${className}`}>
@@ -24,7 +27,7 @@ const SegmentedControl = <T extends string | number>({
         <button
           key={option.value}
           onClick={() => onChange(option.value)}
-          className={`flex-1 h-7 flex items-center justify-center text-[12px] font-medium rounded-[3px] transition-all
+          className={`flex-1 h-7 flex items-center justify-center gap-1 text-[12px] font-medium rounded-[3px] transition-all
             ${
               value === option.value
                 ? 'bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] shadow-[var(--shadow-xs)]'
@@ -32,6 +35,7 @@ const SegmentedControl = <T extends string | number>({
             }`}
         >
           {option.label}
+          {lockedValues.includes(option.value) && <Lock size={11} weight="bold" className="opacity-70" />}
         </button>
       ))}
     </div>
