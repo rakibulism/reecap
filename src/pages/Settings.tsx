@@ -4,6 +4,7 @@ import { ArrowLeft, Palette, FilmSlate } from 'phosphor-react';
 import SiteLayout from '../components/site/SiteLayout';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import VideoSaveLocation from '../components/settings/VideoSaveLocation';
+import VideoNameOptions from '../components/settings/VideoNameOptions';
 import { useReecapStore } from '../store/reecapStore';
 import { useSeo } from '../lib/seo';
 
@@ -94,6 +95,17 @@ const Settings: React.FC = () => {
                   ))}
                 </div>
               </Row>
+
+              <div className="h-px bg-[var(--color-border-default)]" />
+
+              <div>
+                <div className="text-[14px] font-semibold mb-1">File name</div>
+                <p className="text-[12px] text-[var(--color-text-muted)] mb-3">
+                  Add details to the name you type in the editor. Example:{' '}
+                  <code className="text-[var(--color-text-secondary)]">Videoname-Widescreen-2026-06-29-14-30-05</code>.
+                </p>
+                <VideoNameOptions />
+              </div>
 
               <div className="h-px bg-[var(--color-border-default)]" />
 
