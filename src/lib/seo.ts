@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 export const SITE_URL = 'https://reecap.vercel.app';
-const DEFAULT_OG = `${SITE_URL}/og-image.png`;
+const DEFAULT_OG = `${SITE_URL}/og-image.jpg`;
 
 interface SeoOptions {
   title: string;
