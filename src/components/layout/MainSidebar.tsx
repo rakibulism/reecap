@@ -20,6 +20,7 @@ import {
   CaretRight,
   Gear,
   Lock,
+  Files,
 } from 'phosphor-react';
 import Button from '../ui/Button';
 import InstallButton from '../ui/InstallButton';
@@ -38,6 +39,7 @@ const MainSidebar: React.FC = () => {
     setActiveView,
     isPremium,
     openPremiumPrompt,
+    setDraftsOpen,
     inviteCount,
     user,
     logout,
@@ -174,6 +176,16 @@ const MainSidebar: React.FC = () => {
             </button>
             <NavItem icon={Record} label="Screen Recorder" id="recorder" badge="New" locked={!isPremium} />
             <NavItem icon={Users} label="Community" id="community" badge="New" />
+            <NavItem
+              icon={Files}
+              label="Drafts"
+              locked={!isPremium}
+              onClick={() => {
+                if (!isPremium) { openPremiumPrompt(); return; }
+                toggleSidebar();
+                setDraftsOpen(true);
+              }}
+            />
           </nav>
 
           <div className="h-px bg-[var(--color-border-default)] mx-1" />

@@ -121,6 +121,7 @@ interface MotionStore {
   addLayer: (type: LayerType) => void;
   addImageLayer: (src: string, naturalW: number, naturalH: number, name?: string) => void;
   importPayload: (payload: ReecapMotionPayload) => void;
+  loadDoc: (doc: MotionDoc) => void;
   updateLayer: (id: string, patch: Partial<MotionLayer>) => void;
   setLayerPositions: (positions: { id: string; x: number; y: number }[]) => void;
   removeLayer: (id: string) => void;
@@ -452,6 +453,7 @@ export const useMotionStore = create<MotionStore>((set) => ({
         time: Math.min(state.time, duration),
       };
     }),
+  loadDoc: (doc) => set({ doc, selectedId: null, selectedIds: [], time: 0, isPlaying: false }),
   setBackground: (color) => set((state) => ({ doc: { ...state.doc, background: color } })),
   setTimelineHeight: (h) => set({ timelineHeight: Math.max(140, Math.min(640, h)) }),
   setTimelineZoom: (z) => set({ timelineZoom: z === null ? null : Math.max(8, Math.min(2000, z)) }),
