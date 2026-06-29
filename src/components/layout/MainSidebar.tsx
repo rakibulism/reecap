@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useReecapStore } from '../../store/reecapStore';
+import {
+  chooseSaveFolder,
+  getSaveDir,
+  fsAccessSupported,
+  dirPickerSupported,
+  type VideoSaveMode,
+} from '../../lib/saveLocation';
 import {
   X,
   User,
@@ -29,6 +36,68 @@ import { useDesignStore } from '../../store/designStore';
 
 const REPO_URL = 'https://github.com/rakibulism/reecap';
 const X_URL = 'https://x.com/rakibulism';
+
+// Where exported videos are saved — Downloads, a "Save as" prompt, or a fixed
+// folder the user picks. Lives in the Settings section.
+const VideoSaveSetting: React.FC = () => {
+  const { videoSaveMode, setVideoSaveMode } = useReecapStore();
+  const [folderName, setFolderName] = useState<string | null>(null);
+
+  useEffect(() => {
+    getSaveDir().then((dir) => setFolderName(dir ? dir.name : null)).catch(() => {});
+  }, []);
+
+  const options: { value: VideoSaveMode; label: string; disabled?: boolean }[] = [
+    { value: 'download', label: 'Downloads' },
+    { value: 'ask', label: 'Ask each time', disabled: !fsAccessSupported },
+    { value: 'folder', label: 'Folder…', disabled: !dirPickerSupported },
+  ];
+
+  const choose = async (mode: VideoSaveMode) => {
+    if (mode === 'folder') {
+      // Pick a folder first (needs the click gesture); only switch if confirmed.
+      const name = folderName && videoSaveMode === 'folder' ? folderName : await chooseSaveFolder();
+      if (!name) return;
+      setFolderName(name);
+    }
+    setVideoSaveMode(mode);
+  };
+
+  return (
+    <div className="px-4 py-2.5 rounded-[var(--radius-md)]">
+      <div className="text-[14px] font-medium text-[var(--color-text-secondary)] mb-2.5">Video save location</div>
+      <div className="grid grid-cols-3 gap-1.5">
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => choose(opt.value)}
+            disabled={opt.disabled}
+            className={`h-8 rounded-[var(--radius-sm)] text-[11px] font-medium transition-all border
+              ${videoSaveMode === opt.value
+                ? 'bg-[var(--color-interactive)] border-[var(--color-interactive)] text-[var(--color-text-inverse)]'
+                : 'bg-[var(--color-bg-surface)] border-[var(--color-border-default)] text-[var(--color-text-muted)] hover:border-[var(--color-text-muted)]'}
+              ${opt.disabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+      {videoSaveMode === 'folder' && (
+        <div className="flex items-center justify-between gap-2 mt-2 text-[11px] text-[var(--color-text-muted)]">
+          <span className="truncate">{folderName ? `Saving to: ${folderName}` : 'No folder chosen'}</span>
+          <button onClick={() => choose('folder')} className="shrink-0 text-[var(--color-interactive)] hover:underline font-medium">
+            Change
+          </button>
+        </div>
+      )}
+      {!fsAccessSupported && (
+        <p className="mt-2 text-[10px] text-[var(--color-text-muted)] leading-relaxed">
+          “Ask each time” and “Folder” need a Chromium-based browser; otherwise exports go to Downloads.
+        </p>
+      )}
+    </div>
+  );
+};
 
 const MainSidebar: React.FC = () => {
   const {
@@ -203,6 +272,7 @@ const MainSidebar: React.FC = () => {
               <span className="text-[14px] font-medium text-[var(--color-text-secondary)]">Theme</span>
               <ThemeToggle />
             </div>
+            <VideoSaveSetting />
             <div className="space-y-1">
               <LinkItem icon={BookOpen} label="Documentation" href="/docs" external />
               <LinkItem icon={Lifebuoy} label="Help & Support" href="/help" external />

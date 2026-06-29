@@ -2,17 +2,31 @@ import { useState } from 'react';
 import { useReecapStore } from '../store/reecapStore';
 import { encodeVideo } from '../lib/webCodecsEncoder';
 import { buildTimeline, renderTimelineFrame } from '../lib/videoRenderer';
+import { prepareVideoSaveTarget, saveVideoBlob, videoFilename, SaveCancelled, type SaveTarget } from '../lib/saveLocation';
 
 const FPS = 30;
 
 export function useExport() {
-  const { photos, settings, audio, playbackSpeed, setExporting, setExportProgress } = useReecapStore();
+  const { photos, settings, projectName, videoSaveMode, audio, playbackSpeed, setExporting, setExportProgress } =
+    useReecapStore();
   const [error, setError] = useState<string | null>(null);
 
   const startExport = async () => {
     if (photos.length < 2) {
       setError('Minimum 2 photos required');
       return;
+    }
+
+    // Pick where the file goes now, while we still have the click's user
+    // activation ("Save as" dialogs / folder permission need it; the long
+    // encode below would otherwise expire it). Bail out if the user cancels.
+    const filename = videoFilename(projectName);
+    let target: SaveTarget = { kind: 'download' };
+    try {
+      target = await prepareVideoSaveTarget(videoSaveMode, filename);
+    } catch (err) {
+      if (err instanceof SaveCancelled) return;
+      throw err;
     }
 
     setExporting(true);
@@ -62,13 +76,8 @@ export function useExport() {
         audioBlob: audio ? await fetch(audio.url).then((r) => r.blob()) : null,
       });
 
-      // Download
-      const url = URL.createObjectURL(videoBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `reecap-export-${new Date().toISOString().slice(0, 10)}.mp4`;
-      a.click();
-      URL.revokeObjectURL(url);
+      // Save to the chosen target (folder / "Save as"), else a plain download.
+      await saveVideoBlob(videoBlob, filename, target);
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Export failed');

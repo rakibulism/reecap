@@ -1,10 +1,13 @@
 import { create } from 'zustand';
 import { type Photo, type ReecapSettings, type Theme } from '../types';
+import { SAVE_MODE_KEY, type VideoSaveMode } from '../lib/saveLocation';
 
 interface ReecapStore {
   photos: Photo[];
   activeIndex: number;
   settings: ReecapSettings;
+  projectName: string;
+  videoSaveMode: VideoSaveMode;
   theme: Theme | 'system';
   playbackSpeed: number;
   showShortcuts: boolean;
@@ -27,6 +30,8 @@ interface ReecapStore {
   setActiveIndex: (index: number) => void;
   updatePhoto: (id: string, patch: Partial<Photo>) => void;
   updateSettings: (patch: Partial<ReecapSettings>) => void;
+  setProjectName: (name: string) => void;
+  setVideoSaveMode: (mode: VideoSaveMode) => void;
   setTheme: (theme: Theme | 'system') => void;
   setPlaying: (v: boolean) => void;
   setExporting: (v: boolean) => void;
@@ -69,6 +74,8 @@ export const useReecapStore = create<ReecapStore>((set) => ({
     imageFit: 'contain',
     exportQuality: '2x',
   },
+  projectName: '',
+  videoSaveMode: (localStorage.getItem(SAVE_MODE_KEY) as VideoSaveMode) || 'download',
   theme: (localStorage.getItem('reecap-theme') as Theme | 'system') || 'system',
   playbackSpeed: 1,
   showShortcuts: false,
@@ -123,6 +130,12 @@ export const useReecapStore = create<ReecapStore>((set) => ({
     set((state) => ({
       settings: { ...state.settings, ...patch },
     })),
+
+  setProjectName: (name) => set({ projectName: name }),
+  setVideoSaveMode: (mode) => {
+    localStorage.setItem(SAVE_MODE_KEY, mode);
+    set({ videoSaveMode: mode });
+  },
 
   setTheme: (theme) => {
     localStorage.setItem('reecap-theme', theme);
