@@ -1,12 +1,13 @@
 import React, { useRef, useState } from 'react';
 import {
-  CircleWavyCheck, Bell, BellRinging, Image as ImageIcon, Sparkle, PenNib, X, Users, Plus,
+  CircleWavyCheck, Bell, BellRinging, Image as ImageIcon, Sparkle, PenNib, X, Users, Plus, Crown,
 } from 'phosphor-react';
 import { useCreatorsStore } from '../../store/creatorsStore';
 import type { PostKind } from '../../types/creators';
 import { compact } from '../../lib/creatorsUtil';
 import PostCard from './PostCard';
 import CreatorProfile from './CreatorProfile';
+import { useCommunityGuard } from '../../hooks/useCommunityGuard';
 
 const KIND_META: Record<PostKind, { icon: React.ReactNode; label: string; accept: string }> = {
   image: { icon: <ImageIcon size={16} />, label: 'Photo', accept: 'image/*' },
@@ -16,6 +17,7 @@ const KIND_META: Record<PostKind, { icon: React.ReactNode; label: string; accept
 
 const Composer: React.FC = () => {
   const { me, composePost } = useCreatorsStore();
+  const { canInteract, openPremiumPrompt } = useCommunityGuard();
   const meUser = me();
   const [text, setText] = useState('');
   const [kind, setKind] = useState<PostKind>('image');
@@ -39,6 +41,29 @@ const Composer: React.FC = () => {
     composePost({ kind, text: text.trim(), media: media ?? `https://picsum.photos/seed/${Date.now()}/1000/700`, video });
     reset();
   };
+
+  // Free / guest users get a preview-only feed — posting is Pro-only.
+  if (!canInteract) {
+    return (
+      <button
+        onClick={openPremiumPrompt}
+        className="w-full flex items-center gap-3 text-left bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-lg)] p-4 hover:border-[var(--color-primary)]/50 transition-colors group"
+      >
+        <span className="w-10 h-10 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center shrink-0">
+          <Crown size={20} weight="fill" />
+        </span>
+        <span className="min-w-0">
+          <span className="block text-[14px] font-semibold">Posting is a Pro feature</span>
+          <span className="block text-[12px] text-[var(--color-text-muted)]">
+            You can browse and preview the community. Upgrade to post, react, and follow.
+          </span>
+        </span>
+        <span className="ml-auto shrink-0 hidden sm:inline-flex items-center gap-1.5 h-8 px-4 rounded-full bg-[var(--color-primary)] text-white text-[12px] font-bold group-hover:opacity-90">
+          Upgrade
+        </span>
+      </button>
+    );
+  }
 
   return (
     <div className="bg-[var(--color-bg-surface)] border border-[var(--color-border-default)] rounded-[var(--radius-lg)] p-4">
@@ -86,6 +111,7 @@ const CreatorsCommunity: React.FC = () => {
     communityFollowed, communityNotify, communityFollowers,
     toggleCommunityFollow, toggleCommunityNotify, toggleFollow, openProfile,
   } = useCreatorsStore();
+  const { guard } = useCommunityGuard();
 
   const suggestions = Object.values(creators).filter((c) => c.id !== meId && !c.following).slice(0, 4);
 
@@ -118,7 +144,7 @@ const CreatorsCommunity: React.FC = () => {
             </div>
             <div className="flex items-center gap-2 pb-1">
               <button
-                onClick={toggleCommunityNotify}
+                onClick={guard(toggleCommunityNotify)}
                 disabled={!communityFollowed}
                 title="Get notified"
                 className={`w-9 h-9 flex items-center justify-center rounded-full border transition-colors disabled:opacity-40
@@ -127,7 +153,7 @@ const CreatorsCommunity: React.FC = () => {
                 {communityNotify ? <BellRinging size={17} weight="fill" /> : <Bell size={17} />}
               </button>
               <button
-                onClick={toggleCommunityFollow}
+                onClick={guard(toggleCommunityFollow)}
                 className={`h-9 px-5 rounded-full text-[13px] font-bold transition-colors
                   ${communityFollowed ? 'bg-[var(--color-bg-surface)] border border-[var(--color-border-strong)]' : 'bg-[var(--color-primary)] text-white hover:opacity-90'}`}
               >
@@ -161,7 +187,7 @@ const CreatorsCommunity: React.FC = () => {
                     </button>
                     <p className="text-[11px] text-[var(--color-text-muted)] truncate">{compact(c.followers)} followers</p>
                   </div>
-                  <button onClick={() => toggleFollow(c.id)} className="shrink-0 h-7 px-3 rounded-full bg-[var(--color-primary)] text-white text-[12px] font-bold hover:opacity-90 flex items-center gap-1">
+                  <button onClick={guard(() => toggleFollow(c.id))} className="shrink-0 h-7 px-3 rounded-full bg-[var(--color-primary)] text-white text-[12px] font-bold hover:opacity-90 flex items-center gap-1">
                     <Plus size={12} weight="bold" /> Follow
                   </button>
                 </div>

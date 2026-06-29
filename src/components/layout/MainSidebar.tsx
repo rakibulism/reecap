@@ -19,11 +19,11 @@ import {
   SignOut,
   CaretRight,
   Gear,
+  Lock,
 } from 'phosphor-react';
 import Button from '../ui/Button';
 import InstallButton from '../ui/InstallButton';
 import LoginModal from '../ui/LoginModal';
-import PremiumModal from '../ui/PremiumModal';
 import InviteModal from '../ui/InviteModal';
 import { useDesignStore } from '../../store/designStore';
 
@@ -37,13 +37,13 @@ const MainSidebar: React.FC = () => {
     activeView,
     setActiveView,
     isPremium,
+    openPremiumPrompt,
     inviteCount,
     user,
     logout,
   } = useReecapStore();
   const navigate = useNavigate();
   const [loginOpen, setLoginOpen] = useState(false);
-  const [premiumOpen, setPremiumOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
 
   if (!isSidebarOpen) return null;
@@ -53,12 +53,14 @@ const MainSidebar: React.FC = () => {
     label,
     id,
     badge,
+    locked,
     onClick,
   }: {
     icon: any;
     label: string;
     id?: string;
     badge?: string;
+    locked?: boolean;
     onClick?: () => void;
   }) => (
     <button
@@ -81,6 +83,7 @@ const MainSidebar: React.FC = () => {
             {badge}
           </span>
         )}
+        {locked && <Lock size={13} weight="fill" className="text-[var(--color-text-muted)]" />}
         <CaretRight size={14} className="opacity-0 group-hover:opacity-40 transition-opacity" />
       </div>
     </button>
@@ -156,7 +159,7 @@ const MainSidebar: React.FC = () => {
           <nav className="space-y-1">
             <NavItem icon={House} label="Video Editor" id="editor" />
             <NavItem icon={MagicWand} label="Motion Design" id="motion" />
-            <NavItem icon={PenNib} label="Design" id="design" badge="New" />
+            <NavItem icon={PenNib} label="Design" id="design" badge="New" locked={!isPremium} />
             {/* Dev tool lives inside the Design tool */}
             <button
               onClick={() => {
@@ -169,7 +172,7 @@ const MainSidebar: React.FC = () => {
               <Code size={16} className="shrink-0" />
               <span className="text-[13px] font-medium truncate">Dev tool</span>
             </button>
-            <NavItem icon={Record} label="Screen Recorder" id="recorder" badge="New" />
+            <NavItem icon={Record} label="Screen Recorder" id="recorder" badge="New" locked={!isPremium} />
             <NavItem icon={Users} label="Community" id="community" badge="New" />
           </nav>
 
@@ -187,7 +190,7 @@ const MainSidebar: React.FC = () => {
                 icon={Crown}
                 label={isPremium ? 'Manage Premium' : 'Subscribe Premium'}
                 badge={isPremium ? 'Active' : ''}
-                onClick={() => setPremiumOpen(true)}
+                onClick={openPremiumPrompt}
               />
             </div>
           </div>
@@ -223,7 +226,7 @@ const MainSidebar: React.FC = () => {
           <InstallButton variant="solid" className="w-full justify-center mb-4" />
           {!isPremium && (
             <button
-              onClick={() => setPremiumOpen(true)}
+              onClick={openPremiumPrompt}
               className="w-full text-left bg-gradient-to-br from-amber-400/10 to-orange-500/10 border border-amber-500/25 rounded-[var(--radius-md)] p-3 mb-4 hover:border-amber-500/50 transition-colors group"
             >
               <div className="flex items-center gap-2 mb-1 text-amber-600 dark:text-amber-400">
@@ -248,7 +251,6 @@ const MainSidebar: React.FC = () => {
       </aside>
 
       <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
-      <PremiumModal isOpen={premiumOpen} onClose={() => setPremiumOpen(false)} />
       <InviteModal isOpen={inviteOpen} onClose={() => setInviteOpen(false)} />
     </div>
   );

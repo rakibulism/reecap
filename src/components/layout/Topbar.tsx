@@ -21,7 +21,7 @@ const Topbar: React.FC = () => {
     settings, updateSettings,
     isExporting, exportProgress, setShowShortcuts,
     toggleSidebar, activeView, setActiveView,
-    projectName, setProjectName,
+    projectName, setProjectName, isPremium,
   } = useReecapStore();
   const { startExport } = useExport();
   const [designMenu, setDesignMenu] = useState(false);
@@ -76,6 +76,7 @@ const Topbar: React.FC = () => {
             ]}
             value={isMotion ? 'motion' : isDesign ? 'design' : isRecorder ? 'recorder' : 'editor'}
             onChange={(v) => setActiveView(v as any)}
+            lockedValues={isPremium ? [] : ['design', 'recorder']}
             className="w-[280px]"
           />
         </div>

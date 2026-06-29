@@ -3,9 +3,11 @@ import { ArrowLeft, MapPin, CircleWavyCheck, Bell, BellRinging } from 'phosphor-
 import { useCreatorsStore } from '../../store/creatorsStore';
 import { compact } from '../../lib/creatorsUtil';
 import PostCard from './PostCard';
+import { useCommunityGuard } from '../../hooks/useCommunityGuard';
 
 const CreatorProfile: React.FC<{ id: string }> = ({ id }) => {
   const { creators, posts, meId, toggleFollow, toggleNotify, openProfile } = useCreatorsStore();
+  const { guard } = useCommunityGuard();
   const c = creators[id];
   if (!c) return null;
   const isMe = id === meId;
@@ -27,7 +29,7 @@ const CreatorProfile: React.FC<{ id: string }> = ({ id }) => {
             {!isMe && (
               <div className="flex items-center gap-2 mb-1">
                 <button
-                  onClick={() => toggleNotify(c.id)}
+                  onClick={guard(() => toggleNotify(c.id))}
                   disabled={!c.following}
                   title="Get notified"
                   className={`w-9 h-9 flex items-center justify-center rounded-full border transition-colors disabled:opacity-40
@@ -36,7 +38,7 @@ const CreatorProfile: React.FC<{ id: string }> = ({ id }) => {
                   {c.notify ? <BellRinging size={17} weight="fill" /> : <Bell size={17} />}
                 </button>
                 <button
-                  onClick={() => toggleFollow(c.id)}
+                  onClick={guard(() => toggleFollow(c.id))}
                   className={`h-9 px-5 rounded-full text-[13px] font-bold transition-colors
                     ${c.following ? 'bg-[var(--color-bg-panel)] border border-[var(--color-border-strong)] text-[var(--color-text-primary)]' : 'bg-[var(--color-primary)] text-white hover:opacity-90'}`}
                 >
