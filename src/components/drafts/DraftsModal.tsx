@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { X, FloppyDisk, FilmSlate, MagicWand, PencilSimple, Trash, FolderOpen, Check } from 'phosphor-react';
+import { X, FloppyDisk, FilmSlate, MagicWand, PencilSimple, Trash, FolderOpen, Check, Plus } from 'phosphor-react';
 import { useReecapStore } from '../../store/reecapStore';
+import { useMotionStore } from '../../store/motionStore';
 import {
   listDrafts,
   saveNamedDraft,
@@ -74,6 +75,21 @@ const DraftsModal: React.FC = () => {
     close();
   };
 
+  // Start a fresh project — clears the editor and detaches from the current
+  // draft, so the next edits create a new per-session draft.
+  const newProject = () => {
+    if (!currentTool) return;
+    if (currentTool === 'video') {
+      const st = useReecapStore.getState();
+      st.loadVideoProject({ photos: [], settings: st.settings, projectName: '', playbackSpeed: 1, audio: null });
+      setCurrentDraftId('video', null);
+    } else {
+      useMotionStore.getState().loadDoc({ width: 1920, height: 1080, duration: 4, background: '#111111', layers: [] });
+      setCurrentDraftId('motion', null);
+    }
+    close();
+  };
+
   const commitRename = async (id: string) => {
     await renameDraft(id, renameValue);
     setRenameId(null);
@@ -94,9 +110,20 @@ const DraftsModal: React.FC = () => {
             <h2 className="text-[16px] font-bold tracking-tight">Drafts</h2>
             <p className="text-[12px] text-[var(--color-text-muted)] mt-0.5">Saved in this browser. Open one to keep editing.</p>
           </div>
-          <button onClick={close} className="p-1.5 rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]">
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-2">
+            {currentTool && (
+              <button
+                onClick={newProject}
+                title={`Start a new ${TOOL_META[currentTool].label.toLowerCase()} project`}
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-[var(--radius-sm)] border border-[var(--color-border-default)] text-[12px] font-semibold hover:border-[var(--color-primary)]"
+              >
+                <Plus size={14} weight="bold" /> New {TOOL_META[currentTool].label.toLowerCase()}
+              </button>
+            )}
+            <button onClick={close} className="p-1.5 rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]">
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Save current */}
