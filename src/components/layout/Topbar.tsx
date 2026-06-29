@@ -20,7 +20,8 @@ const Topbar: React.FC = () => {
   const {
     settings, updateSettings,
     isExporting, exportProgress, setShowShortcuts,
-    toggleSidebar, activeView, setActiveView
+    toggleSidebar, activeView, setActiveView,
+    projectName, setProjectName,
   } = useReecapStore();
   const { startExport } = useExport();
   const [designMenu, setDesignMenu] = useState(false);
@@ -78,6 +79,24 @@ const Topbar: React.FC = () => {
             className="w-[280px]"
           />
         </div>
+
+        {/* Editable file name for the current video (used as the export name) */}
+        {isVideo && (
+          <div className="border-l border-[var(--color-border-default)] pl-3 ml-1 hidden lg:flex items-center">
+            <Tooltip content="Name this video — used as the export file name" position="bottom">
+              <input
+                type="text"
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+                placeholder="Untitled video"
+                spellCheck={false}
+                aria-label="Video file name"
+                className="w-[160px] bg-transparent text-[13px] font-medium text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] rounded-[var(--radius-sm)] px-2 py-1 truncate hover:bg-[var(--color-bg-hover)] focus:bg-[var(--color-bg-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--color-interactive)] transition-colors"
+              />
+            </Tooltip>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 flex justify-center">
