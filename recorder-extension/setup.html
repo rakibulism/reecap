@@ -25,7 +25,14 @@
       input:checked + .sw::after { left: 19px; }
       .btn { width: 100%; height: 48px; border: 0; border-radius: 12px; background: #ef4444; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; }
       .btn:hover { background: #dc2626; }
+      .field { margin-bottom: 14px; }
+      .field label { display: block; font-size: 12px; color: #a1a1aa; margin-bottom: 6px; }
+      .field input { width: 100%; height: 44px; padding: 0 12px; border: 1px solid #27272a; border-radius: 12px;
+        background: #0b0b0f; color: #fafafa; font-size: 14px; }
+      .field input:focus { outline: none; border-color: #ef4444; }
+      .field .hint { font-size: 11px; color: #71717a; margin: 6px 2px 0; }
       .note { font-size: 11px; color: #71717a; text-align: center; margin: 12px 0 0; line-height: 1.5; }
+      .note a { color: #a1a1aa; }
       #stage2 { display: none; text-align: center; }
       #stage2 .dot { width: 12px; height: 12px; border-radius: 50%; background: #ef4444; display: inline-block; animation: p 1.2s infinite; }
       @keyframes p { 0%,100%{opacity:1} 50%{opacity:.3} }
@@ -38,12 +45,18 @@
       <h1>Set up your recording</h1>
       <p class="sub">A floating window with your webcam and controls will hover above every page. Records your whole screen; each click becomes a zoom in Reecap.</p>
 
+      <div class="field">
+        <label for="filename">Recording name</label>
+        <input type="text" id="filename" placeholder="reecap-recording" autocomplete="off" spellcheck="false" />
+        <p class="hint">Saved as <code>&lt;name&gt;.webm</code> when you stop. Edit it here before you open the controls; set a default in <a href="#" id="openSettingsHint">Save settings</a>.</p>
+      </div>
+
       <label class="opt"><span class="ic">🎥</span><span class="lbl"><b>Webcam bubble</b><span>Shown in the floating window &amp; the video</span></span><input type="checkbox" id="cam" checked /><span class="sw"></span></label>
       <label class="opt"><span class="ic">🎙️</span><span class="lbl"><b>Microphone</b><span>Record your voice</span></span><input type="checkbox" id="mic" checked /><span class="sw"></span></label>
       <label class="opt"><span class="ic">🔊</span><span class="lbl"><b>Tab / system audio</b><span>Sound from the page or your computer</span></span><input type="checkbox" id="sys" checked /><span class="sw"></span></label>
 
       <button class="btn" id="open">Open floating controls</button>
-      <p class="note">Keep this tab open while recording — it can sit in the background.</p>
+      <p class="note">Keep this tab open while recording — it can sit in the background.<br /><a href="#" id="openSettings">Save settings</a></p>
     </div>
 
     <div class="card" id="stage2">
@@ -52,6 +65,7 @@
       <div id="fallback"></div>
     </div>
 
+    <script src="storage.js"></script>
     <script src="setup.js"></script>
   </body>
 </html>

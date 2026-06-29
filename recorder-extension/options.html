@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Reecap Recorder — Settings</title>
+    <style>
+      :root { color-scheme: light dark; }
+      * { box-sizing: border-box; }
+      body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0b0b0f; color: #fafafa; padding: 24px; }
+      .card { width: 100%; max-width: 480px; background: #18181b; border: 1px solid #27272a; border-radius: 20px; padding: 24px; }
+      .kicker { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #ef4444; margin: 0 0 6px; }
+      h1 { font-size: 22px; margin: 0 0 6px; }
+      p.sub { font-size: 13px; color: #a1a1aa; margin: 0 0 18px; line-height: 1.5; }
+      h2 { font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #a1a1aa; margin: 22px 0 10px; }
+      .opt { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1px solid #27272a; border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
+      .opt:hover { border-color: #3f3f46; }
+      .opt.sel { border-color: #ef4444; background: #1f1417; }
+      .opt input { margin-top: 3px; accent-color: #ef4444; }
+      .opt .lbl b { display: block; font-size: 14px; }
+      .opt .lbl span { font-size: 12px; color: #a1a1aa; }
+      .field { margin-bottom: 10px; }
+      .field label { display: block; font-size: 12px; color: #a1a1aa; margin-bottom: 6px; }
+      .field input[type=text] { width: 100%; height: 42px; padding: 0 12px; border: 1px solid #27272a; border-radius: 10px;
+        background: #0b0b0f; color: #fafafa; font-size: 14px; }
+      .field input[type=text]:focus { outline: none; border-color: #ef4444; }
+      .folder { display: flex; align-items: center; gap: 10px; margin: 4px 0 0 36px; }
+      .folder .pick { height: 34px; padding: 0 14px; border: 1px solid #3f3f46; border-radius: 999px; background: #27272a; color: #fafafa; font-size: 13px; cursor: pointer; }
+      .folder .pick:hover { background: #3f3f46; }
+      .folder .name { font-size: 12px; color: #a1a1aa; }
+      .note { font-size: 11px; color: #71717a; margin: 14px 0 0; line-height: 1.5; }
+      .saved { font-size: 12px; color: #22c55e; opacity: 0; transition: opacity .2s; margin-top: 14px; height: 16px; }
+      .saved.show { opacity: 1; }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <p class="kicker">Reecap Recorder</p>
+      <h1>Settings</h1>
+      <p class="sub">Choose how your recordings are saved when you press Stop.</p>
+
+      <h2>Recording name</h2>
+      <div class="field">
+        <label for="defaultName">Default file name for new recordings</label>
+        <input type="text" id="defaultName" placeholder="reecap-recording" autocomplete="off" spellcheck="false" />
+      </div>
+
+      <h2>Where to save</h2>
+      <label class="opt" id="opt-download">
+        <input type="radio" name="saveMode" value="download" />
+        <span class="lbl"><b>Browser Downloads folder</b><span>Save automatically, no prompt — same as before.</span></span>
+      </label>
+      <label class="opt" id="opt-ask">
+        <input type="radio" name="saveMode" value="ask" />
+        <span class="lbl"><b>Ask me each time</b><span>Show a “Save as” dialog so you can confirm the location and name.</span></span>
+      </label>
+      <label class="opt" id="opt-folder">
+        <input type="radio" name="saveMode" value="folder" />
+        <span class="lbl"><b>A folder I choose</b><span>Save straight into one folder every time — no dialog.</span></span>
+      </label>
+      <div class="folder" id="folderRow" hidden>
+        <button type="button" class="pick" id="pickFolder">Choose folder…</button>
+        <span class="name" id="folderName">No folder chosen yet</span>
+      </div>
+
+      <p class="note" id="fsNote" hidden>“Ask me each time” and “A folder I choose” need a Chromium-based browser (Chrome, Edge, Brave). Other browsers fall back to the Downloads folder.</p>
+      <p class="saved" id="saved">Saved ✓</p>
+    </div>
+
+    <script src="storage.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

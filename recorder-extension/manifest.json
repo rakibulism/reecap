@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
   "name": "Reecap Recorder",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Record your whole screen with webcam, voice and click-to-zoom. A floating picture-in-picture window controls the recording from anywhere. Edit in Reecap.",
   "permissions": ["tabs", "storage", "activeTab"],
   "host_permissions": ["<all_urls>"],
   "background": { "service_worker": "background.js" },
+  "options_ui": { "page": "options.html", "open_in_tab": true },
   "action": { "default_title": "Reecap Recorder — click to set up a recording" },
   "content_scripts": [
     { "matches": ["<all_urls>"], "js": ["content.js"], "run_at": "document_idle", "all_frames": false }

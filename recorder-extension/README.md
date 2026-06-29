@@ -11,13 +11,25 @@ Record your **whole screen** with **webcam**, **voice**, **system audio**, and a
 
 ## Use
 
-1. Click the **Reecap Recorder** icon → a setup tab opens. Toggle **Webcam**, **Microphone**, **Tab/system audio**, then **Open floating controls**.
+1. Click the **Reecap Recorder** icon → a setup tab opens. Give the recording a **name** (saved as `<name>.webm`), toggle **Webcam**, **Microphone**, **Tab/system audio**, then **Open floating controls**.
 2. A **picture-in-picture window** pops out with your webcam preview and a **Start recording** button. It floats on top of everything.
 3. Click **Start recording** → pick what to share (choose **Entire Screen**). Approve camera/mic the first time.
 4. Record. The floating window stays on top wherever you go — pause/resume, restart, discard, or **Stop** from any tab or app. The timer shows your length.
 5. **Stop** → Reecap opens with your recording, click-zooms applied. Tune and **Export** (MP4 or WebM).
 
 The floating window's buttons mirror the Vimeo controls: **🗑 discard · ↻ restart · ❚❚ pause/resume**, and a red **■ Stop** with the timer.
+
+## Settings
+
+Open the **Settings** page from the extension's options (right-click the toolbar icon → **Options**, or the **Save settings** link on the setup tab):
+
+- **Recording name** — the default file name used for new recordings (overridable per-recording on the setup tab).
+- **Where to save** — pick one:
+  - **Browser Downloads folder** — saved automatically, no prompt (default).
+  - **Ask me each time** — shows a “Save as” dialog so you confirm the location and name.
+  - **A folder I choose** — saved straight into one folder every time, no dialog.
+
+"Ask me each time" and "A folder I choose" use the File System Access API and need a Chromium-based browser; elsewhere the recorder falls back to the Downloads folder so a recording is never lost.
 
 ## How it works
 
