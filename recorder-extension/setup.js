@@ -25,13 +25,32 @@ let pendingAction = null; // 'stop' | 'discard' | 'restart'
 let closing = false;
 let refs = {};
 
+// save preferences (from storage.js) + the target picked during the Stop click
+let settings = { saveMode: 'download', defaultName: 'reecap-recording' };
+let savePrep = null; // Promise<{kind:'file'|'dir', handle}|null>, resolved within the Stop gesture
+
 // handoff state
 let handoffWin = null, handoffData = null, handoffReady = false, handoffDone = false;
 
 (async () => {
   const { setup } = await chrome.storage.session.get('setup');
   originalTabId = setup?.originalTabId ?? null;
+  settings = await getSettings();
+  const fn = document.getElementById('filename');
+  if (fn && !fn.value) fn.value = settings.defaultName || 'reecap-recording';
 })();
+
+// "Save settings" links → open the options page.
+for (const id of ['openSettings', 'openSettingsHint']) {
+  const el = document.getElementById(id);
+  if (el) el.onclick = (e) => { e.preventDefault(); chrome.runtime.openOptionsPage(); };
+}
+
+// The file name for this recording: the field on the setup page, else the default.
+function recordingFilename() {
+  const raw = (document.getElementById('filename')?.value || settings.defaultName || '').trim();
+  return toWebmFilename(raw);
+}
 
 const want = (id) => document.getElementById(id).checked;
 
@@ -60,6 +79,10 @@ async function openControls() {
     // Open Reecap now (while we have the click's user activation) so we can
     // post the recording straight to it.
     try { handoffWin = hostWin.open(REECAP_URL, '_blank'); } catch { handoffWin = null; }
+    // Pick the save target now too — "Save as" dialogs and folder-permission
+    // prompts need the click's user activation; the blob is written once it's
+    // ready in onRecStop. Started, not awaited, so Stop happens immediately.
+    savePrep = prepareSaveTarget();
     recorder && recorder.stop();
   };
 
@@ -130,7 +153,7 @@ function tick() {
   refs.time.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
-function onRecStop() {
+async function onRecStop() {
   const action = pendingAction; pendingAction = null;
   if (action === 'restart') {
     chrome.runtime.sendMessage({ type: 'rec-restart' });
@@ -140,18 +163,59 @@ function onRecStop() {
   }
   if (action === 'discard') { chrome.runtime.sendMessage({ type: 'rec-cancel' }); cancelAll(); return; }
 
-  // stop → save + hand off
+  // stop → save (to the chosen target, falling back to a download) + hand off.
+  // Await the save first so a "Save as" dialog isn't cut short by the cleanup
+  // timers below closing the floating window.
   const blob = new hostWin.Blob(chunks, { type: 'video/webm' });
-  try {
-    const a = hostWin.document.createElement('a');
-    a.href = hostWin.URL.createObjectURL(blob);
-    a.download = `reecap-recording-${Date.now()}.webm`;
-    a.click();
-  } catch { /* download blocked */ }
+  await saveRecording(blob);
 
   chrome.runtime.sendMessage({ type: 'get-clicks' }, (clicks) => { handoffData = { blob, clicks: clicks || [] }; tryHandoff(); });
   if (!handoffWin) chrome.tabs.create({ url: REECAP_URL }); // e.g. share ended → import the saved file
   hostWin.setTimeout(cancelAll, 12000); // file is already saved; stop waiting after a while
+}
+
+// Resolve where this recording should go, using the click's user activation.
+// Stage1's pendingAction handler (pagehide/share-ended) can stop without ever
+// running this, so it returns null and we fall back to a plain download.
+async function prepareSaveTarget() {
+  try {
+    if (settings.saveMode === 'ask' && hostWin.showSaveFilePicker) {
+      const handle = await hostWin.showSaveFilePicker({
+        suggestedName: recordingFilename(),
+        types: [{ description: 'WebM video', accept: { 'video/webm': ['.webm'] } }],
+      });
+      return { kind: 'file', handle };
+    }
+    if (settings.saveMode === 'folder') {
+      const dir = await getSaveDir();
+      if (dir && (await ensureWritePermission(dir, true))) return { kind: 'dir', handle: dir };
+    }
+  } catch { /* cancelled / unsupported → fall back below */ }
+  return null;
+}
+
+// Write the blob to the prepared target; on any miss, download it so the
+// recording is never lost.
+async function saveRecording(blob) {
+  const name = recordingFilename();
+  try {
+    const target = savePrep ? await savePrep : null;
+    if (target && target.handle) {
+      const fileHandle = target.kind === 'dir'
+        ? await target.handle.getFileHandle(name, { create: true })
+        : target.handle;
+      const writable = await fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    }
+  } catch { /* writing failed → download instead */ }
+  try {
+    const a = hostWin.document.createElement('a');
+    a.href = hostWin.URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+  } catch { /* download blocked */ }
 }
 
 function tryHandoff() {
