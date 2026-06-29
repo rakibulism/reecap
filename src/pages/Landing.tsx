@@ -3,13 +3,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   ArrowRight, Sparkle, FilmStrip, TextT, Gauge, MusicNotes, Export,
   Sliders, ShieldCheck, Image as ImageIcon, DownloadSimple, Play,
-  GithubLogo, Check, Stack, MagicWand, FigmaLogo, Cube, PenNib, UsersThree, Record,
+  Check, Stack, MagicWand, FigmaLogo, Cube, PenNib, UsersThree, Record,
 } from 'phosphor-react';
 import Button from '../components/ui/Button';
 import SiteLayout from '../components/site/SiteLayout';
 import { useSeo, SITE_URL } from '../lib/seo';
 
 const REPO_URL = 'https://github.com/rakibulism/reecap';
+const FIGMA_PLUGIN_URL = 'https://www.figma.com/community/plugin/1650891446010350702';
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -90,10 +91,10 @@ const Hero: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
           Open the editor
           <ArrowRight size={18} className="ml-2 transition-transform group-hover:translate-x-1" />
         </Button>
-        <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+        <a href={FIGMA_PLUGIN_URL} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
           <Button variant="secondary" size="xl" className="px-8 h-14 text-base w-full border">
-            <GithubLogo size={18} weight="fill" className="mr-2" />
-            View on GitHub
+            <FigmaLogo size={18} weight="fill" className="mr-2" />
+            Install in Figma
           </Button>
         </a>
       </div>
@@ -249,10 +250,18 @@ const MotionDesign: React.FC<{ onOpen: () => void }> = ({ onOpen }) => (
             </li>
           ))}
         </ul>
-        <Button variant="primary" size="lg" onClick={onOpen} className="mt-9 group">
-          Open Motion Design
-          <ArrowRight size={16} className="ml-1.5 transition-transform group-hover:translate-x-0.5" />
-        </Button>
+        <div className="mt-9 flex flex-wrap items-center gap-3">
+          <Button variant="primary" size="lg" onClick={onOpen} className="group">
+            Open Motion Design
+            <ArrowRight size={16} className="ml-1.5 transition-transform group-hover:translate-x-0.5" />
+          </Button>
+          <a href={FIGMA_PLUGIN_URL} target="_blank" rel="noopener noreferrer">
+            <Button variant="secondary" size="lg" className="border">
+              <FigmaLogo size={16} weight="fill" className="mr-2" />
+              Install Figma plugin
+            </Button>
+          </a>
+        </div>
       </div>
     </div>
   </section>
