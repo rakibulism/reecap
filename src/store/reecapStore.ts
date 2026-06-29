@@ -29,6 +29,7 @@ interface ReecapStore {
   isPremium: boolean;
   premiumPromptOpen: boolean;
   draftsOpen: boolean;
+  controlPanelOpen: boolean; // right settings panel in the video editor
   // Which saved draft the editor is currently working on, per tool. Edits
   // autosave back into it; null = a fresh project (autosaves to "Last session").
   currentDraftId: { video: string | null; motion: string | null };
@@ -45,6 +46,7 @@ interface ReecapStore {
     audio: { url: string; name: string } | null;
   }) => void;
   setDraftsOpen: (v: boolean) => void;
+  toggleControlPanel: () => void;
   setCurrentDraftId: (tool: 'video' | 'motion', id: string | null) => void;
   removePhoto: (id: string) => void;
   reorderPhotos: (startIndex: number, endIndex: number) => void;
@@ -115,7 +117,7 @@ function persistAuth(auth: Auth): Auth {
 
 const AVATARS = {
   pro: 'https://avatars.githubusercontent.com/u/74898633?v=4',
-  free: 'https://scontent.fdac80-1.fna.fbcdn.net/v/t39.30808-6/709728364_1695604148259716_6570136783596587279_n.jpg?stp=cp6_dst-jpg_tt6&cstp=mx480x480&ctp=s480x480&_nc_cat=109&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeG6bm9maI_sHLNHEMqwso_OROPNSUvO6EZE481JS87oRjsFBX27DGRCe25QHGFUG_IQKqZB_XQM5cqhAilyq3dQ&_nc_ohc=7QBKdbfZqjUQ7kNvwEfkOwZ&_nc_oc=AdrstV-zHIGpNkBKkS-FrTyK_dQd1P-ZIIRkqW9-mJh97hC0ceUHFMnfgW04bPahLfA&_nc_zt=23&_nc_ht=scontent.fdac80-1.fna&_nc_gid=qENcDJV2SJ1pEEtd5HmN0w&_nc_ss=7b2a8&oh=00_Af-jvEvOmQID4hou56fMOM4Otjqvdr-HX2KoHbX3O9KLQA&oe=6A3F2B6A',
+  free: '/free-avatar.png',
 } as const;
 
 const savedAuth = readAuth();
@@ -154,6 +156,7 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   isPremium: savedAuth.isPremium,
   premiumPromptOpen: false,
   draftsOpen: false,
+  controlPanelOpen: true,
   currentDraftId: { video: null, motion: null },
   inviteCount: 0,
   user: savedAuth.user,
@@ -181,6 +184,7 @@ export const useReecapStore = create<ReecapStore>((set) => ({
     }),
 
   setDraftsOpen: (v) => set({ draftsOpen: v }),
+  toggleControlPanel: () => set((s) => ({ controlPanelOpen: !s.controlPanelOpen })),
   setCurrentDraftId: (tool, id) =>
     set((state) => ({ currentDraftId: { ...state.currentDraftId, [tool]: id } })),
 

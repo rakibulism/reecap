@@ -4,13 +4,20 @@ import {
   MusicNotes,
   Plus,
   ImageSquare,
-  SelectionBackground
+  SelectionBackground,
+  Files,
+  SidebarSimple,
 } from 'phosphor-react';
 import { processFiles } from '../../lib/utils';
 import Tooltip from '../ui/Tooltip';
 
 const Sidebar: React.FC = () => {
-  const { photos, addPhotos, audio, setAudio, setActiveView, activePanel, setActivePanel } = useReecapStore();
+  const {
+    photos, addPhotos, audio, setAudio, setActiveView, activePanel, setActivePanel,
+    isPremium, openPremiumPrompt, setDraftsOpen, controlPanelOpen, toggleControlPanel,
+  } = useReecapStore();
+
+  const openDrafts = () => (isPremium ? setDraftsOpen(true) : openPremiumPrompt());
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -122,6 +129,30 @@ const Sidebar: React.FC = () => {
             className="w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all cursor-pointer"
           >
             <SelectionBackground size={22} />
+          </div>
+        </Tooltip>
+      </div>
+
+      {/* Bottom: drafts + collapse the settings panel */}
+      <div className="flex flex-col items-center gap-3 pb-4 pt-2">
+        <div className="w-8 h-px bg-[var(--color-border-default)]" />
+        <Tooltip content="Drafts" position="right">
+          <div
+            onClick={openDrafts}
+            className="w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all cursor-pointer"
+          >
+            <Files size={22} />
+          </div>
+        </Tooltip>
+        <Tooltip content={controlPanelOpen ? 'Hide settings panel' : 'Show settings panel'} position="right">
+          <div
+            onClick={toggleControlPanel}
+            className={`w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center transition-all cursor-pointer
+              ${controlPanelOpen
+                ? 'text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'
+                : 'bg-[var(--color-interactive)] text-[var(--color-text-inverse)] shadow-sm'}`}
+          >
+            <SidebarSimple size={22} style={{ transform: 'scaleX(-1)' }} />
           </div>
         </Tooltip>
       </div>

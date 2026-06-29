@@ -18,6 +18,7 @@ import {
   Lifebuoy,
   SignOut,
   CaretRight,
+  CaretDown,
   Gear,
   Lock,
   Files,
@@ -47,6 +48,7 @@ const MainSidebar: React.FC = () => {
   const navigate = useNavigate();
   const [loginOpen, setLoginOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [studioOpen, setStudioOpen] = useState(true);
 
   if (!isSidebarOpen) return null;
 
@@ -159,33 +161,49 @@ const MainSidebar: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto p-3 space-y-6 custom-scrollbar">
           <nav className="space-y-1">
-            <NavItem icon={House} label="Video Editor" id="editor" />
-            <NavItem icon={MagicWand} label="Motion Design" id="motion" />
-            <NavItem icon={PenNib} label="Design" id="design" badge="New" locked={!isPremium} />
-            {/* Dev tool lives inside the Design tool */}
+            {/* Studio — collapsible group of editing tools */}
             <button
-              onClick={() => {
-                setActiveView('design');
-                if (!useDesignStore.getState().devMode) useDesignStore.getState().toggleDevMode();
-                toggleSidebar();
-              }}
-              className="w-full flex items-center gap-3 pl-11 pr-4 py-2.5 rounded-[var(--radius-md)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all"
+              onClick={() => setStudioOpen((v) => !v)}
+              className="w-full flex items-center justify-between gap-2 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
             >
-              <Code size={16} className="shrink-0" />
-              <span className="text-[13px] font-medium truncate">Dev tool</span>
+              <span>Studio</span>
+              <CaretDown size={13} weight="bold" className={`transition-transform ${studioOpen ? '' : '-rotate-90'}`} />
             </button>
-            <NavItem icon={Record} label="Screen Recorder" id="recorder" badge="New" locked={!isPremium} />
-            <NavItem icon={Users} label="Community" id="community" badge="New" />
-            <NavItem
-              icon={Files}
-              label="Drafts"
-              locked={!isPremium}
-              onClick={() => {
-                if (!isPremium) { openPremiumPrompt(); return; }
-                toggleSidebar();
-                setDraftsOpen(true);
-              }}
-            />
+            {studioOpen && (
+              <div className="space-y-1">
+                <NavItem icon={House} label="Video Editor" id="editor" />
+                <NavItem icon={MagicWand} label="Motion Design" id="motion" />
+                <NavItem icon={PenNib} label="Design" id="design" badge="New" locked={!isPremium} />
+                {/* Dev tool lives inside the Design tool */}
+                <button
+                  onClick={() => {
+                    setActiveView('design');
+                    if (!useDesignStore.getState().devMode) useDesignStore.getState().toggleDevMode();
+                    toggleSidebar();
+                  }}
+                  className="w-full flex items-center gap-3 pl-11 pr-4 py-2.5 rounded-[var(--radius-md)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all"
+                >
+                  <Code size={16} className="shrink-0" />
+                  <span className="text-[13px] font-medium truncate">Dev tool</span>
+                </button>
+                <NavItem icon={Record} label="Screen Recorder" id="recorder" badge="New" locked={!isPremium} />
+              </div>
+            )}
+
+            {/* Standalone — not part of the Studio group */}
+            <div className="pt-1 space-y-1">
+              <NavItem icon={Users} label="Community" id="community" badge="New" />
+              <NavItem
+                icon={Files}
+                label="Drafts"
+                locked={!isPremium}
+                onClick={() => {
+                  if (!isPremium) { openPremiumPrompt(); return; }
+                  toggleSidebar();
+                  setDraftsOpen(true);
+                }}
+              />
+            </div>
           </nav>
 
           <div className="h-px bg-[var(--color-border-default)] mx-1" />
