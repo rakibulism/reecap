@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 import { type Photo, type ReecapSettings, type Theme } from '../types';
-import { SAVE_MODE_KEY, type VideoSaveMode } from '../lib/saveLocation';
+import {
+  SAVE_MODE_KEY,
+  NAME_PARTS_KEY,
+  DEFAULT_NAME_PARTS,
+  type VideoSaveMode,
+  type NameParts,
+} from '../lib/saveLocation';
 
 interface ReecapStore {
   photos: Photo[];
@@ -8,6 +14,7 @@ interface ReecapStore {
   settings: ReecapSettings;
   projectName: string;
   videoSaveMode: VideoSaveMode;
+  videoNameParts: NameParts;
   theme: Theme | 'system';
   playbackSpeed: number;
   showShortcuts: boolean;
@@ -32,6 +39,7 @@ interface ReecapStore {
   updateSettings: (patch: Partial<ReecapSettings>) => void;
   setProjectName: (name: string) => void;
   setVideoSaveMode: (mode: VideoSaveMode) => void;
+  setVideoNameParts: (patch: Partial<NameParts>) => void;
   setTheme: (theme: Theme | 'system') => void;
   setPlaying: (v: boolean) => void;
   setExporting: (v: boolean) => void;
@@ -50,6 +58,17 @@ interface ReecapStore {
   logout: () => void;
   subscribePremium: () => void;
   cancelPremium: () => void;
+}
+
+// Restore the saved file-name parts (aspect ratio / date / time), tolerating
+// missing or corrupt storage.
+function readNameParts(): NameParts {
+  try {
+    const raw = localStorage.getItem(NAME_PARTS_KEY);
+    return raw ? { ...DEFAULT_NAME_PARTS, ...JSON.parse(raw) } : DEFAULT_NAME_PARTS;
+  } catch {
+    return DEFAULT_NAME_PARTS;
+  }
 }
 
 const AVATARS = {
@@ -76,6 +95,7 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   },
   projectName: '',
   videoSaveMode: (localStorage.getItem(SAVE_MODE_KEY) as VideoSaveMode) || 'download',
+  videoNameParts: readNameParts(),
   theme: (localStorage.getItem('reecap-theme') as Theme | 'system') || 'system',
   playbackSpeed: 1,
   showShortcuts: false,
@@ -136,6 +156,12 @@ export const useReecapStore = create<ReecapStore>((set) => ({
     localStorage.setItem(SAVE_MODE_KEY, mode);
     set({ videoSaveMode: mode });
   },
+  setVideoNameParts: (patch) =>
+    set((state) => {
+      const next = { ...state.videoNameParts, ...patch };
+      localStorage.setItem(NAME_PARTS_KEY, JSON.stringify(next));
+      return { videoNameParts: next };
+    }),
 
   setTheme: (theme) => {
     localStorage.setItem('reecap-theme', theme);

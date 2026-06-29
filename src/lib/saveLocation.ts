@@ -78,15 +78,57 @@ export async function chooseSaveFolder(): Promise<string | null> {
   }
 }
 
-// Turn a user-typed name into a safe `<name>.mp4`, falling back to a dated name.
-export function videoFilename(name?: string): string {
-  const base = String(name || '')
+// Human label appended for each aspect ratio when the "Aspect ratio" name part
+// is on (e.g. 16:9 → "Videoname-Widescreen.mp4").
+export const ASPECT_LABELS: Record<string, string> = {
+  '16:9': 'Widescreen',
+  '4:3': 'Standard',
+  '5:4': 'Classic',
+  '1:1': 'Square',
+  '9:16': 'Vertical',
+};
+
+// Which extra parts to append to the user's file name on export.
+export interface NameParts {
+  ratio: boolean;
+  date: boolean;
+  time: boolean;
+}
+
+export const NAME_PARTS_KEY = 'reecap-video-name-parts';
+export const DEFAULT_NAME_PARTS: NameParts = { ratio: false, date: false, time: false };
+
+const pad = (n: number) => String(n).padStart(2, '0');
+const fmtDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const fmtTime = (d: Date) => `${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+
+function sanitizeBase(name?: string): string {
+  return String(name || '')
     .trim()
     .replace(/[\\/:*?"<>|]+/g, '-')
     .replace(/\.mp4$/i, '')
     .slice(0, 120);
-  if (base) return `${base}.mp4`;
-  return `reecap-export-${new Date().toISOString().slice(0, 10)}.mp4`;
+}
+
+/**
+ * Build the export file name from the user's name plus the chosen parts:
+ *   "Videoname" + 16:9 + date + time → "Videoname-Widescreen-2026-06-29-14-30-05.mp4"
+ * With no name typed, falls back to a unique dated default so files don't clash.
+ */
+export function buildVideoFilename(
+  name: string | undefined,
+  aspectRatio: string,
+  parts: NameParts = DEFAULT_NAME_PARTS,
+  now: Date = new Date(),
+): string {
+  const base = sanitizeBase(name);
+  if (!base) return `reecap-export-${fmtDate(now)}.mp4`;
+
+  const segs = [base];
+  if (parts.ratio && ASPECT_LABELS[aspectRatio]) segs.push(ASPECT_LABELS[aspectRatio]);
+  if (parts.date) segs.push(fmtDate(now));
+  if (parts.time) segs.push(fmtTime(now));
+  return `${segs.join('-')}.mp4`;
 }
 
 export type SaveTarget =

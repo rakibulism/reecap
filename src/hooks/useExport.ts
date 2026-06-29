@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useReecapStore } from '../store/reecapStore';
 import { encodeVideo } from '../lib/webCodecsEncoder';
 import { buildTimeline, renderTimelineFrame } from '../lib/videoRenderer';
-import { prepareVideoSaveTarget, saveVideoBlob, videoFilename, SaveCancelled, type SaveTarget } from '../lib/saveLocation';
+import { prepareVideoSaveTarget, saveVideoBlob, buildVideoFilename, SaveCancelled, type SaveTarget } from '../lib/saveLocation';
 
 const FPS = 30;
 
 export function useExport() {
-  const { photos, settings, projectName, videoSaveMode, audio, playbackSpeed, setExporting, setExportProgress } =
+  const { photos, settings, projectName, videoSaveMode, videoNameParts, audio, playbackSpeed, setExporting, setExportProgress } =
     useReecapStore();
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +20,7 @@ export function useExport() {
     // Pick where the file goes now, while we still have the click's user
     // activation ("Save as" dialogs / folder permission need it; the long
     // encode below would otherwise expire it). Bail out if the user cancels.
-    const filename = videoFilename(projectName);
+    const filename = buildVideoFilename(projectName, settings.aspectRatio, videoNameParts);
     let target: SaveTarget = { kind: 'download' };
     try {
       target = await prepareVideoSaveTarget(videoSaveMode, filename);
