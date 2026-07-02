@@ -3,10 +3,13 @@ import { createRoot } from 'react-dom/client'
 import './styles/global.css'
 import './lib/pwa' // capture the PWA install prompt as early as possible
 import App from './App.tsx'
+import ErrorBoundary from './components/ErrorBoundary'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 )
 

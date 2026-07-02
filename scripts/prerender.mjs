@@ -101,7 +101,7 @@ write('blog', page({
 }));
 
 // --- sitemap.xml -----------------------------------------------------------
-const staticRoutes = ['/', '/pricing', '/docs', '/updates', '/blog'];
+const staticRoutes = ['/', '/pricing', '/docs', '/help', '/updates', '/blog'];
 const urls = [
   ...staticRoutes.map((r) => ({ loc: SITE + r, lastmod: '2026-06-21' })),
   ...posts.map((p) => ({ loc: `${SITE}/blog/${p.slug}`, lastmod: p.updated })),
