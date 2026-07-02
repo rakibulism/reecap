@@ -33,7 +33,7 @@ const MediaShelf: React.FC<{ mobile?: boolean }> = ({ mobile = false }) => {
   // Touch has no drag-to-canvas; tapping a community image adds it directly.
   const addCommunityImage = (asset: { url: string; name: string }) => {
     addPhotos([{
-      id: Math.random().toString(36).substr(2, 9),
+      id: crypto.randomUUID(),
       file: new File([], asset.name || 'community-image'),
       objectUrl: asset.url,
       width: 1920,
