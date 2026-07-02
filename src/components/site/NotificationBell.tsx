@@ -17,16 +17,11 @@ const fmtDate = (iso: string) =>
 
 const NotificationBell: React.FC = () => {
   const [open, setOpen] = useState(false);
-  const [unread, setUnread] = useState(false);
+  // Lazy init from localStorage — avoids a mount-time setState / cascading render.
+  const [unread, setUnread] = useState(() => {
+    try { return localStorage.getItem(SEEN_KEY) !== LATEST_UPDATE_ID; } catch { return true; }
+  });
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    try {
-      setUnread(localStorage.getItem(SEEN_KEY) !== LATEST_UPDATE_ID);
-    } catch {
-      setUnread(true);
-    }
-  }, []);
 
   useEffect(() => {
     if (!open) return;
