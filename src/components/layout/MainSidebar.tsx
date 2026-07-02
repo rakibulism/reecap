@@ -54,6 +54,52 @@ const CollapsibleSection: React.FC<{ title: string; defaultOpen?: boolean; child
   );
 };
 
+type IconType = React.ElementType;
+
+// Nav row (button). `active` highlights it; `onClick` runs the action.
+const NavItem: React.FC<{
+  icon: IconType;
+  label: string;
+  active?: boolean;
+  badge?: string;
+  locked?: boolean;
+  onClick?: () => void;
+}> = ({ icon: Icon, label, active = false, badge, locked, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`w-full flex items-center justify-between gap-2 px-4 py-3 rounded-[var(--radius-md)] transition-all group
+      ${active
+        ? 'bg-[var(--color-bg-hover)] text-[var(--color-text-primary)]'
+        : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'}`}
+  >
+    <div className="flex items-center gap-3 min-w-0">
+      <Icon size={20} weight={active ? 'fill' : 'regular'} className="shrink-0" />
+      <span className="text-[14px] font-medium truncate">{label}</span>
+    </div>
+    <div className="flex items-center gap-2 shrink-0">
+      {badge && (
+        <span className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold whitespace-nowrap">{badge}</span>
+      )}
+      {locked && <Lock size={13} weight="fill" className="text-[var(--color-text-muted)]" />}
+      <CaretRight size={14} className="opacity-0 group-hover:opacity-40 transition-opacity" />
+    </div>
+  </button>
+);
+
+// External link styled to match NavItem.
+const LinkItem: React.FC<{ icon: IconType; label: string; href: string; external?: boolean }> = ({ icon: Icon, label, href, external }) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="w-full flex items-center gap-3 px-4 py-3 rounded-[var(--radius-md)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all"
+  >
+    <Icon size={20} className="shrink-0" />
+    <span className="text-[14px] font-medium truncate">{label}</span>
+    {external && <CaretRight size={12} className="ml-auto opacity-30" />}
+  </a>
+);
+
 const MainSidebar: React.FC = () => {
   const {
     isSidebarOpen,
@@ -73,71 +119,6 @@ const MainSidebar: React.FC = () => {
   const [studioOpen, setStudioOpen] = useState(true);
 
   if (!isSidebarOpen) return null;
-
-  const NavItem = ({
-    icon: Icon,
-    label,
-    id,
-    badge,
-    locked,
-    onClick,
-  }: {
-    icon: any;
-    label: string;
-    id?: string;
-    badge?: string;
-    locked?: boolean;
-    onClick?: () => void;
-  }) => (
-    <button
-      onClick={() => {
-        if (onClick) onClick();
-        else if (id) setActiveView(id as any);
-      }}
-      className={`w-full flex items-center justify-between gap-2 px-4 py-3 rounded-[var(--radius-md)] transition-all group
-        ${activeView === id
-          ? 'bg-[var(--color-bg-hover)] text-[var(--color-text-primary)]'
-          : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]'}`}
-    >
-      <div className="flex items-center gap-3 min-w-0">
-        <Icon size={20} weight={activeView === id ? 'fill' : 'regular'} className="shrink-0" />
-        <span className="text-[14px] font-medium truncate">{label}</span>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        {badge && (
-          <span className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold whitespace-nowrap">
-            {badge}
-          </span>
-        )}
-        {locked && <Lock size={13} weight="fill" className="text-[var(--color-text-muted)]" />}
-        <CaretRight size={14} className="opacity-0 group-hover:opacity-40 transition-opacity" />
-      </div>
-    </button>
-  );
-
-  // External link styled to match NavItem (anchors can't reuse NavItem's <button>).
-  const LinkItem = ({
-    icon: Icon,
-    label,
-    href,
-    external,
-  }: {
-    icon: any;
-    label: string;
-    href: string;
-    external?: boolean;
-  }) => (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="w-full flex items-center gap-3 px-4 py-3 rounded-[var(--radius-md)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-all"
-    >
-      <Icon size={20} className="shrink-0" />
-      <span className="text-[14px] font-medium truncate">{label}</span>
-      {external && <CaretRight size={12} className="ml-auto opacity-30" />}
-    </a>
-  );
 
   const signOut = () => {
     logout();
@@ -199,9 +180,9 @@ const MainSidebar: React.FC = () => {
             </button>
             {studioOpen && (
               <div className="space-y-1">
-                <NavItem icon={House} label="Video Editor" id="editor" />
-                <NavItem icon={MagicWand} label="Motion Design" id="motion" />
-                <NavItem icon={PenNib} label="Design" id="design" badge="New" locked={!isPremium} />
+                <NavItem icon={House} label="Video Editor" active={activeView === 'editor'} onClick={() => setActiveView('editor')} />
+                <NavItem icon={MagicWand} label="Motion Design" active={activeView === 'motion'} onClick={() => setActiveView('motion')} />
+                <NavItem icon={PenNib} label="Design" badge="New" locked={!isPremium} active={activeView === 'design'} onClick={() => setActiveView('design')} />
                 {/* Dev tool lives inside the Design tool */}
                 <button
                   onClick={() => {
@@ -214,13 +195,13 @@ const MainSidebar: React.FC = () => {
                   <Code size={16} className="shrink-0" />
                   <span className="text-[13px] font-medium truncate">Dev tool</span>
                 </button>
-                <NavItem icon={Record} label="Screen Recorder" id="recorder" badge="New" locked={!isPremium} />
+                <NavItem icon={Record} label="Screen Recorder" badge="New" locked={!isPremium} active={activeView === 'recorder'} onClick={() => setActiveView('recorder')} />
               </div>
             )}
 
             {/* Standalone — not part of the Studio group */}
             <div className="pt-1 space-y-1">
-              <NavItem icon={Users} label="Community" id="community" badge="New" />
+              <NavItem icon={Users} label="Community" badge="New" active={activeView === 'community'} onClick={() => setActiveView('community')} />
               <NavItem
                 icon={Files}
                 label="Drafts"
