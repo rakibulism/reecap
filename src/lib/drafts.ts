@@ -46,13 +46,41 @@ interface DraftRecord extends DraftMeta {
 const DB_NAME = 'reecap-drafts';
 const STORE = 'drafts';
 
+// Cache a single connection (autosave opens the DB often) and drop it if the
+// connection closes or another tab upgrades the schema.
+let dbPromise: Promise<IDBDatabase> | null = null;
+
+function track(db: IDBDatabase): IDBDatabase {
+  db.onversionchange = () => { db.close(); dbPromise = null; };
+  db.onclose = () => { dbPromise = null; };
+  return db;
+}
+
 function openDb(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
+  if (dbPromise) return dbPromise;
+  dbPromise = new Promise<IDBDatabase>((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, 1);
-    req.onupgradeneeded = () => req.result.createObjectStore(STORE, { keyPath: 'id' });
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, { keyPath: 'id' });
+    };
+    req.onsuccess = () => {
+      const db = req.result;
+      // Self-heal a legacy/corrupt DB that exists without our object store by
+      // reopening at a higher version so onupgradeneeded runs.
+      if (!db.objectStoreNames.contains(STORE)) {
+        db.close();
+        const bump = indexedDB.open(DB_NAME, db.version + 1);
+        bump.onupgradeneeded = () => bump.result.createObjectStore(STORE, { keyPath: 'id' });
+        bump.onsuccess = () => resolve(track(bump.result));
+        bump.onerror = () => { dbPromise = null; reject(bump.error); };
+        return;
+      }
+      resolve(track(db));
+    };
+    req.onerror = () => { dbPromise = null; reject(req.error); };
   });
+  return dbPromise;
 }
 
 async function idbPut(rec: DraftRecord): Promise<void> {
