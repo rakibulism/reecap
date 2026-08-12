@@ -6,11 +6,21 @@ Turn your work photos into a shareable video recap. No timeline, no editor. Uplo
 
 ![License](https://img.shields.io/badge/license-MIT-black) ![Status](https://img.shields.io/badge/status-v1--in--progress-black) ![Stack](https://img.shields.io/badge/stack-React%20%2B%20TypeScript-black)
 
+**Live app:** [reecap.rakibulism.space](https://reecap.rakibulism.space)
+
+---
+
+## About this repo
+
+This is the **open-source engine** behind Reecap — the rendering UI, canvas compositing, and client-side MP4 export pipeline. It runs 100% in the browser: no account, no server, no data leaves your machine.
+
+The hosted app at [reecap.rakibulism.space](https://reecap.rakibulism.space) additionally offers optional accounts, cloud sync, and premium features. Those are powered by a private backend that isn't part of this repository — everything you see here is the same client-side code that ships in production, minus that layer.
+
 ---
 
 ## What it does
 
-Reecap takes a batch of your screenshots, design previews, or progress photos and renders them into a smooth animated MP4 — entirely in your browser. No account, no server, no waiting.
+Reecap takes a batch of your screenshots, design previews, or progress photos and renders them into a smooth animated MP4 — entirely in your browser.
 
 Built for designers and developers who have great work to show but no time to animate it.
 
@@ -40,11 +50,11 @@ Upload photos (2–30) → Customize layout & motion → Export MP4
 
 | Layer | Technology |
 |---|---|
-| Framework | React 18 + TypeScript |
+| Framework | React 19 + TypeScript |
 | Build | Vite |
 | Styling | Tailwind CSS + CSS custom properties |
 | State | Zustand |
-| Video encoding | FFmpeg WASM (`@ffmpeg/ffmpeg`) |
+| Video encoding | WASM-based MP4 muxing (`mp4-muxer`) |
 | Canvas rendering | HTML5 Canvas API |
 | Drag & drop | `@dnd-kit/core` + `@dnd-kit/sortable` |
 | Icons | Phosphor Icons |
@@ -56,12 +66,12 @@ Upload photos (2–30) → Customize layout & motion → Export MP4
 ### Prerequisites
 
 - Node.js 18+
-- npm or pnpm
+- npm
 
 ### Install & run
 
 ```bash
-git clone https://github.com/yourusername/reecap.git
+git clone https://github.com/rakibulism/reecap.git
 cd reecap
 npm install
 npm run dev
@@ -76,19 +86,13 @@ npm run build
 npm run preview
 ```
 
-### Billing & auth env vars
-
-Auth (Supabase) and billing (Lemon Squeezy) require env vars — copy `.env.example` to `.env.local` and fill in the values from your Supabase project and Lemon Squeezy store. Run the SQL in `supabase/migrations/0001_pricing_profiles.sql` against your Supabase project before testing sign-up.
-
-The Lemon Squeezy webhook (`api/webhooks/lemonsqueezy.ts`) is a Vercel Function and does not run under plain `vite dev`. To test it locally, run `vercel dev` instead of `npm run dev`, or exercise it against a Vercel preview deploy using Lemon Squeezy's test-mode "resend webhook" feature.
-
 ---
 
 ## Deployment
 
 Reecap is a static SPA. Deploy to Vercel, Netlify, or any static host.
 
-> **Important:** FFmpeg WASM requires `SharedArrayBuffer`, which needs specific COOP/COEP HTTP headers.
+> **Important:** WASM video encoding requires `SharedArrayBuffer`, which needs specific COOP/COEP HTTP headers.
 
 ### Vercel
 
@@ -133,7 +137,7 @@ src/
 │   └── reecapStore.ts # Zustand store
 ├── lib/
 │   ├── renderer.ts   # Canvas frame rendering
-│   └── encoder.ts    # FFmpeg export wrapper
+│   └── encoder.ts    # Video export wrapper
 ├── hooks/
 ├── styles/
 │   └── tokens.css    # CSS custom properties (design tokens)
@@ -165,8 +169,9 @@ src/
 - [ ] Brand watermark
 - [ ] GIF export
 - [ ] Preset themes
-- [ ] Shareable link (cloud)
 - [ ] Mobile layout
+
+Account-based features (cloud sync, sharing, premium plans) are developed against the private backend and aren't tracked here.
 
 ---
 
@@ -174,9 +179,14 @@ src/
 
 Reecap's UI is intentionally invisible — no color, no gradients, no decoration. The only thing with color in the interface is your photos.
 
-Design references: Linear, Notion, Raycast.  
-Font: Inter. Icons: Phosphor.  
-Full design system and style guide in [`/docs`](./docs/).
+Design references: Linear, Notion, Raycast.
+Font: Inter. Icons: Phosphor.
+
+---
+
+## Contributing
+
+Issues and PRs are welcome. This repo covers the client-side rendering engine only — the account/backend layer that powers the hosted app is maintained separately and isn't accepted here.
 
 ---
 
