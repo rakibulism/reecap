@@ -47,6 +47,7 @@ EXCLUDE_PATHS=(
   server
   backend
   api
+  reecap-docs
   .env
   .env.local
   .env.development
