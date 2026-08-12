@@ -3,17 +3,42 @@ import { useReecapStore } from '../store/reecapStore';
 import { encodeVideo } from '../lib/webCodecsEncoder';
 import { buildTimeline, renderTimelineFrame } from '../lib/videoRenderer';
 import { prepareVideoSaveTarget, saveVideoBlob, buildVideoFilename, SaveCancelled, type SaveTarget } from '../lib/saveLocation';
+import { TIER_LIMITS, consumeCredit, refundCredit } from '../lib/credits';
 
 const FPS = 30;
 
+// width/height per aspect ratio at each tier's max resolution.
+const RESOLUTIONS: Record<string, Record<'720p' | '1080p' | '4k', { width: number; height: number }>> = {
+  '16:9': { '720p': { width: 1280, height: 720 }, '1080p': { width: 1920, height: 1080 }, '4k': { width: 3840, height: 2160 } },
+  '4:3': { '720p': { width: 960, height: 720 }, '1080p': { width: 1440, height: 1080 }, '4k': { width: 2880, height: 2160 } },
+  '5:4': { '720p': { width: 900, height: 720 }, '1080p': { width: 1350, height: 1080 }, '4k': { width: 2700, height: 2160 } },
+  '1:1': { '720p': { width: 720, height: 720 }, '1080p': { width: 1080, height: 1080 }, '4k': { width: 2160, height: 2160 } },
+  '9:16': { '720p': { width: 720, height: 1280 }, '1080p': { width: 1080, height: 1920 }, '4k': { width: 2160, height: 3840 } },
+};
+
 export function useExport() {
-  const { photos, settings, projectName, videoSaveMode, videoNameParts, audio, playbackSpeed, setExporting, setExportProgress } =
-    useReecapStore();
+  const {
+    photos, settings, projectName, videoSaveMode, videoNameParts, audio, playbackSpeed,
+    setExporting, setExportProgress, profile, openPremiumPrompt,
+  } = useReecapStore();
   const [error, setError] = useState<string | null>(null);
 
   const startExport = async () => {
     if (photos.length < 2) {
       setError('Minimum 2 photos required');
+      return;
+    }
+
+    const tier = profile?.tier ?? 'free';
+    const limits = TIER_LIMITS[tier];
+
+    // Duration cap is a hard block — checked before consuming a credit or
+    // prompting for a save location.
+    const speed = playbackSpeed || 1;
+    const { clips, total } = buildTimeline(photos, settings, speed);
+    if (total > limits.maxDuration) {
+      setError(`Your ${limits.label} plan caps exports at ${limits.maxDuration}s. Trim the timeline or upgrade.`);
+      openPremiumPrompt();
       return;
     }
 
@@ -29,20 +54,19 @@ export function useExport() {
       throw err;
     }
 
+    const allowed = await consumeCredit();
+    if (!allowed) {
+      setError(`You've used all your renders for this month on the ${limits.label} plan. Upgrade for more.`);
+      openPremiumPrompt();
+      return;
+    }
+
     setExporting(true);
     setExportProgress(0);
     setError(null);
 
     try {
-      // Resolution mapping
-      const resolutions: Record<string, { width: number; height: number }> = {
-        '16:9': settings.exportQuality === '1x' ? { width: 1280, height: 720 } : { width: 1920, height: 1080 },
-        '4:3': settings.exportQuality === '1x' ? { width: 960, height: 720 } : { width: 1440, height: 1080 },
-        '5:4': settings.exportQuality === '1x' ? { width: 900, height: 720 } : { width: 1350, height: 1080 },
-        '1:1': settings.exportQuality === '1x' ? { width: 720, height: 720 } : { width: 1080, height: 1080 },
-        '9:16': settings.exportQuality === '1x' ? { width: 720, height: 1280 } : { width: 1080, height: 1920 },
-      };
-      const dim = resolutions[settings.aspectRatio];
+      const dim = RESOLUTIONS[settings.aspectRatio][limits.maxResolution];
 
       // Pre-load all images.
       const imageMap = new Map<string, HTMLImageElement>();
@@ -62,17 +86,14 @@ export function useExport() {
         )
       );
 
-      // Build the speed-scaled timeline and render every frame (transitions +
-      // caption animations baked in) straight into the encoder.
-      const speed = playbackSpeed || 1;
-      const { clips, total } = buildTimeline(photos, settings, speed);
-
+      // Render every frame (transitions + caption animations baked in)
+      // straight into the encoder, using the timeline built above.
       const videoBlob = await encodeVideo({
         totalDuration: total,
         fps: FPS,
         dimensions: dim,
         onProgress: (p) => setExportProgress(p),
-        renderFrame: (ctx, t) => renderTimelineFrame(ctx, t, clips, settings, dim, imageMap),
+        renderFrame: (ctx, t) => renderTimelineFrame(ctx, t, clips, settings, dim, imageMap, limits.watermark),
         audioBlob: audio ? await fetch(audio.url).then((r) => r.blob()) : null,
       });
 
@@ -81,6 +102,7 @@ export function useExport() {
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Export failed');
+      await refundCredit();
     } finally {
       setExporting(false);
       setExportProgress(0);

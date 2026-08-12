@@ -6,6 +6,7 @@ import { useSeo } from '../lib/seo';
 
 const REPO_URL = 'https://github.com/rakibulism/reecap';
 const X_URL = 'https://x.com/rakibulism';
+const SUPPORT_EMAIL = '40rakib70@gmail.com';
 
 interface Faq {
   q: string;
@@ -120,9 +121,16 @@ const Help: React.FC = () => {
         <section className="rounded-[var(--radius-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-6 sm:p-8">
           <h2 className="text-xl font-bold tracking-tight mb-2">Still need help?</h2>
           <p className="text-[var(--color-text-secondary)] leading-relaxed mb-5 max-w-2xl">
-            Open an issue on GitHub for anything technical, or reach out on X. We read everything.
+            Open an issue on GitHub for anything technical, email us for account or billing questions, or
+            reach out on X. We read everything.
           </p>
           <div className="flex flex-wrap gap-3">
+            <a
+              href={`mailto:${SUPPORT_EMAIL}`}
+              className="inline-flex items-center gap-2 h-10 px-4 rounded-[var(--radius-md)] bg-[var(--color-interactive)] text-[var(--color-text-inverse)] text-[14px] font-semibold hover:opacity-90 transition-opacity"
+            >
+              Email {SUPPORT_EMAIL}
+            </a>
             <a
               href={`${REPO_URL}/issues`}
               target="_blank"

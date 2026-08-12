@@ -37,7 +37,8 @@ export function renderTimelineFrame(
   clips: TimelineClip[],
   settings: ReecapSettings,
   dims: { width: number; height: number },
-  images: Map<string, HTMLImageElement>
+  images: Map<string, HTMLImageElement>,
+  watermark = false
 ) {
   const { width, height } = dims;
 
@@ -62,6 +63,39 @@ export function renderTimelineFrame(
     const appear = Math.min(1, progress / CAPTION_APPEAR_PORTION);
     drawCaption(ctx, clip.photo, width, height, appear, 1 - p);
   }
+
+  // 4. Free-tier watermark, always on top.
+  if (watermark) drawWatermark(ctx, width, height);
+}
+
+/** Persistent "Made with Reecap" watermark drawn in the bottom-right corner. */
+export function drawWatermark(ctx: CanvasRenderingContext2D, width: number, height: number) {
+  const fontSize = Math.max(12, Math.round(width * 0.022));
+  const padX = fontSize * 0.9;
+  const padY = fontSize * 0.55;
+  const text = 'Made with Reecap';
+
+  ctx.save();
+  ctx.font = `600 ${fontSize}px Inter, system-ui, -apple-system, sans-serif`;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  const textWidth = ctx.measureText(text).width;
+
+  const boxW = textWidth + padX * 2;
+  const boxH = fontSize + padY * 2;
+  const x = width - fontSize * 0.6;
+  const y = height - fontSize * 0.6;
+
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = '#000000';
+  ctx.beginPath();
+  roundRect(ctx, x - boxW, y - boxH, boxW, boxH, boxH * 0.25);
+  ctx.fill();
+
+  ctx.globalAlpha = 0.9;
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillText(text, x - padX, y - padY);
+  ctx.restore();
 }
 
 /** Background layer: blurred slide crossfade, solid color, or white fallback. */

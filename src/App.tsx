@@ -11,6 +11,8 @@ import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import Settings from './pages/Settings';
 import Home from './pages/Home';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 
 function App() {
   const { theme } = useReecapStore();
@@ -47,6 +49,8 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/app/:tool?" element={<Editor />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

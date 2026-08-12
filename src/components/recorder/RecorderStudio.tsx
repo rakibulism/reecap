@@ -4,7 +4,9 @@ import {
   Monitor, PuzzlePiece, Trash, Eye, EyeSlash, MagnifyingGlassPlus, Sparkle, UploadSimple,
 } from 'phosphor-react';
 import { useRecorderStore } from '../../store/recorderStore';
+import { useReecapStore } from '../../store/reecapStore';
 import { zoomAt, drawZoomedFrame } from '../../lib/recorderZoom';
+import { TIER_LIMITS, consumeCredit, refundCredit } from '../../lib/credits';
 
 // Probe a video URL for its duration and pixel dimensions.
 function probe(src: string): Promise<{ duration: number; width: number; height: number }> {
@@ -29,6 +31,7 @@ const fmt = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).p
 
 const RecorderStudio: React.FC = () => {
   const { clip, clicks, zoom, isRecording, setClip, setClicks, addClick, toggleClick, removeClick, setZoom, setRecording, reset } = useRecorderStore();
+  const { profile, openPremiumPrompt } = useReecapStore();
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -195,13 +198,30 @@ const RecorderStudio: React.FC = () => {
   // MP4 via WebCodecs (seek-based, deterministic).
   const exportMp4Handler = async () => {
     if (!clip) return;
+    const tier = profile?.tier ?? 'free';
+    const limits = TIER_LIMITS[tier];
+
+    if (clip.duration > limits.maxDuration) {
+      alert(`Your ${limits.label} plan caps exports at ${limits.maxDuration}s. Trim the recording or upgrade.`);
+      openPremiumPrompt();
+      return;
+    }
+
+    const allowed = await consumeCredit();
+    if (!allowed) {
+      alert(`You've used all your renders for this month on the ${limits.label} plan. Upgrade for more.`);
+      openPremiumPrompt();
+      return;
+    }
+
     setExporting(0);
     try {
       const { exportMp4 } = await import('../../lib/recorderExport');
-      await exportMp4(clip, clicks, zoom, setExporting);
+      await exportMp4(clip, clicks, zoom, setExporting, limits);
     } catch (err) {
       console.error(err);
       alert('MP4 export isn’t supported in this browser — try WebM, or record your own screen.');
+      await refundCredit();
     } finally {
       setExporting(null);
     }

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { Session } from '@supabase/supabase-js';
 import { type Photo, type ReecapSettings, type Theme } from '../types';
 import {
   SAVE_MODE_KEY,
@@ -7,6 +8,7 @@ import {
   type VideoSaveMode,
   type NameParts,
 } from '../lib/saveLocation';
+import { supabase, fetchProfile, type Profile } from '../lib/supabaseClient';
 
 interface ReecapStore {
   photos: Photo[];
@@ -37,7 +39,10 @@ interface ReecapStore {
   // when starting a brand-new project from the Home dashboard).
   skipResume: { video: boolean; motion: boolean };
   inviteCount: number;
-  user: { plan: 'pro' | 'free'; name: string; avatar: string } | null;
+  user: { plan: 'free' | 'creator' | 'pro'; name: string; avatar: string } | null;
+  session: Session | null;
+  profile: Profile | null;
+  authReady: boolean;
 
   // Actions
   addPhotos: (newPhotos: Photo[]) => void;
@@ -72,14 +77,13 @@ interface ReecapStore {
   setActiveView: (view: 'editor' | 'community' | 'motion' | 'design' | 'recorder') => void;
   setActivePanel: (panel: 'none' | 'assets' | 'music') => void;
   setSidebarOpen: (v: boolean) => void;
-  setPremium: (v: boolean) => void;
   openPremiumPrompt: () => void;
   closePremiumPrompt: () => void;
   addInvite: () => void;
-  login: (plan: 'pro' | 'free') => void;
   logout: () => void;
-  subscribePremium: () => void;
-  cancelPremium: () => void;
+  initAuth: () => void;
+  setSession: (session: Session | null) => void;
+  setProfile: (profile: Profile | null) => void;
 }
 
 // Restore the saved file-name parts (aspect ratio / date / time), tolerating
@@ -93,38 +97,27 @@ function readNameParts(): NameParts {
   }
 }
 
-type User = { plan: 'pro' | 'free'; name: string; avatar: string };
-type Auth = { user: User | null; isPremium: boolean };
-
-const AUTH_KEY = 'reecap-auth';
-
-// Persist the signed-in user + plan so a reload keeps you logged in.
-function readAuth(): Auth {
-  try {
-    const raw = localStorage.getItem(AUTH_KEY);
-    if (!raw) return { user: null, isPremium: false };
-    const p = JSON.parse(raw);
-    return { user: p.user ?? null, isPremium: !!p.isPremium };
-  } catch {
-    return { user: null, isPremium: false };
-  }
-}
-
-function persistAuth(auth: Auth): Auth {
-  try {
-    localStorage.setItem(AUTH_KEY, JSON.stringify(auth));
-  } catch {
-    /* storage unavailable */
-  }
-  return auth;
-}
+type User = { plan: 'free' | 'creator' | 'pro'; name: string; avatar: string };
 
 const AVATARS = {
   pro: 'https://avatars.githubusercontent.com/u/74898633?v=4',
+  creator: 'https://avatars.githubusercontent.com/u/74898633?v=4',
   free: '/free-avatar.png',
 } as const;
 
-const savedAuth = readAuth();
+// A stale demo-auth entry from the old client-only login stub — no longer read,
+// just cleared so it doesn't linger in storage.
+try { localStorage.removeItem('reecap-auth'); } catch { /* storage unavailable */ }
+
+function deriveUser(session: Session | null, profile: Profile | null): User | null {
+  if (!session?.user) return null;
+  const tier = profile?.tier ?? 'free';
+  const name =
+    (session.user.user_metadata?.full_name as string | undefined) ??
+    session.user.email ??
+    'Reecap User';
+  return { plan: tier, name, avatar: AVATARS[tier] };
+}
 
 export const useReecapStore = create<ReecapStore>((set) => ({
   photos: [],
@@ -157,14 +150,17 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   activeView: 'editor',
   activePanel: 'none',
   isSidebarOpen: false,
-  isPremium: savedAuth.isPremium,
+  isPremium: false,
   premiumPromptOpen: false,
   draftsOpen: false,
   controlPanelOpen: true,
   currentDraftId: { video: null, motion: null },
   skipResume: { video: false, motion: false },
   inviteCount: 0,
-  user: savedAuth.user,
+  user: null,
+  session: null,
+  profile: null,
+  authReady: false,
 
   addPhotos: (newPhotos) =>
     set((state) => ({
@@ -261,34 +257,45 @@ export const useReecapStore = create<ReecapStore>((set) => ({
   setActiveView: (view) => set({ activeView: view }),
   setActivePanel: (panel) => set({ activePanel: panel }),
   setSidebarOpen: (v) => set({ isSidebarOpen: v }),
-  setPremium: (v) => set((state) => persistAuth({ user: state.user, isPremium: v })),
   openPremiumPrompt: () => set({ premiumPromptOpen: true, isSidebarOpen: false }),
   closePremiumPrompt: () => set({ premiumPromptOpen: false }),
   addInvite: () => set((state) => ({ inviteCount: state.inviteCount + 1 })),
-  login: (plan) =>
-    set(
-      persistAuth({
-        user: {
-          plan,
-          name: plan === 'pro' ? 'Pro Member' : 'Free User',
-          avatar: AVATARS[plan],
-        },
-        isPremium: plan === 'pro',
-      }),
-    ),
-  logout: () => set(persistAuth({ user: null, isPremium: false })),
-  subscribePremium: () =>
-    set((state) =>
-      persistAuth({
-        isPremium: true,
-        user: state.user ? { ...state.user, plan: 'pro' } : state.user,
-      }),
-    ),
-  cancelPremium: () =>
-    set((state) =>
-      persistAuth({
-        isPremium: false,
-        user: state.user ? { ...state.user, plan: 'free' } : state.user,
-      }),
-    ),
+
+  setSession: (session) =>
+    set((state) => ({
+      session,
+      user: deriveUser(session, state.profile),
+    })),
+
+  setProfile: (profile) =>
+    set((state) => ({
+      profile,
+      user: deriveUser(state.session, profile),
+      isPremium: profile ? profile.tier !== 'free' : false,
+    })),
+
+  logout: () => {
+    supabase.auth.signOut();
+  },
+
+  initAuth: () => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const { setSession, setProfile } = useReecapStore.getState();
+      setSession(session);
+      if (session?.user) {
+        setProfile(await fetchProfile(session.user.id));
+      }
+      set({ authReady: true });
+    });
+
+    supabase.auth.onAuthStateChange(async (_event, session) => {
+      const { setSession, setProfile } = useReecapStore.getState();
+      setSession(session);
+      if (session?.user) {
+        setProfile(await fetchProfile(session.user.id));
+      } else {
+        setProfile(null);
+      }
+    });
+  },
 }));

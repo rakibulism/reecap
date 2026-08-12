@@ -7,6 +7,14 @@
 import * as mp4muxer from 'mp4-muxer';
 import type { ClickMark, RecorderClip, ZoomSettings } from '../types/recorder';
 import { zoomAt, drawZoomedFrame } from './recorderZoom';
+import { drawWatermark } from './videoRenderer';
+import type { TIER_LIMITS } from './credits';
+
+const MAX_LONG_EDGE: Record<(typeof TIER_LIMITS)['free']['maxResolution'], number> = {
+  '720p': 1280,
+  '1080p': 1920,
+  '4k': 3840,
+};
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -48,6 +56,7 @@ export async function exportMp4(
   clicks: ClickMark[],
   zoom: ZoomSettings,
   onProgress: (p: number) => void,
+  limits?: { maxResolution: keyof typeof MAX_LONG_EDGE; watermark: boolean },
 ): Promise<void> {
   const v = document.createElement('video');
   v.src = clip.src;
@@ -57,8 +66,20 @@ export async function exportMp4(
   const duration = clip.duration && isFinite(clip.duration) ? clip.duration : await ensureDuration(v);
 
   // H.264 requires even dimensions.
-  const W = (v.videoWidth || clip.width) & ~1;
-  const H = (v.videoHeight || clip.height) & ~1;
+  let W = (v.videoWidth || clip.width) & ~1;
+  let H = (v.videoHeight || clip.height) & ~1;
+
+  // Downscale to the caller's tier resolution cap, preserving aspect ratio.
+  if (limits) {
+    const maxEdge = MAX_LONG_EDGE[limits.maxResolution];
+    const longEdge = Math.max(W, H);
+    if (longEdge > maxEdge) {
+      const scale = maxEdge / longEdge;
+      W = Math.round(W * scale) & ~1;
+      H = Math.round(H * scale) & ~1;
+    }
+  }
+
   const fps = 30;
 
   const canvas = document.createElement('canvas');
@@ -90,6 +111,7 @@ export async function exportMp4(
     const t = f / fps;
     await seekTo(v, Math.min(t, Math.max(0, duration - 0.001)));
     drawZoomedFrame(ctx, v, zoomAt(t, clicks, zoom), W, H);
+    if (limits?.watermark) drawWatermark(ctx, W, H);
     const frame = new VideoFrame(canvas, { timestamp: Math.round(f * frameDur), duration: frameDur });
     encoder.encode(frame, { keyFrame: f % fps === 0 });
     frame.close();

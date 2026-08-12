@@ -76,6 +76,12 @@ npm run build
 npm run preview
 ```
 
+### Billing & auth env vars
+
+Auth (Supabase) and billing (Lemon Squeezy) require env vars — copy `.env.example` to `.env.local` and fill in the values from your Supabase project and Lemon Squeezy store. Run the SQL in `supabase/migrations/0001_pricing_profiles.sql` against your Supabase project before testing sign-up.
+
+The Lemon Squeezy webhook (`api/webhooks/lemonsqueezy.ts`) is a Vercel Function and does not run under plain `vite dev`. To test it locally, run `vercel dev` instead of `npm run dev`, or exercise it against a Vercel preview deploy using Lemon Squeezy's test-mode "resend webhook" feature.
+
 ---
 
 ## Deployment

@@ -34,7 +34,12 @@ const SiteFooter: React.FC = () => (
       </div>
 
       <div className="pt-8 border-t border-[var(--color-border-default)] flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p className="text-sm text-[var(--color-text-muted)]">© {new Date().getFullYear()} Reecap · MIT Licensed</p>
+        <p className="text-sm text-[var(--color-text-muted)] flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span>© {new Date().getFullYear()} Reecap · MIT Licensed</span>
+          <Link to="/terms" className="hover:text-[var(--color-text-primary)] transition-colors">Terms</Link>
+          <Link to="/privacy" className="hover:text-[var(--color-text-primary)] transition-colors">Privacy</Link>
+          <Link to="/help" className="hover:text-[var(--color-text-primary)] transition-colors">Support</Link>
+        </p>
         <div className="flex items-center gap-4 text-[var(--color-text-muted)]">
           <a href={REPO_URL} target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="hover:text-[var(--color-text-primary)] transition-colors"><GithubLogo size={20} /></a>
           <a href="https://x.com/rakibulism" target="_blank" rel="noopener noreferrer" aria-label="X" className="hover:text-[var(--color-text-primary)] transition-colors"><TwitterLogo size={20} /></a>
