@@ -78,7 +78,7 @@ echo "==> Swapping in public README"
 cp "$REPO_ROOT/README.public.md" README.md
 if ! git diff --quiet -- README.md || ! git ls-files --error-unmatch README.md >/dev/null 2>&1; then
   git add README.md
-  git -c user.name="reecap-sync" -c user.email="sync@reecap.local" commit -m "docs: public README" --quiet
+  git -c user.name="Rakibul Islam" -c user.email="40rakib70@gmail.com" commit -m "docs: public README" --quiet
 fi
 
 echo "==> Pushing to public mirror ($PUBLIC_REMOTE_URL)"
