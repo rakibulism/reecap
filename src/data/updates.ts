@@ -12,6 +12,14 @@ export interface Update {
 // Newest first.
 export const UPDATES: Update[] = [
   {
+    id: 'creator-pro-plans-billing',
+    date: '2026-08-12',
+    version: 'v1.31.0',
+    tag: 'release',
+    title: 'Creator and Pro plans are here',
+    summary: 'Real accounts, usage-based pricing, and Lemon Squeezy billing. Free gives you 3 renders a month at 720p; Creator unlocks 50 renders, 1080p and no watermark; Pro adds 4K export and 300 renders a month. See the new Pricing page for details.',
+  },
+  {
     id: 'shortcuts-and-collapsible-menu',
     date: '2026-06-30',
     version: 'v1.30.0',
